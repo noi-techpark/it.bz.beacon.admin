@@ -1,5 +1,5 @@
 <template>
-  <home>
+  <home :source="title">
     <template slot="body">
       <div class="row h-100">
         <div class="col">
