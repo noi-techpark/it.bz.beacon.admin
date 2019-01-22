@@ -71,6 +71,9 @@ export default {
         })
     },
     checkLogin({ state }) {
+      // TODO remove for live testing
+      return true
+
       if (state.isLoggedIn && localStorage.getItem('tk') !== '') {
         return true
       }

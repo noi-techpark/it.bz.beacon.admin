@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Login from '../components/Login'
-import Users from '../components/Users'
-import Home from '../components/Home'
+import Users from '../components/UsersView'
+import Home from '../components/HomeView'
 import store from '../store/store'
 
 Vue.use(Router)
@@ -45,7 +45,6 @@ router.beforeEach((to, from, next) => {
     }
 
     store.dispatch('login/doAuth').then((authorized) => {
-      debugger
       if (authorized) {
         next()
       } else {

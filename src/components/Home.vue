@@ -1,10 +1,11 @@
 <template>
-  <div id="home" class="h-100">
-    <div>
-      <slot name="header"></slot>
-    </div>
-    <div>
-      <navigation></navigation>
+  <div id="home" class="row h-100">
+    <navigation></navigation>
+    <div class="body col-sm p-0">
+      <div class="row">
+        <div class="col search-bar"></div>
+        <div class="col user-login"></div>
+      </div>
       <slot name="body"></slot>
     </div>
   </div>
@@ -17,16 +18,11 @@ export default {
   components: {
     Navigation
   },
-  name: 'Home',
-  data() {
-    return {
-      msg: 'Home'
-    }
-  }
+  name: 'Home'
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style lang="scss" scoped>
 
 </style>

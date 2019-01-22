@@ -1,16 +1,13 @@
 <template>
-  <div id="users">
-    <home>
-      <template slot="header">
-        <h1>{{ title }}</h1>
-      </template>
-      <template slot="body">
-        <ul>
-          <li>User1</li>
-        </ul>
-      </template>
-    </home>
-  </div>
+  <home>
+    <template slot="body">
+      <div class="row h-100">
+        <div class="col">
+          <h1>Users</h1>
+        </div>
+      </div>
+    </template>
+  </home>
 </template>
 
 <script>
@@ -30,6 +27,6 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style lang="scss" scoped>
 
 </style>
