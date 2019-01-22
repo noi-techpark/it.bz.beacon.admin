@@ -2,6 +2,18 @@
 //overwrite variables
 @import 'variables';
 
+/* GENERAL */
+
+html,
+body {
+  height: 100%;
+}
+
+.row {
+  padding: 0;
+  margin: 0;
+}
+
 /* LOGIN */
 
 .login-form-container {

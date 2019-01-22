@@ -8,7 +8,7 @@
             <img src="../assets/logo.png" class="align-self-center">
           </div>
         </div>
-        <router-link v-for="item in navigationItems" :class="'row navigation-link pl-4' + ( source === item.title ? ' highlight' : '' )" :to="{name: item.name}">
+        <router-link v-for="item in navigationItems" :key="item.id" :class="'row navigation-link pl-4' + ( source === item.title ? ' highlight' : '' )" :to="{name: item.name}">
           <span class="navigation-symbol col"><img :src="require('../assets/' + item.name + '.png')"></span>
           <span class="pl1 navigation-text col">{{ item.title }}</span>
         </router-link>
