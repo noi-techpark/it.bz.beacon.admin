@@ -29,20 +29,13 @@ const router = new Router({
 
 // Simple access control
 router.beforeEach((to, from, next) => {
-  debugger
-
-  function redirect() {
-    if (to.name === 'login') {
-      next({ name: 'home' })
-    } else {
-      next()
-    }
-  }
-
   store.dispatch('login/checkLogin').then((loggedIn) => {
-    debugger
     if (loggedIn) {
-      redirect()
+      if (to.name === 'login') {
+        next({ name: 'home' })
+      } else {
+        next()
+      }
       return
     }
 

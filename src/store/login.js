@@ -28,35 +28,29 @@ export default {
     }
   },
   actions: {
-    clearData({ commit }) {
-      localStorage.setItem('tk', '')
-      commit(SET_LOGIN, false)
-    },
-    doLogin({ state, commit, getters }, {
+    doLogin({ state, commit }, {
       username,
       password
     }) {
-      debugger
       axios.post(LOGIN_URL, {
         username: username,
         password: password
       })
         .then(function(response) {
           state.isLoggedIn = true
-          console.log(getters.hasLogin)
           localStorage.setItem('tk', response.data.token)
           commit(SET_ERROR, false)
           commit(SET_ERROR_TEXT, '')
-          debugger
           router.push('home')
         })
         .catch(function(error) {
-          commit(SET_LOGIN, false)
+          state.isLoggedIn = false
+          localStorage.setItem('tk', '')
           commit(SET_ERROR, true)
           commit(SET_ERROR_TEXT, error)
         })
     },
-    doAuth({ commit }) {
+    doAuth({ state, commit }) {
       return axios({
         method: 'get',
         url: AUTH_URL,
@@ -65,27 +59,23 @@ export default {
         }
       })
         .then(() => {
-          debugger
-          commit(SET_LOGIN, true)
+          state.isLoggedIn = true
           return true
         })
         .catch((error) => {
-          debugger
-          this.dispatch('login/clearData')
+          localStorage.setItem('tk', '')
+          state.isLoggedIn = false
           commit(SET_ERROR, true)
           commit(SET_ERROR_TEXT, error)
           return false
         })
     },
     checkLogin({ state }) {
-      debugger
       if (state.isLoggedIn && localStorage.getItem('tk') !== '') {
-        debugger
         return true
       }
 
       if (state.isLoggedIn === false || localStorage.getItem('tk') === '') {
-        debugger
         return false
       }
     }
