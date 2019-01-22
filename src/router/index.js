@@ -30,6 +30,7 @@ const router = new Router({
 // Simple access control
 router.beforeEach((to, from, next) => {
   debugger
+
   function redirect() {
     if (to.name === 'login') {
       next({ name: 'home' })
@@ -42,14 +43,22 @@ router.beforeEach((to, from, next) => {
     debugger
     if (loggedIn) {
       redirect()
-    } else {
-      store.dispatch('login/doAuth').then((authorized) => {
-        debugger
-        if (authorized) {
-          redirect()
-        }
-      })
+      return
     }
+
+    if (to.name === 'login') {
+      next()
+      return
+    }
+
+    store.dispatch('login/doAuth').then((authorized) => {
+      debugger
+      if (authorized) {
+        next()
+      } else {
+        next({ name: 'login' })
+      }
+    })
   })
 })
 

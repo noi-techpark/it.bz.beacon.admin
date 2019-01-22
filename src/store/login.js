@@ -32,20 +32,23 @@ export default {
       localStorage.setItem('tk', '')
       commit(SET_LOGIN, false)
     },
-    doLogin({ commit }, {
+    doLogin({ state, commit, getters }, {
       username,
       password
     }) {
+      debugger
       axios.post(LOGIN_URL, {
         username: username,
         password: password
       })
         .then(function(response) {
-          commit(SET_LOGIN, true)
+          state.isLoggedIn = true
+          console.log(getters.hasLogin)
           localStorage.setItem('tk', response.data.token)
           commit(SET_ERROR, false)
           commit(SET_ERROR_TEXT, '')
-          router.go('home')
+          debugger
+          router.push('home')
         })
         .catch(function(error) {
           commit(SET_LOGIN, false)
@@ -74,21 +77,21 @@ export default {
           return false
         })
     },
-    checkLogin() {
+    checkLogin({ state }) {
       debugger
-      if (this.getters.getLogin && localStorage.getItem('tk') !== '') {
+      if (state.isLoggedIn && localStorage.getItem('tk') !== '') {
         debugger
         return true
       }
 
-      if (this.getters.getLogin === false || localStorage.getItem('tk') === '') {
+      if (state.isLoggedIn === false || localStorage.getItem('tk') === '') {
         debugger
         return false
       }
     }
   },
   getters: {
-    getLogin(state) {
+    hasLogin(state) {
       return state.isLoggedIn
     },
     getError(state) {
