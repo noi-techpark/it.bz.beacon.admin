@@ -1,0 +1,82 @@
+@import '../node_modules/bootstrap/scss/bootstrap.scss';
+
+.login-form-container {
+  background-color: #3cadda;
+  color: #ffffff;
+
+  input[type="text"],
+  input[type="password"] {
+    background-color: #3cadda;
+    border: 1px solid #1A88B4;
+
+    &.is-invalid {
+      border-color: $red;
+    }
+
+    &::placeholder {
+      color: #ffffff;
+    }
+
+    &:focus {
+      color: #3cadda;
+
+      &::placeholder {
+        color: #3cadda;
+      }
+
+      background-color: #ffffff;
+      border-color: #ffffff;
+    }
+  }
+
+  button {
+    background-color: #82D8F2;
+    border: none;
+    cursor: pointer;
+  }
+}
+
+.partner-images {
+  padding: 10px;
+  border-top: 1px solid lightgray;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  img {
+    max-height: 80px;
+    padding: 0 5px;
+  }
+}
+
+.start-screen {
+  position: relative;
+}
+
+@include media-breakpoint-up(lg) {
+  .login-form-container {
+    padding-right: 10%;
+  }
+}
+
+@include media-breakpoint-down(lg) {
+  .partner-images {
+    img {
+      max-height: 40px;
+    }
+  }
+}
+
+@include media-breakpoint-down(sm) {
+  .partner-images {
+    img {
+      max-height: 20px;
+    }
+  }
+
+  .beacon-logo-container {
+    padding-bottom: 41px;
+  }
+}
+
+@import 'variables';
