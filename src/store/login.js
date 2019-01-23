@@ -41,7 +41,7 @@ export default {
           localStorage.setItem('tk', response.data.token)
           commit(SET_ERROR, false)
           commit(SET_ERROR_TEXT, '')
-          router.push('home')
+          router.push({ name: 'home' })
         })
         .catch(function(error) {
           state.isLoggedIn = false
@@ -51,12 +51,8 @@ export default {
         })
     },
     doAuth({ state, commit }) {
-      return axios({
-        method: 'get',
-        url: AUTH_URL,
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('tk')
-        }
+      return axios.post(AUTH_URL, {
+        token: localStorage.getItem('tk')
       })
         .then(() => {
           state.isLoggedIn = true
@@ -71,9 +67,6 @@ export default {
         })
     },
     checkLogin({ state }) {
-      // TODO remove for live testing
-      return true
-
       if (state.isLoggedIn && localStorage.getItem('tk') !== '') {
         return true
       }
