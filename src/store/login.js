@@ -28,6 +28,11 @@ export default {
     }
   },
   actions: {
+    doLogout() {
+      localStorage.setItem('tk', '')
+      localStorage.setItem('un', '')
+      router.push({ name: 'login' })
+    },
     doLogin({ state }, {
       username,
       password
@@ -39,6 +44,7 @@ export default {
         .then(function(response) {
           state.isLoggedIn = true
           localStorage.setItem('tk', response.data.token)
+          localStorage.setItem('un', username)
           state.error = false
           state.errorText = ''
           router.push({ name: 'home' })
@@ -46,6 +52,7 @@ export default {
         .catch(function(error) {
           state.isLoggedIn = false
           localStorage.setItem('tk', '')
+          localStorage.setItem('un', '')
           state.error = true
           state.errorText = error.message
         })
@@ -62,6 +69,7 @@ export default {
         })
         .catch((error) => {
           localStorage.setItem('tk', '')
+          localStorage.setItem('un', '')
           state.isLoggedIn = false
           state.error = true
           state.errorText = error.message
@@ -81,6 +89,9 @@ export default {
   getters: {
     hasLogin(state) {
       return state.isLoggedIn
+    },
+    getUsername() {
+      return localStorage.getItem('un')
     },
     getError(state) {
       return state.errorText

@@ -11,7 +11,8 @@
             </div>
           </div>
           <div class="user-login row align-items-center">
-            <div class="user-name col text-right">Admin</div>
+            <div class="admin-user-name col text-right">{{ getUsername }}</div>
+            <a class="admin-logout" @click.prevent="logout"><img :src="require('../assets/logout.png')"></a>
           </div>
         </div>
       </div>
@@ -22,6 +23,7 @@
 
 <script>
 import Navigation from './Navigation'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   props: {
@@ -30,7 +32,17 @@ export default {
   components: {
     Navigation
   },
-  name: 'Home'
+  name: 'Home',
+  computed: {
+    ...mapGetters('login', [
+      'getUsername'
+    ])
+  },
+  methods: {
+    ...mapActions('login', {
+      'logout': 'doLogout'
+    })
+  }
 }
 </script>
 
@@ -48,7 +60,7 @@ export default {
 
 .user-login {
   height: 100%;
-  width: 200px;
+  min-width: 200px;
   position: absolute;
   right: 0;
   top: 0;
