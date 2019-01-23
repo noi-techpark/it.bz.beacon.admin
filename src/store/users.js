@@ -3,7 +3,6 @@ import router from '../router/index'
 
 const API_URL = 'https://api.beacon-dev.it'
 const USERS_URL = API_URL + '/v1/admin/users'
-const USER_ADD_URL = API_URL + '/v1/admin/users'
 
 export default {
   namespaced: true,
@@ -31,7 +30,7 @@ export default {
     addUser({ state }, user) {
       axios({
         method: 'post',
-        url: USER_ADD_URL,
+        url: USERS_URL,
         headers: {
           'Authorization': 'Bearer ' + localStorage.getItem('tk')
         },
@@ -40,6 +39,27 @@ export default {
           'name': user.name,
           'surname': user.surname,
           'username': user.username,
+          'password': user.password
+        }
+      })
+        .then(function() {
+          router.push({ name: 'users' })
+        })
+        .catch(function(error) {
+          state.error = error.message
+        })
+    },
+    editUser({ state }, user) {
+      axios({
+        method: 'update',
+        url: USERS_URL + '/' + user.id,
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('tk')
+        },
+        data: {
+          'email': user.email,
+          'name': user.name,
+          'surname': user.surname,
           'password': user.password
         }
       })

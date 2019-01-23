@@ -18,6 +18,16 @@ body {
   background-color: $background-grey;
 }
 
+.btn.btn-primary {
+  background-color: $background-blue;
+  border-color: $background-blue;
+
+  &:hover {
+    background-color: $light-blue;
+    border-color: $light-blue;
+  }
+}
+
 /* LOGIN */
 
 .login-form-container {
