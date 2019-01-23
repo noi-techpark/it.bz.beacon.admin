@@ -29,8 +29,14 @@ const router = new Router({
 
 // Simple access control
 router.beforeEach((to, from, next) => {
+  function routeActions() {
+    if (to.name === 'users') {
+      store.dispatch('users/fetchUsers')
+    }
+  }
   store.dispatch('login/checkLogin').then((loggedIn) => {
     if (loggedIn) {
+      routeActions()
       if (to.name === 'login') {
         next({ name: 'home' })
       } else {
@@ -46,6 +52,7 @@ router.beforeEach((to, from, next) => {
 
     store.dispatch('login/doAuth').then((authorized) => {
       if (authorized) {
+        routeActions()
         next()
       } else {
         next({ name: 'login' })

@@ -28,7 +28,7 @@ export default {
     }
   },
   actions: {
-    doLogin({ state, commit }, {
+    doLogin({ state }, {
       username,
       password
     }) {
@@ -39,30 +39,32 @@ export default {
         .then(function(response) {
           state.isLoggedIn = true
           localStorage.setItem('tk', response.data.token)
-          commit(SET_ERROR, false)
-          commit(SET_ERROR_TEXT, '')
+          state.error = false
+          state.errorText = ''
           router.push({ name: 'home' })
         })
         .catch(function(error) {
           state.isLoggedIn = false
           localStorage.setItem('tk', '')
-          commit(SET_ERROR, true)
-          commit(SET_ERROR_TEXT, error)
+          state.error = true
+          state.errorText = error
         })
     },
-    doAuth({ state, commit }) {
+    doAuth({ state }) {
       return axios.post(AUTH_URL, {
         token: localStorage.getItem('tk')
       })
         .then(() => {
           state.isLoggedIn = true
+          state.error = false
+          state.errorText = ''
           return true
         })
         .catch((error) => {
           localStorage.setItem('tk', '')
           state.isLoggedIn = false
-          commit(SET_ERROR, true)
-          commit(SET_ERROR_TEXT, error)
+          state.error = true
+          state.errorText = error
           return false
         })
     },
