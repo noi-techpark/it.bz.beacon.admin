@@ -1,12 +1,21 @@
 <template>
   <home :source="title">
     <template slot="body">
-      <div class="row">
+      <div class="row headline p-4">
         <div class="col">
           <h1>Users</h1>
         </div>
       </div>
-      <div class="row">
+      <div class="row user-display m-4 p-4">
+        <div class="col-12 mb-4 col-header">
+          <div class="row">
+            <div class="col">User ID</div>
+            <div class="col">Username</div>
+            <div class="col">Firstname</div>
+            <div class="col">Surname</div>
+            <div class="col">Email</div>
+          </div>
+        </div>
         <div class="col-12" v-bind:key="user.id" v-if="getUsers.length" v-for="user in getUsers">
           <div class="row">
             <div class="col">{{ user.id }}</div>
@@ -47,5 +56,11 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-
+.user-display {
+  background-color: #ffffff;
+  border-radius: 7px;
+  .col-header {
+    color: #666666;
+  }
+}
 </style>

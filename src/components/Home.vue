@@ -38,7 +38,6 @@ export default {
 .body {
   position: relative;
   z-index: 99;
-  background-color: #ffffff;
 }
 
 .search-bar {

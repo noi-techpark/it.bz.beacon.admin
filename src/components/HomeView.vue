@@ -1,7 +1,7 @@
 <template>
   <home :source="title">
     <template slot="body">
-      <div class="row">
+      <div class="row headline p-4">
         <div class="col">
           <h1>Home</h1>
         </div>
