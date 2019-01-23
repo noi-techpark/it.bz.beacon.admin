@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import LoginView from '../components/LoginView'
 import UsersView from '../components/UsersView'
+import UserView from '../components/UserView'
 import HomeView from '../components/HomeView'
 import store from '../store/store'
 
@@ -23,6 +24,11 @@ const router = new Router({
       path: '/users',
       name: 'users',
       component: UsersView
+    },
+    {
+      path: '/user/:id',
+      name: 'user',
+      component: UserView
     }
   ]
 })
@@ -30,7 +36,7 @@ const router = new Router({
 // Simple access control
 router.beforeEach((to, from, next) => {
   function routeActions() {
-    if (to.name === 'users') {
+    if (to.name === 'users' || (to.name === 'user' && from.name !== 'users')) {
       store.dispatch('users/fetchUsers')
     }
   }

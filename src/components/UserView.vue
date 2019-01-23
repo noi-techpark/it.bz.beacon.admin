@@ -4,7 +4,7 @@
     <template slot="body">
       <div class="row headline p-4">
         <div class="col">
-          <h1>Users</h1>
+          <router-link :to="{name: 'users'}" class="back-link">&laquo; back</router-link>
         </div>
       </div>
       <div class="row user-display m-4 p-4">
@@ -17,17 +17,15 @@
             <div class="col-5">Email</div>
           </div>
         </div>
-        <router-link class="col-12 user-item pt-2 pb-2" v-bind:key="user.id" v-if="getUsers.length"
-                     v-for="user in getUsers" :to="{name: 'user', params: { id: user.id }}">
-          <span class="row">
-            <span class="col-1">{{ user.id }}</span>
-            <span class="col-2">{{ user.username }}</span>
-            <span class="col-2">{{ user.name }}</span>
-            <span class="col-2">{{ user.surname }}</span>
-            <span class="col-5">{{ user.email }}</span>
-          </span>
-        </router-link>
-        <div class="col-12 alert-danger" v-else> {{ getError }} </div>
+        <div class="col-12 mb-4 col-header" v-show="getUser">
+          <div class="row">
+            <div class="col-1">{{ getUser.id }}</div>
+            <div class="col-2">{{ getUser.username }}</div>
+            <div class="col-2">{{ getUser.name }}</div>
+            <div class="col-2">{{ getUser.lastname }}</div>
+            <div class="col-5">{{ getUser.email }}</div>
+          </div>
+        </div>
       </div>
     </template>
   </home>
@@ -41,17 +39,26 @@ export default {
   components: {
     Home
   },
-  name: 'Users',
+  name: 'User',
   data() {
     return {
-      title: 'Users'
+      title: 'User'
     }
   },
   computed: {
     ...mapGetters('users', [
-      'getUsers',
-      'getError'
-    ])
+      'getUsers'
+    ]),
+    getUser() {
+      let userId = this.$route.params.id,
+        returnUser = false
+      this.getUsers.forEach(function(user) {
+        if (parseInt(user.id) === parseInt(userId)) {
+          returnUser = user
+        }
+      })
+      return returnUser
+    }
   }
 }
 </script>

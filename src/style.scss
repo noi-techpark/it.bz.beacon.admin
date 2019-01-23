@@ -162,11 +162,21 @@ body {
 /* USERS */
 
 .user-display {
+  background-color: #ffffff;
+  border-radius: 7px;
+
+  .col-header {
+    color: #666666;
+  }
+
   .user-item {
+    color: black;
+
     &:hover {
       background-color: #fafafa;
       cursor: pointer;
       color: $background-blue;
+      text-decoration: none;
     }
   }
 }
@@ -175,4 +185,13 @@ body {
   .user-display {
     font-size: 12px;
   }
+}
+
+.back-link {
+  &:hover {
+    text-decoration: none;
+    color: $background-blue;
+  }
+
+  color: $background-blue;
 }
