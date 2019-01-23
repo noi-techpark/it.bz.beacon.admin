@@ -34,7 +34,7 @@
             <div class="col-12 pl-0 pr-0 pb-2"><input type="text" class="form-control" v-model="email" placeholder="Email"></div>
           </div>
         </div>
-        <a class="btn btn-primary mr-3" v-show="editMode" @click.prevent="switchMode">Cancel</a>
+        <a class="btn btn-secondary mr-3" v-show="editMode" @click.prevent="switchMode">Cancel</a>
         <a class="btn btn-primary" v-show="editMode" @click.prevent="editUser">Save</a>
         <a class="btn btn-primary" v-show="editMode === false" @click.prevent="switchMode">Edit</a>
       </div>
