@@ -47,7 +47,7 @@ export default {
           state.isLoggedIn = false
           localStorage.setItem('tk', '')
           state.error = true
-          state.errorText = error
+          state.errorText = error.message
         })
     },
     doAuth({ state }) {
@@ -64,7 +64,7 @@ export default {
           localStorage.setItem('tk', '')
           state.isLoggedIn = false
           state.error = true
-          state.errorText = error
+          state.errorText = error.message
           return false
         })
     },

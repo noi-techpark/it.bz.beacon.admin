@@ -23,7 +23,7 @@ export default {
           state.users = response.data
         })
         .catch(function(error) {
-          state.error = error
+          state.error = error.message
         })
     }
   },
