@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import LoginView from '../components/LoginView'
 import UsersView from '../components/UsersView'
 import UserView from '../components/UserView'
+import UserAddView from '../components/UserAddView'
 import HomeView from '../components/HomeView'
 import store from '../store/store'
 
@@ -29,6 +30,11 @@ const router = new Router({
       path: '/user/:id',
       name: 'user',
       component: UserView
+    },
+    {
+      path: '/add-user',
+      name: 'add-user',
+      component: UserAddView
     }
   ]
 })

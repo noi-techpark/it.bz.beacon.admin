@@ -1,4 +1,5 @@
 <template>
+  <!-- eslint-disable -->
   <home :source="title">
     <template slot="body">
       <div class="row headline p-4">

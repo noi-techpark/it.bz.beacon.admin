@@ -1,4 +1,5 @@
 <template>
+  <!-- eslint-disable -->
   <div id="home" class="row h-100">
     <navigation :source="source"></navigation>
     <div class="body col-sm p-0">

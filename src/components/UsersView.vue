@@ -4,7 +4,7 @@
     <template slot="body">
       <div class="row headline p-4">
         <div class="col">
-          <h1>Users</h1>
+          <h1 class="m-0">Users</h1><router-link class="ml-4 mb-3 btn btn-primary" :to="{name: 'add-user'}">add</router-link>
         </div>
       </div>
       <div class="row user-display m-4 p-4">
@@ -27,7 +27,7 @@
             <span class="col-5">{{ user.email }}</span>
           </span>
         </router-link>
-        <div class="col-12 alert-danger" v-else> {{ getError }} </div>
+        <div class="col-12 alert alert-danger" v-else> {{ getError }} </div>
       </div>
     </template>
   </home>
@@ -58,5 +58,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-
+h1 {
+  display: inline-block;
+}
 </style>
