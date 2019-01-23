@@ -5,8 +5,9 @@
       <div class="row">
         <div class="col p-0 search-bar shadow-sm">
           <div class="row h-100 align-items-center">
-            <div class="col p-0 h-100 text-right">
-              <input type="text" class="beacon-search pl-4" placeholder="Search for beacon">
+            <div class="col p-0 h-100 text-right search-container">
+              <img class="search-icon" :src="require('../assets/search.png')">
+              <input type="text" class="beacon-search" placeholder="Search for beacon">
             </div>
           </div>
           <div class="user-login row align-items-center">
@@ -58,5 +59,19 @@ export default {
   width: 100%;
   color: #666666;
   border: none;
+  padding-left: 50px;
+}
+
+.search-container {
+  position: relative;
+}
+
+.search-icon {
+  top: 20px;
+  left: 10px;
+  position: absolute;
+  height: 30px;
+  width: 30px;
+  opacity: 0.3;
 }
 </style>

@@ -8,7 +8,7 @@
             <img src="../assets/logo.png" class="align-self-center">
           </div>
         </div>
-        <router-link v-for="item in navigationItems" :key="item.id" :class="'row navigation-link pl-4' + ( source === item.title ? ' highlight' : '' )" :to="{name: item.name}">
+        <router-link v-for="item in navigationItems" :key="item.id" :class="'row navigation-link pl-3' + ( source === item.title ? ' highlight' : '' )" :to="{name: item.name}">
           <span class="navigation-symbol col"><img :src="require('../assets/' + item.name + '.png')"></span>
           <span class="pl1 navigation-text col">{{ item.title }}</span>
         </router-link>
@@ -53,6 +53,7 @@ export default {
 .main-navigation {
   position: relative;
   z-index: 100;
+  font-size: 14px;
 }
 
 .beacon-logo {
@@ -65,12 +66,12 @@ export default {
 }
 
 .navigation-symbol {
-  max-width: 50px;
+  max-width: 40px;
   height: 50px;
-  padding: 0 10px;
+  padding: 0 11px;
   img {
-    height: 30px;
-    width: 30px;
+    height: 22px;
+    width: 22px;
   }
 }
 </style>

@@ -137,3 +137,21 @@ body {
     color: $background-blue;
   }
 }
+
+/* USERS */
+
+.user-display {
+  .user-item {
+    &:hover {
+      background-color: #fafafa;
+      cursor: pointer;
+      color: $background-blue;
+    }
+  }
+}
+
+@include media-breakpoint-down(md) {
+  .user-display {
+    font-size: 12px;
+  }
+}
