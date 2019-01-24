@@ -1,7 +1,7 @@
 import axios from 'axios'
 import router from '../router/index'
 
-const API_URL = 'https://api.beacon-dev.it'
+const API_URL = 'http://localhost:8080'
 const USERS_URL = API_URL + '/v1/admin/users'
 
 export default {
@@ -51,7 +51,7 @@ export default {
     },
     editUser({ state }, user) {
       axios({
-        method: 'update',
+        method: 'patch',
         url: USERS_URL + '/' + user.id,
         headers: {
           'Authorization': 'Bearer ' + localStorage.getItem('tk')

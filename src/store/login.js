@@ -5,7 +5,7 @@ const SET_LOGIN = 'SET_LOGIN'
 const SET_ERROR = 'SET_ERROR'
 const SET_ERROR_TEXT = 'SET_ERROR_TEXT'
 
-const API_URL = 'https://api.beacon-dev.it'
+const API_URL = 'http://localhost:8080'
 const LOGIN_URL = API_URL + '/v1/signin'
 const AUTH_URL = API_URL + '/v1/checkToken'
 

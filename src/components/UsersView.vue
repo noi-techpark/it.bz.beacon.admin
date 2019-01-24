@@ -4,7 +4,9 @@
     <template slot="body">
       <div class="row headline p-4">
         <div class="col">
-          <h1 class="m-0">Users</h1><router-link class="ml-4 mb-3 btn btn-primary" :to="{name: 'add-user'}">add</router-link>
+          <h1 class="m-0">Users</h1>
+          <router-link class="ml-4 mb-3 btn btn-primary" :to="{name: 'add-user'}">add</router-link>
+          <router-link class="ml-4 mb-3 btn btn-primary fab" :to="{name: 'add-user'}">add</router-link>
         </div>
       </div>
       <div class="row user-display m-4 p-4">

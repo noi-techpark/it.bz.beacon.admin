@@ -2,41 +2,42 @@
   <!-- eslint-disable -->
   <home :source="title">
     <template slot="body">
-      <div class="row headline p-4">
-        <div class="col">
-          <router-link :to="{name: 'users'}" class="back-link">&laquo; back</router-link>
-        </div>
-      </div>
       <div class="row user-display m-4 p-4">
-        <div class="col-12 mb-4 col-header" v-show="editMode === false">
+        <div class="col-12 mb-4 mt-4 col-header">
+          <div class="row mb-2">
+            <div class="col-12">
+              <h3>User details</h3>
+            </div>
+          </div>
           <div class="row">
-            <div class="col-1">Id</div>
-            <div class="col-2">Username</div>
-            <div class="col-2">Firstname</div>
-            <div class="col-2">Surname</div>
-            <div class="col-5">Email</div>
+            <div class="col-2">Id</div> <div class="col-10 ml-0 mb-2"><input type="text" disabled="disabled" class="form-control" v-model="getUser.id" placeholder="Name"></div>
+          </div>
+          <div class="row">
+            <div class="col-2">Username</div><div class="col-10 ml-0 mb-2"><input type="text" disabled="disabled" class="form-control" v-model="getUser.username" placeholder="Name"></div>
+          </div>
+          <div class="row">
+            <div class="col-2">Name</div> <div class="col-10 ml-0 mb-2"><input type="text" class="form-control" v-model="name" placeholder="Name"></div>
+          </div>
+          <div class="row">
+            <div class="col-2">Surname</div> <div class="col-10 ml-0 mb-2"><input type="text" class="form-control" v-model="surname"  placeholder="Surname"></div>
+          </div>
+          <div class="row">
+            <div class="col-2">Email</div> <div class="col-10 ml-0 mb-2"><input type="text" class="form-control" v-model="email" placeholder="Email"></div>
+          </div>
+          <div class="row">
+            <div class="col-2">Password</div> <div class="col-10 ml-0 mb-2"><input type="password" class="form-control" v-model="password" placeholder="Password"></div>
           </div>
         </div>
-        <div class="col-12 mb-4 col-header" v-show="getUser && editMode === false">
+        <div class="col-12 mb-4">
           <div class="row">
-            <div class="col-1">{{ getUser.id }}</div>
-            <div class="col-2">{{ getUser.username }}</div>
-            <div class="col-2">{{ getUser.name }}</div>
-            <div class="col-2">{{ getUser.lastname }}</div>
-            <div class="col-5">{{ getUser.email }}</div>
+            <div class="col-12 ">
+              <div class="d-flex flex-row-reverse">
+                <button class="btn btn-primary" @click.prevent="editUser">Save</button>
+                <router-link :to="{name: 'users'}" class="btn btn-secondary mr-3">Cancel</router-link>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="col-12 mb-4 p-0 col-header" v-show="editMode">
-          <div class="row">
-            <div class="col-12 pl-0 pr-0 pb-2"><input type="password" class="form-control" v-model="password" placeholder="Password"></div>
-            <div class="col-12 pl-0 pr-0 pb-2"><input type="text" class="form-control" v-model="name" placeholder="Name"></div>
-            <div class="col-12 pl-0 pr-0 pb-2"><input type="text" class="form-control" v-model="surname" placeholder="Surname"></div>
-            <div class="col-12 pl-0 pr-0 pb-2"><input type="text" class="form-control" v-model="email" placeholder="Email"></div>
-          </div>
-        </div>
-        <a class="btn btn-secondary mr-3" v-show="editMode" @click.prevent="switchMode">Cancel</a>
-        <a class="btn btn-primary" v-show="editMode" @click.prevent="editUser">Save</a>
-        <a class="btn btn-primary" v-show="editMode === false" @click.prevent="switchMode">Edit</a>
       </div>
     </template>
   </home>
@@ -54,7 +55,6 @@ export default {
   data() {
     return {
       title: 'User',
-      editMode: false,
       password: '',
       name: '',
       surname: '',
@@ -80,10 +80,8 @@ export default {
     ...mapActions('users', {
       'editSomeUser': 'editUser'
     }),
-    switchMode() {
-      this.editMode = !this.editMode
-    },
     editUser() {
+      debugger
       this.editSomeUser({
         name: this.name,
         password: this.password,

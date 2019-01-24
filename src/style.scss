@@ -28,6 +28,15 @@ body {
   }
 }
 
+a, button {
+  &.fab {
+    width: 2em;
+    height: 2em;
+    border-radius: 50%;
+    background: yellow;
+  }
+}
+
 /* LOGIN */
 
 .login-form-container {
