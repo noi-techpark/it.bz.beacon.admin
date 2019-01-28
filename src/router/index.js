@@ -4,7 +4,8 @@ import LoginView from '../components/LoginView'
 import UsersView from '../components/UsersView'
 import UserView from '../components/UserView'
 import UserAddView from '../components/UserAddView'
-import HomeView from '../components/HomeView'
+import BeaconsView from '../components/BeaconsView'
+import IssuesView from '../components/IssuesView'
 import store from '../store/store'
 
 Vue.use(Router)
@@ -14,9 +15,25 @@ const router = new Router({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: BeaconsView,
       meta: {
-        nav: 'beacon'
+        nav: 'beacons'
+      }
+    },
+    {
+      path: '/beacons',
+      name: 'beacons',
+      component: BeaconsView,
+      meta: {
+        nav: 'beacons'
+      }
+    },
+    {
+      path: '/issues',
+      name: 'issues',
+      component: IssuesView,
+      meta: {
+        nav: 'issues'
       }
     },
     {
@@ -48,7 +65,7 @@ const router = new Router({
       name: 'user-edit',
       component: UserView,
       meta: {
-        nav: 'user'
+        nav: 'users'
       }
     }
   ]

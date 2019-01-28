@@ -2,11 +2,6 @@
   <!-- eslint-disable -->
   <layout :source="title">
     <template slot="body">
-      <div class="row headline p-4">
-        <div class="col">
-          <h1 class="m-0">New User</h1>
-        </div>
-      </div>
       <div class="user-display m-4 p-4">
         <form @submit.prevent="create">
           <div class="form-group row">
@@ -42,7 +37,7 @@
           <div class="row">
             <div class="col-12 ">
               <div class="d-flex flex-row-reverse">
-                <button class="btn btn-primary" type='submit'>Save</button>
+                <button class="btn btn-primary" type='submit'>Create user</button>
                 <router-link :to="{name: 'users'}" class="btn btn-secondary mr-3">Cancel</router-link>
               </div>
             </div>

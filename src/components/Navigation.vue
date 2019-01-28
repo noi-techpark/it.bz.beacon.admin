@@ -9,7 +9,7 @@
           </div>
         </div>
         <router-link v-for="item in navigationItems" :key="item.id" :class="'row navigation-link pl-3' + ( $route.meta.nav === item.nav ? ' highlight' : '' )" :to="{name: item.name}">
-          <span class="navigation-symbol col"><img :src="require('../assets/' + item.name + '.png')"></span>
+          <span class="navigation-symbol col"><div :class="'nav-logo logo-' + item.name"></div></span>
           <span class="pl1 navigation-text col">{{ item.title }}</span>
         </router-link>
       </div>
@@ -27,12 +27,12 @@ export default {
     return {
       navigationItems: [
         {
-          name: 'home',
-          title: 'Home',
-          nav: 'beacon'
+          name: 'beacons',
+          title: 'Beacons',
+          nav: 'beacons'
         },
         {
-          name: 'home',
+          name: 'issues',
           title: 'Issues',
           nav: 'issues'
         },
@@ -40,11 +40,6 @@ export default {
           name: 'users',
           title: 'Users',
           nav: 'users'
-        },
-        {
-          name: 'home',
-          title: 'Settings',
-          nav: 'settings'
         }
       ]
     }
@@ -54,6 +49,8 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+  @import '../variables';
+
 .main-navigation {
   position: relative;
   z-index: 100;
@@ -73,9 +70,26 @@ export default {
   max-width: 40px;
   height: 50px;
   padding: 0 11px;
-  img {
-    height: 22px;
-    width: 22px;
+
+  div.nav-logo {
+    background-color: white;
+    width: 32px;
+    height: 32px;
+    margin-top: 9px;
+    background-position: center;
+
+    &.logo-beacons {
+      -webkit-mask: url(../assets/ic_beacons.svg) no-repeat center;
+      mask: url(../assets/ic_beacons.svg) no-repeat center;
+    }
+    &.logo-issues {
+      -webkit-mask: url(../assets/ic_issues.svg) no-repeat center;
+      mask: url(../assets/ic_issues.svg) no-repeat center;
+    }
+    &.logo-users {
+      -webkit-mask: url(../assets/ic_users.svg) no-repeat center;
+      mask: url(../assets/ic_users.svg) no-repeat center;
+    }
   }
 }
 </style>

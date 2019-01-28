@@ -4,7 +4,7 @@
     <template slot="body">
       <div class="row headline p-4">
         <div class="col">
-          <h1>Home</h1>
+          <h1>Issues</h1>
         </div>
       </div>
     </template>
@@ -18,10 +18,10 @@ export default {
   components: {
     Layout
   },
-  name: 'HomeView',
+  name: 'IssuesView',
   data() {
     return {
-      title: 'Home'
+      title: 'Issues'
     }
   }
 }

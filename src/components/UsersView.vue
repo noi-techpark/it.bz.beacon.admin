@@ -1,12 +1,13 @@
 <template>
   <!-- eslint-disable -->
   <layout :source="title">
-    <template slot="body">
-      <div class="row headline p-4">
-        <div class="col">
-          <h1 class="m-0">Users</h1>
-        </div>
+    <template slot="search-input">
+      <div class="col p-0 h-100 text-right search-container">
+        <img class="search-icon" :src="require('../assets/search.png')">
+        <input type="text" class="beacon-search" v-model="search" placeholder="Search for user">
       </div>
+    </template>
+    <template slot="body">
       <div class="row user-display m-4 p-4 pb-5">
         <div class="col-12 col-header table-header">
           <div class="row">
@@ -58,7 +59,6 @@ export default {
   data() {
     return {
       title: 'Users',
-      // users: [],
       tableCols: [
         {
           title: 'Id',
@@ -90,7 +90,8 @@ export default {
         pagination: {
           records: 1
         }
-      }
+      },
+      search: ''
     }
   },
   computed: {
@@ -98,7 +99,12 @@ export default {
       'users'
     ]),
     listUsers() {
-      let users = this.users.slice(0)
+      let users = this.users.slice(0).filter((user) => {
+        return user.username.includes(this.search)
+          || user.name.includes(this.search)
+          || user.surname.includes(this.search)
+          || user.email.includes(this.search)
+      })
       users.sort((userA, userB) => {
         if (userA.username < userB.username) {
           return -1

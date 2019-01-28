@@ -46,8 +46,8 @@ export default {
           dispatch('clearAuth', error)
         })
     },
-    authenticate({ dispatch, state }) {
-      return checkToken(state.token)
+    authenticate({ dispatch }) {
+      return checkToken(localStorage.getItem('loginToken'))
         .then((checkTokenResponse) => {
           if (checkTokenResponse.valid === true) {
             dispatch('storeAuth', {

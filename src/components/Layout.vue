@@ -6,10 +6,7 @@
       <div class="row">
         <div class="col p-0 search-bar shadow-sm">
           <div class="row h-100 align-items-center">
-            <div class="col p-0 h-100 text-right search-container">
-              <img class="search-icon" :src="require('../assets/search.png')">
-              <input type="text" class="beacon-search" placeholder="Search for beacon">
-            </div>
+            <slot name="search-input"></slot>
           </div>
           <div class="user-login row align-items-center mr-4">
             <div class="admin-user-name col text-right">{{ getUsername }}</div>
@@ -59,6 +56,8 @@ export default {
 .search-bar {
   height: 70px;
   position: relative;
+  background: white;
+  border-left: 1px solid $background-grey;
 }
 
 .user-login {
@@ -75,7 +74,6 @@ export default {
   color: #666666;
   border: none;
   padding-left: 50px;
-  border-left: 1px solid $background-grey;
 }
 
 .search-container {
