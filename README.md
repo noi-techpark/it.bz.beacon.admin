@@ -24,16 +24,3 @@ Run
 yarn run build
 ```
 to create a release ready for production. You'll find the output files in the ./dist folder
-
-### Test the application
-Run
-```
-yarn run test
-```
-to run the unit tests.
-
-
-### Lints and fixes files
-```
-yarn run lint
-```
