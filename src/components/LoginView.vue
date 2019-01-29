@@ -39,7 +39,7 @@
           </div>
           <div class="input row">
             <div class="col-sm">
-              <button type="submit" @click.prevent="login">Login</button>
+              <button id="submit" type="submit" @click.prevent="login">Login</button>
             </div>
           </div>
         </form>

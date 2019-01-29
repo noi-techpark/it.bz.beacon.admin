@@ -48,44 +48,44 @@ export default {
 <style lang="scss" scoped>
   @import '../variables';
 
-.body {
-  position: relative;
-  z-index: 99;
-}
+  .body {
+    position: relative;
+    z-index: 99;
+  }
 
-.search-bar {
-  height: 70px;
-  position: relative;
-  background: white;
-  border-left: 1px solid $background-grey;
-}
+  .search-bar {
+    height: 70px;
+    position: relative;
+    background: white;
+    border-left: 1px solid $background-grey;
+  }
 
-.user-login {
-  height: 100%;
-  min-width: 200px;
-  position: absolute;
-  right: 0;
-  top: 0;
-}
+  .user-login {
+    height: 100%;
+    min-width: 200px;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
 
-.beacon-search {
-  height: 100%;
-  width: 100%;
-  color: #666666;
-  border: none;
-  padding-left: 50px;
-}
+  .beacon-search {
+    height: 100%;
+    width: 100%;
+    color: #666666;
+    border: none;
+    padding-left: 50px;
+  }
 
-.search-container {
-  position: relative;
-}
+  .search-container {
+    position: relative;
+  }
 
-.search-icon {
-  top: 20px;
-  left: 10px;
-  position: absolute;
-  height: 30px;
-  width: 30px;
-  opacity: 0.3;
-}
+  .search-icon {
+    top: 20px;
+    left: 10px;
+    position: absolute;
+    height: 30px;
+    width: 30px;
+    opacity: 0.3;
+  }
 </style>
