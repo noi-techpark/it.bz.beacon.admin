@@ -24,3 +24,10 @@ Run
 yarn run build
 ```
 to create a release ready for production. You'll find the output files in the ./dist folder
+
+### Execute tests
+Run
+```
+yarn run test:unit
+```
+to execute the unit tests.
