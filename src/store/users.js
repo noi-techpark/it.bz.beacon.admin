@@ -1,4 +1,4 @@
-import { listUser, getUser, createUser, updateUser, deleteUser } from '../service/apiService'
+import { getUsers, getUser, createUser, updateUser, deleteUser } from '../service/apiService'
 
 const SET_USERS = 'SET_USERS'
 const SET_USER = 'SET_USER'
@@ -46,7 +46,7 @@ export default {
         )
     },
     fetchUsers({ commit }) {
-      return listUser()
+      return getUsers()
         .then((users) => {
           commit(SET_USERS, users)
         })
