@@ -13,6 +13,12 @@ pipeline {
     }
 
     stages {
+        stage('Configure') {
+            steps {
+                sh 'cp .env .env.local'
+                sh 'sed -i -e "s%\\(VUE_APP_API_BASE_URL=\\).*\\$%\\1${VUE_APP_API_BASE_URL}%" .env.local'
+            }
+        }
         stage('Dependencies') {
             steps {
                 sh 'yarn install'
