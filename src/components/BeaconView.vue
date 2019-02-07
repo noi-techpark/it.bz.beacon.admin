@@ -23,11 +23,12 @@
                   <div class="small status-label-issue">critical < 5%</div>
                 </div>
               </div>
-                <div class="col-6 d-flex flex-column justify-content-between flex-grow-1 flex-shrink-0 border-start">
+                <div :class="'col-6 d-flex flex-column justify-content-between flex-grow-1 flex-shrink-0 border-start ' + (beacon.status === 'CONFIGURATION_PENDING' ? 'status-pending' : '')">
                   <h5>Device status</h5>
                   <div class="mt-2">
-                    <h4 class="mb-0"><strong>{{ beacon.status }}</strong></h4>
-                    <div class="small status-label-ok" v-if="beacon.status === 'OK'">no problems found</div>
+                    <h4 class="mb-0"><strong>{{ getStatusText(beacon) }}</strong></h4>
+                    <div :class="'small ' + (beacon.status === 'OK' ? 'status-label-ok' : '')" v-if="beacon.status === 'OK'">no problems found</div>
+                    <div class="small" v-if="beacon.status === 'CONFIGURATION_PENDING'">Configuration pending</div>
                   </div>
                 </div>
             </div>
@@ -121,7 +122,7 @@
                     </div>
                   </div>
                 </div>
-                <div id="location-description" class="mt-4 flex-grow-1 flex-column" v-show="locationTab === 'DESCRIPTION'">
+                <div id="location-description" :class="(locationTab === 'DESCRIPTION' ? 'd-flex' : '') + 'mt-4 flex-grow-1 flex-column'" v-show="locationTab === 'DESCRIPTION'">
                   <div class="row">
                     <div class="col-6 pl-0">
                       <button>OUTDOOR</button>
@@ -130,9 +131,16 @@
                       <button>INDOOR</button>
                     </div>
                   </div>
-                  <div class="row flex-grow-1">
-                    <div class="col-12 p-0">
-                      <div class="description"><small>{{ beacon.locationDescription }}</small></div>
+                  <div class="row flex-grow-1 mt-3">
+                    <div class="col-12 p-0 d-flex">
+                      <div class="description flex-grow-1"><small>{{ beacon.locationDescription }}</small></div>
+                    </div>
+                  </div>
+                </div>
+                <div id="location-images" :class="(locationTab === 'IMAGES' ? 'd-flex' : '') + 'mt-4 flex-grow-1 flex-column'" v-show="locationTab === 'IMAGES'">
+                  <div class="row mt-3" v-bind:key="image.id" v-if="images.length" v-for="image in images">
+                    <div class="col-12 text-center">
+                      <img :src="image.content"/>
                     </div>
                   </div>
                 </div>
@@ -271,11 +279,12 @@
 <script>
 import Layout from './Layout'
 import { getBeacon } from '../service/apiService'
-import {MDCSlider} from '@material/slider';
-import {MDCTabBar} from '@material/tab-bar';
-import {MDCSwitch} from '@material/switch';
-import config from '../service/config';
-import { getIssuesForBeacon } from "../service/apiService";
+import {MDCSlider} from '@material/slider'
+import {MDCTabBar} from '@material/tab-bar'
+import {MDCSwitch} from '@material/switch'
+import config from '../service/config'
+import { getIssuesForBeacon, getImagesForBeacon, getImageForBeacon } from "../service/apiService"
+import store from '../store/store'
 
 export default {
   components: {
@@ -290,7 +299,8 @@ export default {
       },
       issues: [],
       modeTab: 'IBEACON',
-      locationTab: 'GPS'
+      locationTab: 'GPS',
+      images: []
     }
   },
   mounted() {
@@ -334,8 +344,29 @@ export default {
       eddystoneSwitch.checked = beacon.eddystone
     })
 
-    getIssuesForBeacon(this.$route.params.id).then((issues) => {
+    getIssuesForBeacon(this.$route.params.id).then(issues => {
       this.issues = issues
+    })
+
+    getImagesForBeacon(this.$route.params.id).then(beaconImages => {
+      this.images = []
+
+      beaconImages.forEach(beaconImage => {
+        let xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = () => {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            let url = window.URL || window.webkitURL;
+            this.images.push({
+              id: beaconImage.id,
+              content: url.createObjectURL(xhr.response)
+            })
+          }
+        }
+        xhr.open('GET', config.API_BASE_URL + '/v1/admin/beacons/' + this.$route.params.id + '/images/' + beaconImage.id);
+        xhr.setRequestHeader("Authorization", "Bearer " + store.getters['login/token'])
+        xhr.responseType = 'blob';
+        xhr.send();
+      })
     })
   },
   methods: {
@@ -354,22 +385,27 @@ export default {
       return 'https://maps.googleapis.com/maps/api/staticmap' +
         '?center=' + beacon.lat + ',' + beacon.lng +
         '&zoom=18' +
-        '&size=266x200' +
+        '&size=300x200' +
         '&maptype=roadmap' +
         '&markers=' + beacon.lat + ',' + beacon.lng + '|icon:' + this.icon(beacon) +
         '&key=' + config.GOOGLE_MAPS_API_KEY;
+    },
+    getStatusText(beacon) {
+      switch (beacon.status) {
+        case 'OK':
+          return 'OK';
+        case 'ISSUE':
+        case 'BATTERY_LOW':
+          return 'ISSUE';
+        case 'CONFIGURATION_PENDING':
+          return 'PENDING';
+        default:
+          return beacon.status;
+      }
     }
-    // update() {
-    //   updateUser(this.beacon)
-    //     .then(() => {
-    //       router.push({ name: 'beacons' })
-    //     })
-    //     .catch(() => {
-    //       //  handle error
-    //     })
-    // }
   }
 }
+
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -431,7 +467,7 @@ export default {
 
       .mdc-tab {
         text-transform: none;
-        padding: 0 3em;
+        padding: 0 1em;
         letter-spacing: normal;
       }
 
@@ -489,6 +525,13 @@ export default {
 
   .border-start {
     border-left: 1px solid $background-grey;
+  }
+
+  .status-pending {
+    color: white;
+    background-color: $status-blue;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
   }
 
   .status-label-ok {

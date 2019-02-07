@@ -7,6 +7,7 @@ const PATH_CHECK_TOKEN = '/v1/checkToken'
 const PATH_BEACONS = '/v1/admin/beacons'
 const PATH_USERS = '/v1/admin/users'
 const SUB_PATH_ISSUES = '/issues'
+const SUB_PATH_IMAGES = '/images'
 
 function call(method, path, auth, data) {
   var headers = {}
@@ -101,6 +102,15 @@ export function getBeacons() {
 
 export function getBeacon(id) {
   return callGet(PATH_BEACONS + '/' + id, true);
+}
+
+// BEACON IMAGES
+export function getImagesForBeacon(id) {
+  return callGet(PATH_BEACONS + '/' + id + SUB_PATH_IMAGES, true)
+}
+
+export function getImageForBeacon(beaconId, id) {
+  return callGet(PATH_BEACONS + '/' + beaconId + SUB_PATH_IMAGES + '/' + id, true)
 }
 
 // ISSUES
