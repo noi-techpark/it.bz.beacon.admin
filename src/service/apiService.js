@@ -6,6 +6,7 @@ const PATH_SIGNIN = '/v1/signin'
 const PATH_CHECK_TOKEN = '/v1/checkToken'
 const PATH_BEACONS = '/v1/admin/beacons'
 const PATH_USERS = '/v1/admin/users'
+const SUB_PATH_ISSUES = '/issues'
 
 function call(method, path, auth, data) {
   var headers = {}
@@ -96,4 +97,13 @@ export function deleteUser(user) {
 
 export function getBeacons() {
   return callGet(PATH_BEACONS, true);
+}
+
+export function getBeacon(id) {
+  return callGet(PATH_BEACONS + '/' + id, true);
+}
+
+// ISSUES
+export function getIssuesForBeacon(id) {
+  return callGet(PATH_BEACONS + '/' + id + SUB_PATH_ISSUES, true)
 }

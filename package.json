@@ -9,6 +9,9 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "@material/slider": "^0.44.0",
+    "@material/switch": "^0.44.0",
+    "@material/tab-bar": "^0.44.0",
     "axios": "^0.18.0",
     "bootstrap": "^4.2.1",
     "lodash.clonedeep": "^4.5.0",
@@ -26,7 +29,6 @@
     "babel-eslint": "^10.0.1",
     "babel-jest": "^23.6.0",
     "eslint": "^5.8.0",
-    "eslint-config-rol": "git+ssh://git@gitlab.nyx.raiffeisen.net/rol-dev/eslint-config-rol.git#2.0-stable",
     "eslint-plugin-vue": "^5.0.0",
     "node-sass": "^4.11.0",
     "sass-loader": "^7.1.0",
@@ -39,7 +41,7 @@
     },
     "extends": [
       "plugin:vue/essential",
-      "eslint-config-rol"
+      "eslint:recommended"
     ],
     "rules": {},
     "parserOptions": {

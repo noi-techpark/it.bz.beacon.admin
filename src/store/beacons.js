@@ -1,4 +1,4 @@
-import { getBeacons, getBeacon, createBeacon, updateBeacon, deleteBeacon } from '../service/apiService'
+import { getBeacons, getBeacon } from '../service/apiService'
 
 const SET_BEACONS = 'SET_BEACONS'
 const SET_BEACON = 'SET_BEACON'
@@ -24,27 +24,6 @@ export default {
     }
   },
   actions: {
-    update(beacon) {
-      return updateBeacon(beacon)
-        .then(
-          this.fetchBeacons()
-        )
-        .catch(() => {
-
-        })
-    },
-    create(beacon) {
-      return createBeacon(beacon)
-        .then(
-          this.fetchBeacons()
-        )
-    },
-    delete(beacon) {
-      return deleteBeacon(beacon)
-        .then(
-          this.fetchBeacons()
-        )
-    },
     fetchBeacons({ commit }) {
       return getBeacons()
         .then((beacons) => {

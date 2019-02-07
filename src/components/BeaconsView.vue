@@ -4,27 +4,35 @@
     <template slot="search-input">
       <div class="col p-0 h-100 text-right search-container">
         <img class="search-icon" :src="require('../assets/search.png')">
-        <input type="text" class="beacon-search" v-model="search" placeholder="Search for beacon">
+        <input type="text" class="beacon-search" v-model="search" placeholder="Search beacon">
       </div>
     </template>
     <template slot="body">
       <div class="row beacon-display m-4 p-4 pb-5">
         <div class="col-12 col-header table-header">
           <div class="row">
-            <div class="col-6">Name</div>
-            <div class="col-3">Major</div>
-            <div class="col-3">Minor</div>
+            <div class="col-2">Name</div>
+            <div class="col-1">Major</div>
+            <div class="col-1">Minor</div>
+            <div class="col-5">Description</div>
+            <div class="col-1">Last seen</div>
+            <div class="col-1">Battery</div>
+            <div class="col-1">Status</div>
           </div>
         </div>
-        <router-link class="col-12 beacon-item" v-bind:key="beacon.id" v-if="beacons.length" v-for="beacon in listBeacons" :to="{name: 'beacon-edit', params: { id: beacon.id }}">
-          <span class="row">
-            <span class="col-6">{{ beacon.name }}</span>
-            <span class="col-3">{{ beacon.major }}</span>
-            <span class="col-3">{{ beacon.minor }}</span>
-          </span>
+        <router-link class="col-12 beacon-item" v-bind:key="beacon.id" v-if="beacons.length" v-for="beacon in listBeacons" :to="{name: 'beacon-detail', params: { id: beacon.id }}">
+          <div class="row beacon-row">
+            <div class="col-2">{{ beacon.name }}</div>
+            <div class="col-1">{{ beacon.major }}</div>
+            <div class="col-1">{{ beacon.minor }}</div>
+            <div class="col-5">{{ beacon.description }}</div>
+            <div class="col-1">{{ beacon.lastSeen }}</div>
+            <div class="col-1">{{ beacon.batteryLevel }}</div>
+            <div class="col-1"><span :class='"badge badge-pill badge-status " + getStatusClass(beacon)'>{{ getStatusText(beacon) }}</span></div>
+          </div>
         </router-link>
         <div class="col-12 alert alert-danger" v-else> {{ getError }} </div>
-        <router-link class="fab add-fab" :to="{name: 'beacon-new'}"><i class="fab-icon-addbeacon"></i></router-link>
+        <router-link class="fab add-fab" :to="{name: 'issue-new'}"><i class="fab-icon-addissue"></i></router-link>
       </div>
 
       <!--<simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta" />-->
@@ -35,15 +43,12 @@
 <script>
   import Layout from './Layout'
   import SimpleTable from './SimpleTable'
-  import { deleteBeacon } from '../service/apiService'
-  import Confirm from './Confirm'
   import { mapActions, mapGetters } from 'vuex'
 
   export default {
     components: {
       Layout,
-      SimpleTable,
-      Confirm
+      SimpleTable
     },
     name: 'Beacons',
     data() {
@@ -74,7 +79,7 @@
       ]),
       listBeacons() {
         let beacons = this.beacons.slice(0).filter((beacon) => {
-          return beacon.name.includes(this.search)
+          return beacon.name.toLowerCase().includes(this.search.toLowerCase())
         })
         beacons.sort((beaconA, beaconB) => {
           if (beaconA.name < beaconB.name) {
@@ -116,13 +121,39 @@
         this.tableMeta.sorting.order = params.sorting.order
         this.tableMeta.pagination.offset = 1
       },
-      removeBeacon(beacon) {
-        this.$refs.deleteBeaconConfirm.open()
-          .then(() => deleteBeacon(beacon.id)
-            .then(() => {
-              this.fetchBeacons()
-            }))
-          .catch(() => {})
+      getStatusClass(beacon) {
+        let statusClass = 'badge-status-'
+        switch (beacon.status) {
+          case 'OK':
+            statusClass += 'ok'
+            break;
+          case 'BATTERY_LOW':
+            statusClass += 'battery'
+            break;
+          case 'CONFIGURATION_PENDING':
+            statusClass += 'pending'
+            break;
+          case 'ISSUE':
+            statusClass += 'issue'
+            break;
+          default:
+            statusClass += 'default'
+            break;
+        }
+        return statusClass;
+      },
+      getStatusText(beacon) {
+        switch (beacon.status) {
+          case 'OK':
+            return 'OK';
+          case 'ISSUE':
+          case 'BATTERY_LOW':
+            return 'ISSUE';
+          case 'CONFIGURATION_PENDING':
+            return 'PENDING';
+          default:
+            return beacon.status;
+        }
       }
     },
     mounted() {
@@ -144,7 +175,7 @@
     right: 1em;
     transform: translateY(50%);
     border-radius: 50%;
-    background-image: url("./../assets/ic_add_issue.svg");
+    background-image: url("./../assets/ic_add_beacon.svg");
   }
 
   .beacon-display {
@@ -165,5 +196,31 @@
     color: $grey;
     padding-top: 1em;
     padding-bottom: 1em;
+  }
+
+  .beacon-row {
+    font-size: 0.8rem;
+    font-weight: lighter;
+  }
+
+  .badge-status {
+    color: white;
+    display:block;
+    height: 2em;
+    line-height: 1rem;
+    font-weight: normal;
+    font-size: 0.66rem;
+
+    &.badge-status-ok {
+      background-color: $status-green;
+    }
+
+    &.badge-status-battery, .badge-status-issue {
+      background-color: $status-yellow;
+    }
+
+    &.badge-status-pending {
+      background-color: $status-blue;
+    }
   }
 </style>

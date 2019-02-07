@@ -4,7 +4,7 @@
     <template slot="search-input">
       <div class="col p-0 h-100 text-right search-container">
         <img class="search-icon" :src="require('../assets/search.png')">
-        <input type="text" class="beacon-search" v-model="search" placeholder="Search for user">
+        <input type="text" class="beacon-search" v-model="search" placeholder="Search user">
       </div>
     </template>
     <template slot="body">
@@ -100,10 +100,10 @@ export default {
     ]),
     listUsers() {
       let users = this.users.slice(0).filter((user) => {
-        return user.username.includes(this.search)
-          || user.name.includes(this.search)
-          || user.surname.includes(this.search)
-          || user.email.includes(this.search)
+        return user.username.toLowerCase().includes(this.search.toLowerCase())
+          || user.name.toLowerCase().includes(this.search.toLowerCase())
+          || user.surname.toLowerCase().includes(this.search.toLowerCase())
+          || user.email.toLowerCase().includes(this.search.toLowerCase())
       })
       users.sort((userA, userB) => {
         if (userA.username < userB.username) {
