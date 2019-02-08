@@ -2,7 +2,7 @@
   <!-- eslint-disable -->
   <layout :source="title">
     <template slot="body">
-      <div class="container">
+      <div class="container pb-4">
         <div class="row mt-4">
           <div class="col-12">
             <h2 class="beacon-title">{{ beacon.name }}</h2>
@@ -20,15 +20,14 @@
                 <h5>Battery status</h5>
                 <div class="mt-2">
                   <h4 class="mb-0"><strong>{{ beacon.batteryLevel }}%</strong></h4>
-                  <div class="small status-label-issue">critical < 5%</div>
+                  <div class="small label-yellow">critical < 5%</div>
                 </div>
               </div>
                 <div :class="'col-6 d-flex flex-column justify-content-between flex-grow-1 flex-shrink-0 border-start ' + (beacon.status === 'CONFIGURATION_PENDING' ? 'status-pending' : '')">
                   <h5>Device status</h5>
                   <div class="mt-2">
                     <h4 class="mb-0"><strong>{{ getStatusText(beacon) }}</strong></h4>
-                    <div :class="'small ' + (beacon.status === 'OK' ? 'status-label-ok' : '')" v-if="beacon.status === 'OK'">no problems found</div>
-                    <div class="small" v-if="beacon.status === 'CONFIGURATION_PENDING'">Configuration pending</div>
+                    <div :class="'small status-label-' + getStatusClassPostfix(beacon)">{{ getStatusDescription(beacon) }}</div>
                   </div>
                 </div>
             </div>
@@ -57,7 +56,7 @@
                 <h5>Signal interval</h5>
                 <div class="mt-2">
                   <h4 class="mb-0"><strong>{{ beacon.interval }} ms</strong></h4>
-                  <div class="small status-label-pending">100 - 10240 ms</div>
+                  <div class="small label-blue">100 - 10240 ms</div>
                 </div>
               </div>
             </div>
@@ -122,13 +121,13 @@
                     </div>
                   </div>
                 </div>
-                <div id="location-description" :class="(locationTab === 'DESCRIPTION' ? 'd-flex' : '') + 'mt-4 flex-grow-1 flex-column'" v-show="locationTab === 'DESCRIPTION'">
+                <div id="location-description" :class="(locationTab === 'DESCRIPTION' ? 'd-flex' : '') + ' mt-4 flex-grow-1 flex-column'" v-show="locationTab === 'DESCRIPTION'">
                   <div class="row">
                     <div class="col-6 pl-0">
-                      <button>OUTDOOR</button>
+                      <button :class="'location-description-button ' + (beacon.locationType === 'OUTDOOR' ? 'location-description-button-active' : '')" disabled>OUTDOOR</button>
                     </div>
                     <div class="col-6 pr-0">
-                      <button>INDOOR</button>
+                      <button :class="'location-description-button ' + (beacon.locationType === 'INDOOR' ? 'location-description-button-active' : '')" disabled>INDOOR</button>
                     </div>
                   </div>
                   <div class="row flex-grow-1 mt-3">
@@ -184,6 +183,7 @@
                 <div id="config-ibeacon" class="row mt-4 flex-column" v-show="modeTab === 'IBEACON'">
                   <div class="row">
                     <div class="col pl-0">
+                      <small class="text-muted">iBeacon</small>
                     </div>
                     <div class="col-auto pr-0">
                       <div id="ibeacon-switch" class="mdc-switch">
@@ -214,14 +214,14 @@
                 <div id="config-eddystone" class="row mt-4 flex-column" v-show="modeTab === 'EDDYSTONE'">
                   <div class="row">
                     <div class="col pl-0">
+                      <small class="text-muted">Eddystone UID</small>
                     </div>
                     <div class="col-auto pr-0">
-                      <!--<small class="text-muted mr-1">Deactivate iBeacon</small>-->
-                      <div id="eddystone-switch" class="mdc-switch">
+                      <div id="eddystone-uid-switch" class="mdc-switch">
                         <div class="mdc-switch__track"></div>
                         <div class="mdc-switch__thumb-underlay">
                           <div class="mdc-switch__thumb">
-                            <input type="checkbox" id="eddystone-basic-switch" class="mdc-switch__native-control" role="switch">
+                            <input type="checkbox" id="eddystone-uid-basic-switch" class="mdc-switch__native-control" role="switch">
                           </div>
                         </div>
                       </div>
@@ -238,9 +238,69 @@
                     </div>
                   </div>
                   <div class="row mt-3">
+                    <div class="col pl-0">
+                      <small class="text-muted">Eddystone URL</small>
+                    </div>
+                    <div class="col-auto pr-0">
+                      <div id="eddystone-url-switch" class="mdc-switch">
+                        <div class="mdc-switch__track"></div>
+                        <div class="mdc-switch__thumb-underlay">
+                          <div class="mdc-switch__thumb">
+                            <input type="checkbox" id="eddystone-url-basic-switch" class="mdc-switch__native-control" role="switch">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row mt-3">
                     <div class="col-12 pl-0 pr-0">
                       <input type="text" class="form-control" :value="beacon.url" readonly />
-                      <small class="text-muted">Eddystone URL</small>
+                      <small class="text-muted">URL</small>
+                    </div>
+                  </div>
+                  <div class="row mt-3">
+                    <div class="col pl-0">
+                      <small class="text-muted">Eddystone EID</small>
+                    </div>
+                    <div class="col-auto pr-0">
+                      <div id="eddystone-eid-switch" class="mdc-switch">
+                        <div class="mdc-switch__track"></div>
+                        <div class="mdc-switch__thumb-underlay">
+                          <div class="mdc-switch__thumb">
+                            <input type="checkbox" id="eddystone-eid-basic-switch" class="mdc-switch__native-control" role="switch">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row mt-3">
+                    <div class="col pl-0">
+                      <small class="text-muted">Eddystone Encrypted TLM</small>
+                    </div>
+                    <div class="col-auto pr-0">
+                      <div id="eddystone-etlm-switch" class="mdc-switch">
+                        <div class="mdc-switch__track"></div>
+                        <div class="mdc-switch__thumb-underlay">
+                          <div class="mdc-switch__thumb">
+                            <input type="checkbox" id="eddystone-etlm-basic-switch" class="mdc-switch__native-control" role="switch">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row mt-3">
+                    <div class="col pl-0">
+                      <small class="text-muted">Eddystone TLM</small>
+                    </div>
+                    <div class="col-auto pr-0">
+                      <div id="eddystone-tlm-switch" class="mdc-switch">
+                        <div class="mdc-switch__track"></div>
+                        <div class="mdc-switch__thumb-underlay">
+                          <div class="mdc-switch__thumb">
+                            <input type="checkbox" id="eddystone-tlm-basic-switch" class="mdc-switch__native-control" role="switch">
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -331,9 +391,17 @@ export default {
       }
     });
     const iBeaconSwitch = new MDCSwitch(document.querySelector('#ibeacon-switch'));
-    const eddystoneSwitch = new MDCSwitch(document.querySelector('#eddystone-switch'));
+    const eddystoneUidSwitch = new MDCSwitch(document.querySelector('#eddystone-uid-switch'));
+    const eddystoneUrlSwitch = new MDCSwitch(document.querySelector('#eddystone-url-switch'));
+    const eddystoneEidSwitch = new MDCSwitch(document.querySelector('#eddystone-eid-switch'));
+    const eddystoneEtlmSwitch = new MDCSwitch(document.querySelector('#eddystone-etlm-switch'));
+    const eddystoneTlmSwitch = new MDCSwitch(document.querySelector('#eddystone-tlm-switch'));
     iBeaconSwitch.disabled = true
-    eddystoneSwitch.disabled = true
+    eddystoneUidSwitch.disabled = true
+    eddystoneUrlSwitch.disabled = true
+    eddystoneEidSwitch.disabled = true
+    eddystoneEtlmSwitch.disabled = true
+    eddystoneTlmSwitch.disabled = true
 
     getBeacon(this.$route.params.id).then((beacon) => {
       Object.assign(this.beacon, beacon)
@@ -341,7 +409,11 @@ export default {
       document.querySelector('.mdc-slider .mdc-slider__pin-value-marker').innerHTML = beacon.txPower
       document.querySelector('#location-map').setAttribute('src', this.getStaticMap(beacon))
       iBeaconSwitch.checked = beacon.iBeacon
-      eddystoneSwitch.checked = beacon.eddystone
+      eddystoneUidSwitch.checked = beacon.eddystoneUid
+      eddystoneUrlSwitch.checked = beacon.eddystoneUrl
+      eddystoneEidSwitch.checked = beacon.eddystoneEid
+      eddystoneEtlmSwitch.checked = beacon.eddystoneEtlm
+      eddystoneTlmSwitch.checked = beacon.eddystoneTlm
     })
 
     getIssuesForBeacon(this.$route.params.id).then(issues => {
@@ -390,6 +462,20 @@ export default {
         '&markers=' + beacon.lat + ',' + beacon.lng + '|icon:' + this.icon(beacon) +
         '&key=' + config.GOOGLE_MAPS_API_KEY;
     },
+    getStatusClassPostfix(beacon) {
+      switch (beacon.status) {
+        case 'OK':
+          return 'ok'
+        case 'BATTERY':
+        case 'ISSUE':
+          return 'issue'
+        case 'CONFIGURATION_PENDING':
+          return 'pending'
+        default:
+          return 'default'
+      }
+      return statusClass;
+    },
     getStatusText(beacon) {
       switch (beacon.status) {
         case 'OK':
@@ -399,6 +485,20 @@ export default {
           return 'ISSUE';
         case 'CONFIGURATION_PENDING':
           return 'PENDING';
+        default:
+          return beacon.status;
+      }
+    },
+    getStatusDescription(beacon) {
+      switch (beacon.status) {
+        case 'OK':
+          return 'No problems found';
+        case 'ISSUE':
+          return 'Issue';
+        case 'BATTERY_LOW':
+          return 'Battery level low';
+        case 'CONFIGURATION_PENDING':
+          return 'Configuration pending';
         default:
           return beacon.status;
       }
@@ -512,7 +612,26 @@ export default {
 
     .description {
       border: 1px solid $background-grey;
+      color: $text-muted-grey;
       border-radius: 0.25rem;
+    }
+
+    button.location-description-button {
+      background: $lighter-grey;
+      color: white;
+      border: none;
+      border-radius: 1rem;
+      display:block;
+      width: 100%;
+
+      &.location-description-button-active {
+        background: $status-blue;
+        color: white;
+      }
+
+      &[disabled] {
+        opacity: 0.6;
+      }
     }
   }
 
@@ -537,13 +656,16 @@ export default {
   .status-label-ok {
     color: $status-green;
   }
-
-  .status-label-issue {
-    color: $status-yellow;
+  .status-label-issue, .status-label-pending, .status-label-default {
+    color: white;
   }
 
-  .status-label-pending {
+  .label-blue {
     color: $status-blue;
+  }
+
+  .label-yellow {
+    color: $status-yellow;
   }
 
   .slider-always-label {

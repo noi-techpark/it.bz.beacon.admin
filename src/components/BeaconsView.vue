@@ -26,13 +26,18 @@
             <div class="col-1">{{ beacon.major }}</div>
             <div class="col-1">{{ beacon.minor }}</div>
             <div class="col-5">{{ beacon.description }}</div>
-            <div class="col-1">{{ beacon.lastSeen }}</div>
-            <div class="col-1">{{ beacon.batteryLevel }}</div>
+            <div class="col-1">{{ formatLastSeen(beacon) }}</div>
+            <div class="col-1 text-right d-flex align-middle justify-content-end">
+              <span>{{ beacon.batteryLevel }} %</span>
+              <div :class="'battery ml-2 ' + (beacon.batteryLevel <= 5 ? 'warning' : '')">
+                <div class="chargestatus" :style="'top:' + (100 - beacon.batteryLevel) + '%;height:' + beacon.batteryLevel + '%'"></div>
+              </div>
+            </div>
             <div class="col-1"><span :class='"badge badge-pill badge-status " + getStatusClass(beacon)'>{{ getStatusText(beacon) }}</span></div>
           </div>
         </router-link>
         <div class="col-12 alert alert-danger" v-else> {{ getError }} </div>
-        <router-link class="fab add-fab" :to="{name: 'issue-new'}"><i class="fab-icon-addissue"></i></router-link>
+        <router-link class="fab add-fab" :to="{name: 'beacon-new'}" style="display:none"><i class="fab-icon-addissue"></i></router-link>
       </div>
 
       <!--<simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta" />-->
@@ -44,6 +49,7 @@
   import Layout from './Layout'
   import SimpleTable from './SimpleTable'
   import { mapActions, mapGetters } from 'vuex'
+  import moment from 'moment'
 
   export default {
     components: {
@@ -121,6 +127,9 @@
         this.tableMeta.sorting.order = params.sorting.order
         this.tableMeta.pagination.offset = 1
       },
+      formatLastSeen(beacon) {
+        return moment(beacon.lastSeen * 1000).format('DD.MM.YYYY');
+      },
       getStatusClass(beacon) {
         let statusClass = 'badge-status-'
         switch (beacon.status) {
@@ -196,11 +205,13 @@
     color: $grey;
     padding-top: 1em;
     padding-bottom: 1em;
+    font-size: 0.8rem;
   }
 
   .beacon-row {
     font-size: 0.8rem;
     font-weight: lighter;
+    color: $text-grey;
   }
 
   .badge-status {
@@ -223,4 +234,53 @@
       background-color: $status-blue;
     }
   }
+
+  .battery {
+    height: 1.5em;
+    width: 0.75em;
+    background: #EEEEEE;
+    position:relative;
+
+    &:before,
+    &:after {
+      z-index:10;
+      content:'';
+      display:block;
+      position:absolute;
+      background: white;
+      width: 30%;
+      height: 10%;
+      top:0;
+    }
+    &:before {
+      left: 0;
+    }
+    &:after {
+      right: 0;
+    }
+    .chargestatus {
+      position:absolute;
+      top: 0;
+      left:0;
+      right:0;
+      background: grey;
+    }
+
+    &.warning {
+      background: lighten($status-yellow, 35%);
+      .chargestatus {
+        background: lighten($status-yellow, 25%);
+      }
+    }
+
+    &.danger {
+      background: darkred;
+      .chargestatus {
+        background: red;
+
+      }
+    }
+  }
+
+
 </style>
