@@ -12,18 +12,18 @@
         <div class="row beacon-display m-4 p-4 pb-5">
           <div class="col-12 col-header table-header">
             <div class="row">
-              <div class="col-2">Name</div>
+              <div class="col-2 pl-0">Name</div>
               <div class="col-1">Major</div>
               <div class="col-1">Minor</div>
               <div class="col-5">Description</div>
               <div class="col-1">Last seen</div>
               <div class="col-1">Battery</div>
-              <div class="col-1">Status</div>
+              <div class="col-1 pr-0">Status</div>
             </div>
           </div>
           <router-link class="col-12 beacon-item" v-bind:key="beacon.id" v-if="beacons.length" v-for="beacon in listBeacons" :to="{name: 'beacon-detail', params: { id: beacon.id }}">
             <div class="row beacon-row">
-              <div class="col-2">{{ beacon.name }}</div>
+              <div class="col-2 pl-0">{{ beacon.name }}</div>
               <div class="col-1">{{ beacon.major }}</div>
               <div class="col-1">{{ beacon.minor }}</div>
               <div class="col-5">{{ beacon.description }}</div>
@@ -34,7 +34,7 @@
                   <div class="chargestatus" :style="'top:' + (100 - beacon.batteryLevel) + '%;height:' + beacon.batteryLevel + '%'"></div>
                 </div>
               </div>
-              <div class="col-1"><span :class='"badge badge-pill badge-status " + getStatusClass(beacon)'>{{ getStatusText(beacon) }}</span></div>
+              <div class="col-1 pr-0"><span :class='"badge badge-pill badge-status " + getStatusClass(beacon)'>{{ getStatusText(beacon) }}</span></div>
             </div>
           </router-link>
           <div class="col-12 alert alert-danger" v-else> {{ getError }} </div>
