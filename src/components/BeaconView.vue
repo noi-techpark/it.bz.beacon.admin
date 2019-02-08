@@ -443,15 +443,19 @@ export default {
   },
   methods: {
     icon(beacon) {
+      let uri = location.origin;
       switch(beacon.status) {
-        case 'BATTERY_LOW':
-        case 'ISSUE':
-          return location.origin + require('../assets/status_issue.svg');
-        case 'CONFIGURATION_PENDING':
-          return location.origin + require('../assets/status_pending.svg');
+        // case 'BATTERY_LOW':
+        // case 'ISSUE':
+          // return location.origin + require('../assets/status_issue.svg');
+        // case 'CONFIGURATION_PENDING':
+          // return location.origin + require('../assets/status_pending.png');
         default:
-          return location.origin + require('../assets/status_ok.svg');
+          uri += require('../assets/status_pending.png');
+          // return location.origin + require('../assets/status_ok.svg');
       }
+
+      return encodeURI(uri);
     },
     getStaticMap(beacon) {
       return 'https://maps.googleapis.com/maps/api/staticmap' +
