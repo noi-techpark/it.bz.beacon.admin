@@ -449,9 +449,12 @@ export default {
         // case 'ISSUE':
           // return location.origin + require('../assets/status_issue.svg');
         // case 'CONFIGURATION_PENDING':
-          // return location.origin + require('../assets/status_pending.png');
+          // return location.origin + require('../assets/status_pending.svg');
         default:
-          uri += require('../assets/status_pending.png');
+          let svg = require('../assets/status_pending.svg')
+          let png = require('../assets/status_pending.png')
+          debugger
+          uri += require('../assets/status_pending.png')
           // return location.origin + require('../assets/status_ok.svg');
       }
 

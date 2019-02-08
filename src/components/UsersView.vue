@@ -8,34 +8,36 @@
       </div>
     </template>
     <template slot="body">
-      <div class="row user-display m-4 p-4 pb-5">
-        <div class="col-12 col-header table-header">
-          <div class="row">
-            <div class="col-1">Id</div>
-            <div class="col-2">Username</div>
-            <div class="col-2">Firstname</div>
-            <div class="col-2">Surname</div>
-            <div class="col-4">Email</div>
-            <div class="col-1"></div>
+      <div class="container">
+        <div class="row user-display m-4 p-4 pb-5">
+          <div class="col-12 col-header table-header">
+            <div class="row">
+              <div class="col-1">Id</div>
+              <div class="col-2">Username</div>
+              <div class="col-2">Firstname</div>
+              <div class="col-2">Surname</div>
+              <div class="col-4">Email</div>
+              <div class="col-1"></div>
+            </div>
           </div>
+          <router-link class="col-12 user-item" v-bind:key="user.id" v-if="users.length" v-for="user in listUsers" :to="{name: 'user-edit', params: { id: user.id }}">
+            <span class="row">
+              <span class="col-1">{{ user.id }}</span>
+              <span class="col-2">{{ user.username }}</span>
+              <span class="col-2">{{ user.name }}</span>
+              <span class="col-2">{{ user.surname }}</span>
+              <span class="col-4">{{ user.email }}</span>
+              <span class="col-1 d-flex justify-content-end"><button type="button" class="btn btn-delete" title="Delete user" @click.prevent.stop="removeUser(user)"></button></span>
+            </span>
+          </router-link>
+          <div class="col-12 alert alert-danger" v-else> {{ getError }} </div>
+          <router-link class="fab add-fab" :to="{name: 'user-new'}"><i class="fab-icon-adduser"></i></router-link>
         </div>
-        <router-link class="col-12 user-item" v-bind:key="user.id" v-if="users.length" v-for="user in listUsers" :to="{name: 'user-edit', params: { id: user.id }}">
-          <span class="row">
-            <span class="col-1">{{ user.id }}</span>
-            <span class="col-2">{{ user.username }}</span>
-            <span class="col-2">{{ user.name }}</span>
-            <span class="col-2">{{ user.surname }}</span>
-            <span class="col-4">{{ user.email }}</span>
-            <span class="col-1 d-flex justify-content-end"><button type="button" class="btn btn-delete" title="Delete user" @click.prevent.stop="removeUser(user)"></button></span>
-          </span>
-        </router-link>
-        <div class="col-12 alert alert-danger" v-else> {{ getError }} </div>
-        <router-link class="fab add-fab" :to="{name: 'user-new'}"><i class="fab-icon-adduser"></i></router-link>
+        <confirm ref="deleteUserConfirm" titleText="Delete user" confirmText="Delete" cancelText="Cancel">
+          Are you sure to you want to delete the user?<br />
+          This cannot be undone.
+        </confirm>
       </div>
-      <confirm ref="deleteUserConfirm" titleText="Delete user" confirmText="Delete" cancelText="Cancel">
-        Are you sure to you want to delete the user?<br />
-        This cannot be undone.
-      </confirm>
 
       <!--<simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta" />-->
     </template>

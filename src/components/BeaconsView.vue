@@ -8,36 +8,38 @@
       </div>
     </template>
     <template slot="body">
-      <div class="row beacon-display m-4 p-4 pb-5">
-        <div class="col-12 col-header table-header">
-          <div class="row">
-            <div class="col-2">Name</div>
-            <div class="col-1">Major</div>
-            <div class="col-1">Minor</div>
-            <div class="col-5">Description</div>
-            <div class="col-1">Last seen</div>
-            <div class="col-1">Battery</div>
-            <div class="col-1">Status</div>
-          </div>
-        </div>
-        <router-link class="col-12 beacon-item" v-bind:key="beacon.id" v-if="beacons.length" v-for="beacon in listBeacons" :to="{name: 'beacon-detail', params: { id: beacon.id }}">
-          <div class="row beacon-row">
-            <div class="col-2">{{ beacon.name }}</div>
-            <div class="col-1">{{ beacon.major }}</div>
-            <div class="col-1">{{ beacon.minor }}</div>
-            <div class="col-5">{{ beacon.description }}</div>
-            <div class="col-1">{{ formatLastSeen(beacon) }}</div>
-            <div class="col-1 text-right d-flex align-middle justify-content-end">
-              <span>{{ beacon.batteryLevel }} %</span>
-              <div :class="'battery ml-2 ' + (beacon.batteryLevel <= 5 ? 'warning' : '')">
-                <div class="chargestatus" :style="'top:' + (100 - beacon.batteryLevel) + '%;height:' + beacon.batteryLevel + '%'"></div>
-              </div>
+      <div class="container">
+        <div class="row beacon-display m-4 p-4 pb-5">
+          <div class="col-12 col-header table-header">
+            <div class="row">
+              <div class="col-2">Name</div>
+              <div class="col-1">Major</div>
+              <div class="col-1">Minor</div>
+              <div class="col-5">Description</div>
+              <div class="col-1">Last seen</div>
+              <div class="col-1">Battery</div>
+              <div class="col-1">Status</div>
             </div>
-            <div class="col-1"><span :class='"badge badge-pill badge-status " + getStatusClass(beacon)'>{{ getStatusText(beacon) }}</span></div>
           </div>
-        </router-link>
-        <div class="col-12 alert alert-danger" v-else> {{ getError }} </div>
-        <router-link class="fab add-fab" :to="{name: 'beacon-new'}" style="display:none"><i class="fab-icon-addissue"></i></router-link>
+          <router-link class="col-12 beacon-item" v-bind:key="beacon.id" v-if="beacons.length" v-for="beacon in listBeacons" :to="{name: 'beacon-detail', params: { id: beacon.id }}">
+            <div class="row beacon-row">
+              <div class="col-2">{{ beacon.name }}</div>
+              <div class="col-1">{{ beacon.major }}</div>
+              <div class="col-1">{{ beacon.minor }}</div>
+              <div class="col-5">{{ beacon.description }}</div>
+              <div class="col-1">{{ formatLastSeen(beacon) }}</div>
+              <div class="col-1 text-right d-flex align-middle justify-content-end">
+                <span>{{ beacon.batteryLevel }} %</span>
+                <div :class="'battery ml-2 ' + (beacon.batteryLevel <= 5 ? 'warning' : '')">
+                  <div class="chargestatus" :style="'top:' + (100 - beacon.batteryLevel) + '%;height:' + beacon.batteryLevel + '%'"></div>
+                </div>
+              </div>
+              <div class="col-1"><span :class='"badge badge-pill badge-status " + getStatusClass(beacon)'>{{ getStatusText(beacon) }}</span></div>
+            </div>
+          </router-link>
+          <div class="col-12 alert alert-danger" v-else> {{ getError }} </div>
+          <router-link class="fab add-fab" :to="{name: 'beacon-new'}" style="display:none"><i class="fab-icon-addissue"></i></router-link>
+        </div>
       </div>
 
       <!--<simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta" />-->
@@ -238,7 +240,7 @@
   .battery {
     height: 1.5em;
     width: 0.75em;
-    background: #EEEEEE;
+    background: $lighter-grey;
     position:relative;
 
     &:before,
@@ -248,8 +250,8 @@
       display:block;
       position:absolute;
       background: white;
-      width: 30%;
-      height: 10%;
+      width: 0.2em;
+      height: 0.15em;
       top:0;
     }
     &:before {
