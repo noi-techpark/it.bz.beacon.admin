@@ -9,9 +9,15 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "@google/markerclusterer": "^1.0.3",
+    "@material/slider": "^0.44.0",
+    "@material/switch": "^0.44.0",
+    "@material/tab-bar": "^0.44.0",
     "axios": "^0.18.0",
     "bootstrap": "^4.2.1",
+    "lodash": "^4.17.11",
     "lodash.clonedeep": "^4.5.0",
+    "moment": "^2.24.0",
     "vue": "^2.5.21",
     "vue-router": "^3.0.1",
     "vuex": "^3.1.0"

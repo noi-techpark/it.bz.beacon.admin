@@ -1,28 +1,18 @@
 <template>
   <!-- eslint-disable -->
   <div class="form-row justify-content-between">
-    <div class="col-12 col-md-3 col-lg-auto align-self-center">
-      <template v-if="offset && (offset > 1 || offsetEnd < totalRecords)">
-        {{ 'Records' | capitalize }} {{ 'From' }}
-        <span class="pagination-highlight">{{ offset }} {{ 'To' }} {{ offsetEnd }}</span>
-        {{ 'Of' }} <span class="pagination-highlight">{{ totalRecords }}</span>
-      </template>
-      <template v-else>
-        <span class="pagination-highlight">{{ totalRecords }}</span> Total records
-      </template>
+    <div class="col-12 col-md-3 col-lg-2 align-self-center">
     </div>
     <div class="col-12 col-sm-10 col-md-5 d-flex justify-content-md-center col-lg-auto">
       <div class="form-group mb-0">
-        <label style="visibility: hidden">_</label>
-        <simple-pagination v-if="offset" :page-count="pageCount" :current-page="currentPage"
+        <simple-pagination :page-count="pageCount" :current-page="currentPage"
                            @page-changed="pageChanged"/>
       </div>
     </div>
-    <div class="col-12 col-sm-2 col-md-3 col-lg-2 col-xl-1">
-      <div class="form-group">
-        <label>Show</label>
-        <select class="form-control" v-model="mRecordsNumber">
-          <option v-for="number in mRecordsNumberList" :key="number" :value="number">{{ number }}</option>
+    <div class="col-12 col-sm-2 col-md-3 col-lg-2">
+      <div class="form-group" v-if="recordsNumberListEnabled">
+        <select class="form-control record-number" v-model="mRecordsNumber">
+          <option v-for="number in mRecordsNumberList" :key="number" :value="number">{{ number }} / page</option>
         </select>
       </div>
     </div>
@@ -40,7 +30,8 @@ export default {
     totalRecords: Number,
     offset: Number,
     recordsNumber: Number,
-    recordsNumberList: Array
+    recordsNumberList: Array,
+    recordsNumberListEnabled: Boolean
   },
   data() {
     return {
@@ -89,5 +80,13 @@ export default {
 </script>
 
 <style lang="scss">
+
+  select.form-control.record-number {
+    line-height: 2rem;
+    height: 2rem;
+
+    font-weight: lighter;
+    font-size: 1em;
+  }
 
 </style>

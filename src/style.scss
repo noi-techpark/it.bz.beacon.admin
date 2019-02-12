@@ -4,9 +4,19 @@
 
 /* GENERAL */
 
+@font-face {
+  font-family: 'Roboto';
+  src: url('assets/font/Roboto-Regular.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
 html,
 body {
+  font-family: 'Roboto', sans-serif;
   height: 100%;
+  -webkit-font-smoothing: antialiased;
+  color: $text-grey;
 }
 
 .row {
@@ -130,7 +140,6 @@ a, button {
 /* NAVIGATION */
 
 #navigation {
-  height: 100%;
   background-color: $background-blue;
   max-width: 250px;
 
@@ -189,19 +198,22 @@ a, button {
 
 /* USERS */
 
-.user-display {
+.user-display, .beacon-display, .issue-display {
   background-color: #ffffff;
   border-radius: 7px;
+  font-size: 0.8em;
+  color: $text-grey;
 
   .col-header {
     color: $grey;
   }
 
-  .user-item {
-    color: black;
+  .user-item, .beacon-item, .issue-item {
     border-bottom: 1px solid $background-grey;
     padding-top: 1em;
     padding-bottom: 1em;
+    font-size: 0.8rem;
+    color: $text-grey;
 
     &:hover {
       background-color: #fafafa;
@@ -225,4 +237,44 @@ a, button {
   }
 
   color: $background-blue;
+}
+
+
+/* TABLES */
+
+
+.table {
+
+  .table-header {
+    background-color: $background-grey;
+    color: $grey;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    font-size: 0.8rem;
+
+    th {
+      font-weight: lighter;
+      border: none;
+    }
+  }
+
+  .table-item {
+    border-bottom: 1px solid $background-grey;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    font-size: 0.8rem;
+    color: $text-grey;
+
+    &:hover {
+      background-color: #fafafa;
+      cursor: pointer;
+      color: $background-blue;
+      text-decoration: none;
+    }
+
+    td {
+      font-weight: lighter;
+      border: none;
+    }
+  }
 }

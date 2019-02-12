@@ -5,6 +5,7 @@ import UsersView from '../components/UsersView'
 import UserView from '../components/UserView'
 import UserAddView from '../components/UserAddView'
 import BeaconsView from '../components/BeaconsView'
+import BeaconView from '../components/BeaconView'
 import IssuesView from '../components/IssuesView'
 import store from '../store/store'
 
@@ -23,6 +24,22 @@ const router = new Router({
     {
       path: '/beacons',
       name: 'beacons',
+      component: BeaconsView,
+      meta: {
+        nav: 'beacons'
+      }
+    },
+    {
+      path: '/beacons/:id',
+      name: 'beacon-detail',
+      component: BeaconView,
+      meta: {
+        nav: 'beacons'
+      }
+    },
+    {
+      path: '/beacons',
+      name: 'beacon-new',
       component: BeaconsView,
       meta: {
         nav: 'beacons'

@@ -6,11 +6,12 @@
         <!--<icon-base><icon-loading /></icon-base>-->
       </div>
     </transition>
-    <pagination :records-number="mRecords" :offset="offset" :total-records="meta.totalRecords"
+    <pagination class="mb-2"
+                :records-number="mRecords" :records-number-list="meta.pagination.recordsNumberList" :records-number-list-enabled="true" :offset="offset" :total-records="meta.totalRecords"
                 @page-changed="setPage" @records-number-changed="setRecordsNumber" v-if="meta.pagination" />
     <div :class="{'table-responsive': responsive}" v-if="data.length">
       <table class="table table-bordered-outside">
-        <thead class="thead-secondary">
+        <thead class="thead-secondary table-header">
         <tr v-if="groupCols.length">
           <th v-if="hasSlot('nested')"></th>
           <th class="group-first-col" v-for="(groupCol, index) in groupCols" :key="index" :colspan="groupCol.colspan || 1">
@@ -18,7 +19,7 @@
           </th>
         </tr>
         </thead>
-        <thead :class="{'thead-light thead-sub': groupCols.length, 'thead-secondary': !groupCols.length}">
+        <thead class="table-header " :class="{'thead-light thead-sub': groupCols.length, 'thead-secondary': !groupCols.length}">
         <tr>
           <th class="col-nested-btn" v-if="hasSlot('nested')"></th>
           <th v-for="(col, index) in cols" :key="index" @click="changeSorting(col)"
@@ -40,7 +41,7 @@
         </thead>
         <tbody>
         <template v-for="(record, index) in data">
-          <tr :key="index + '_1'">
+          <tr :key="index + '_1'" class="table-item">
             <td v-if="hasSlot('nested')">
               <button class="btn btn-icon has-nested" :class="{'opened-nested': openedNested[index] === true}"
                       @click="toggleNested(index)">
@@ -54,6 +55,11 @@
                 }">
               <slot :name="'col-' + col.key" :record="record">
                 <template v-if="col.type === 'float'">
+                    <span class="text-nowrap" :class="{'number-negative': get(record, col.key) < 0}">
+                      {{ get(record, col.key) }}
+                    </span>
+                </template>
+                <template v-if="col.type === 'beacon-status'">
                     <span class="text-nowrap" :class="{'number-negative': get(record, col.key) < 0}">
                       {{ get(record, col.key) }}
                     </span>
@@ -87,6 +93,9 @@
         </tfoot>
       </table>
     </div>
+    <pagination class="mt-2"
+                :records-number="mRecords" :records-number-list="meta.pagination.recordsNumberList" :records-number-list-enabled="false" :offset="offset" :total-records="meta.totalRecords"
+                @page-changed="setPage" @records-number-changed="setRecordsNumber" v-if="meta.pagination" />
   </div>
 </template>
 

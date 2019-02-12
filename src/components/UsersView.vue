@@ -4,46 +4,50 @@
     <template slot="search-input">
       <div class="col p-0 h-100 text-right search-container">
         <img class="search-icon" :src="require('../assets/search.png')">
-        <input type="text" class="beacon-search" v-model="search" placeholder="Search for user">
+        <input type="text" class="beacon-search" v-model="search" placeholder="Search user">
       </div>
     </template>
     <template slot="body">
-      <div class="row user-display m-4 p-4 pb-5">
-        <div class="col-12 col-header table-header">
-          <div class="row">
-            <div class="col-1">Id</div>
-            <div class="col-2">Username</div>
-            <div class="col-2">Firstname</div>
-            <div class="col-2">Surname</div>
-            <div class="col-4">Email</div>
-            <div class="col-1"></div>
+      <div class="container p-0" v-show="loaded">
+        <div class="row user-display m-4 p-4 pb-5">
+          <div class="col-12 col-header table-header">
+            <div class="row">
+              <div class="col-1">Id</div>
+              <div class="col-2">Username</div>
+              <div class="col-2">Firstname</div>
+              <div class="col-2">Surname</div>
+              <div class="col-4">Email</div>
+              <div class="col-1"></div>
+            </div>
           </div>
+          <router-link class="col-12 user-item" v-bind:key="user.id" v-if="users.length" v-for="user in listUsers" :to="{name: 'user-edit', params: { id: user.id }}">
+            <span class="row">
+              <span class="col-1">{{ user.id }}</span>
+              <span class="col-2">{{ user.username }}</span>
+              <span class="col-2">{{ user.name }}</span>
+              <span class="col-2">{{ user.surname }}</span>
+              <span class="col-4">{{ user.email }}</span>
+              <span class="col-1 d-flex justify-content-end"><button type="button" class="btn btn-delete" title="Delete user" @click.prevent.stop="removeUser(user)"></button></span>
+            </span>
+          </router-link>
+          <div class="col-12 alert alert-danger" v-else> {{ getError }} </div>
+          <router-link class="fab add-fab" :to="{name: 'user-new'}"><i class="fab-icon-adduser"></i></router-link>
         </div>
-        <router-link class="col-12 user-item" v-bind:key="user.id" v-if="users.length" v-for="user in listUsers" :to="{name: 'user-edit', params: { id: user.id }}">
-          <span class="row">
-            <span class="col-1">{{ user.id }}</span>
-            <span class="col-2">{{ user.username }}</span>
-            <span class="col-2">{{ user.name }}</span>
-            <span class="col-2">{{ user.surname }}</span>
-            <span class="col-4">{{ user.email }}</span>
-            <span class="col-1 d-flex justify-content-end"><button type="button" class="btn btn-delete" title="Delete user" @click.prevent.stop="removeUser(user)"></button></span>
-          </span>
-        </router-link>
-        <div class="col-12 alert alert-danger" v-else> {{ getError }} </div>
-        <router-link class="fab add-fab" :to="{name: 'user-new'}"><i class="fab-icon-adduser"></i></router-link>
+        <confirm ref="deleteUserConfirm" titleText="Delete user" confirmText="Delete" cancelText="Cancel">
+          Are you sure to you want to delete the user?<br />
+          This cannot be undone.
+        </confirm>
       </div>
-      <confirm ref="deleteUserConfirm" titleText="Delete user" confirmText="Delete" cancelText="Cancel">
-        Are you sure to you want to delete the user?<br />
-        This cannot be undone.
-      </confirm>
 
       <!--<simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta" />-->
+      <loader :visible="!loaded" :label="'Loading users...'"/>
     </template>
   </layout>
 </template>
 
 <script>
 import Layout from './Layout'
+import Loader from './Loader'
 import SimpleTable from './SimpleTable'
 import { deleteUser } from '../service/apiService'
 import Confirm from './Confirm'
@@ -53,7 +57,8 @@ export default {
   components: {
     Layout,
     SimpleTable,
-    Confirm
+    Confirm,
+    Loader
   },
   name: 'Users',
   data() {
@@ -91,7 +96,8 @@ export default {
           records: 1
         }
       },
-      search: ''
+      search: '',
+      loaded: false
     }
   },
   computed: {
@@ -99,11 +105,15 @@ export default {
       'users'
     ]),
     listUsers() {
+      if (this.users == null) {
+        return []
+      }
+
       let users = this.users.slice(0).filter((user) => {
-        return user.username.includes(this.search)
-          || user.name.includes(this.search)
-          || user.surname.includes(this.search)
-          || user.email.includes(this.search)
+        return user.username.toLowerCase().includes(this.search.toLowerCase())
+          || user.name.toLowerCase().includes(this.search.toLowerCase())
+          || user.surname.toLowerCase().includes(this.search.toLowerCase())
+          || user.email.toLowerCase().includes(this.search.toLowerCase())
       })
       users.sort((userA, userB) => {
         if (userA.username < userB.username) {
@@ -114,6 +124,7 @@ export default {
         }
         return 0
       })
+      this.$set(this, 'loaded', true)
 
       return users
     }
@@ -140,7 +151,7 @@ export default {
           }
           return 0
         })
-      this.tableData = this.tableData.slice(0, 0 + params.pagination.records)
+      this.tableData = this.tableData.slice(0, params.pagination.offset + params.pagination.records)
       this.tableMeta.sorting.col = params.sorting.col
       this.tableMeta.sorting.order = params.sorting.order
       this.tableMeta.pagination.offset = 1
@@ -194,5 +205,6 @@ export default {
     color: $grey;
     padding-top: 1em;
     padding-bottom: 1em;
+    font-size: 0.8rem;
   }
 </style>

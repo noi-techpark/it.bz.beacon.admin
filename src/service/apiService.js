@@ -4,8 +4,10 @@ import store from '../store/store'
 
 const PATH_SIGNIN = '/v1/signin'
 const PATH_CHECK_TOKEN = '/v1/checkToken'
-// const PATH_BEACONS = '/v1/admin/beacons'
+const PATH_BEACONS = '/v1/admin/beacons'
 const PATH_USERS = '/v1/admin/users'
+const SUB_PATH_ISSUES = '/issues'
+const SUB_PATH_IMAGES = '/images'
 
 function call(method, path, auth, data) {
   var headers = {}
@@ -44,6 +46,8 @@ function callDelete(path, auth) {
   return call('delete', auth, path)
 }
 
+// AUTHENTICATION
+
 export function signIn(username, password) {
   return callPost(PATH_SIGNIN, false, {
     username,
@@ -57,7 +61,9 @@ export function checkToken(token) {
   })
 }
 
-export function listUser() {
+// USERS
+
+export function getUsers() {
   return callGet(PATH_USERS, true)
 }
 
@@ -86,4 +92,24 @@ export function createUser(user) {
 
 export function deleteUser(user) {
   return callDelete(PATH_USERS + '/' + user.id, true)
+}
+
+// BEACONS
+
+export function getBeacons() {
+  return callGet(PATH_BEACONS, true);
+}
+
+export function getBeacon(id) {
+  return callGet(PATH_BEACONS + '/' + id, true);
+}
+
+// BEACON IMAGES
+export function getImagesForBeacon(id) {
+  return callGet(PATH_BEACONS + '/' + id + SUB_PATH_IMAGES, true)
+}
+
+// ISSUES
+export function getIssuesForBeacon(id) {
+  return callGet(PATH_BEACONS + '/' + id + SUB_PATH_ISSUES, true)
 }
