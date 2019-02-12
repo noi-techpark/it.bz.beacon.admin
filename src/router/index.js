@@ -1,11 +1,12 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import LoginView from '../components/LoginView'
-import UsersView from '../components/UsersView'
-import UserView from '../components/UserView'
-import UserAddView from '../components/UserAddView'
-import BeaconsView from '../components/BeaconsView'
-import IssuesView from '../components/IssuesView'
+import LoginView from '../pages/LoginView'
+import UsersView from '../pages/UsersView'
+import UserView from '../pages/UserView'
+import UserAddView from '../pages/UserAddView'
+import BeaconsView from '../pages/BeaconsView'
+import BeaconView from '../pages/BeaconView'
+import IssuesView from '../pages/IssuesView'
 import store from '../store/store'
 
 Vue.use(Router)
@@ -29,6 +30,22 @@ const router = new Router({
       }
     },
     {
+      path: '/beacons/:id',
+      name: 'beacon-detail',
+      component: BeaconView,
+      meta: {
+        nav: 'beacons'
+      }
+    },
+    {
+      path: '/beacons',
+      name: 'beacon-new',
+      component: BeaconsView,
+      meta: {
+        nav: 'beacons'
+      }
+    },
+    {
       path: '/issues',
       name: 'issues',
       component: IssuesView,
@@ -41,6 +58,17 @@ const router = new Router({
       name: 'login',
       component: LoginView,
       meta: {
+        title: 'Home Page - Example App',
+        metaTags: [
+          {
+            name: 'description',
+            content: 'The home page of our example app.'
+          },
+          {
+            property: 'og:description',
+            content: 'The home page of our example app.'
+          }
+        ],
         nav: 'login'
       }
     },

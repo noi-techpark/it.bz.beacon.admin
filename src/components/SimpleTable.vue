@@ -6,11 +6,12 @@
         <!--<icon-base><icon-loading /></icon-base>-->
       </div>
     </transition>
-    <pagination :records-number="mRecords" :offset="offset" :total-records="meta.totalRecords"
+    <pagination class="mb-2"
+                :records-number="mRecords" :records-number-list="meta.pagination.recordsNumberList" :records-number-list-enabled="true" :offset="offset" :total-records="meta.totalRecords"
                 @page-changed="setPage" @records-number-changed="setRecordsNumber" v-if="meta.pagination" />
     <div :class="{'table-responsive': responsive}" v-if="data.length">
       <table class="table table-bordered-outside">
-        <thead class="thead-secondary">
+        <thead class="thead-secondary table-header">
         <tr v-if="groupCols.length">
           <th v-if="hasSlot('nested')"></th>
           <th class="group-first-col" v-for="(groupCol, index) in groupCols" :key="index" :colspan="groupCol.colspan || 1">
@@ -18,7 +19,7 @@
           </th>
         </tr>
         </thead>
-        <thead :class="{'thead-light thead-sub': groupCols.length, 'thead-secondary': !groupCols.length}">
+        <thead class="table-header " :class="{'thead-light thead-sub': groupCols.length, 'thead-secondary': !groupCols.length}">
         <tr>
           <th class="col-nested-btn" v-if="hasSlot('nested')"></th>
           <th v-for="(col, index) in cols" :key="index" @click="changeSorting(col)"
@@ -40,7 +41,7 @@
         </thead>
         <tbody>
         <template v-for="(record, index) in data">
-          <tr :key="index + '_1'">
+          <tr :key="index + '_1'" class="table-item" @click="rowClick(record)">
             <td v-if="hasSlot('nested')">
               <button class="btn btn-icon has-nested" :class="{'opened-nested': openedNested[index] === true}"
                       @click="toggleNested(index)">
@@ -58,13 +59,19 @@
                       {{ get(record, col.key) }}
                     </span>
                 </template>
+                <template v-else-if="col.type === 'beacon-status'">
+                  <beacon-status :status="get(record, col.key)"/>
+                </template>
+                <template v-else-if="col.type === 'battery-level'">
+                  <battery-level :level="get(record, col.key)"/>
+                </template>
                 <template v-else-if="col.type === 'euro'">
                     <span class="text-nowrap" :class="{'number-negative': get(record, col.key) < 0}">
                       {{ get(record, col.key) }}
                     </span>
                 </template>
                 <template v-else-if="col.type === 'date'">
-                  <span class="text-nowrap">{{ get(record, col.key) }}</span>
+                  <span class="text-nowrap">{{ get(record, col.key) | formatDate }} </span>
                 </template>
                 <template v-else-if="col.type === 'month'">
                   {{ get(record, col.key) }}
@@ -87,126 +94,147 @@
         </tfoot>
       </table>
     </div>
+    <pagination class="mt-2"
+                :records-number="mRecords" :records-number-list="meta.pagination.recordsNumberList" :records-number-list-enabled="false" :offset="offset" :total-records="meta.totalRecords"
+                @page-changed="setPage" @records-number-changed="setRecordsNumber" v-if="meta.pagination" />
   </div>
 </template>
 
 <script>
-const ALIGN_RIGHT = 1
+  const ALIGN_RIGHT = 1
 
-import merge from 'lodash/merge'
-import get from 'lodash/get'
-import Pagination from './Pagination'
+  import merge from 'lodash/merge'
+  import get from 'lodash/get'
+  import Pagination from './Pagination'
+  import BeaconStatus from './BeaconStatus'
+  import BatteryLevel from './BatteryLevel'
+  import moment from 'moment'
 
-export default {
-  components: {
-    Pagination
-  },
-  data() {
-    return {
-      openedNested: {},
-      ALIGN_RIGHT: ALIGN_RIGHT
-    }
-  },
-  props: {
-    loading: {
-      type: Boolean,
-      default: false
+  export default {
+    components: {
+      Pagination,
+      BeaconStatus,
+      BatteryLevel
     },
-    cols: {
-      type: Array,
-      default: () => []
-    },
-    groupCols: {
-      type: Array,
-      default: () => []
-    },
-    data: {
-      type: Array,
-      default: () => []
-    },
-    meta: {
-      type: Object,
-      default: () => {
-        return {}
+    data() {
+      return {
+        openedNested: {},
+        ALIGN_RIGHT: ALIGN_RIGHT
       }
     },
-    responsive: {
-      type: Boolean,
-      default: false
-    }
-  },
-  computed: {
-    mRecords() {
-      return this.meta.pagination ? this.meta.pagination.records : null
-    },
-    offset() {
-      return ((this.meta.pagination.page - 1) * this.meta.pagination.records) + 1
-    },
-    hasSlot() {
-      return (name = 'default') => !!this.$slots[name] || !!this.$scopedSlots[name]
-    },
-    groupFirstCols() {
-      return this.groupCols.reduce((filtered, group) => {
-        filtered.push(group.colspan + (filtered.length ? filtered[filtered.length - 1] : 0))
-        return filtered
-      }, [])
-    }
-  },
-  watch: {
-    data: {
-      deep: true,
-      handler() {
-        this.openedNested = {}
+    props: {
+      loading: {
+        type: Boolean,
+        default: false
+      },
+      cols: {
+        type: Array,
+        default: () => []
+      },
+      groupCols: {
+        type: Array,
+        default: () => []
+      },
+      data: {
+        type: Array,
+        default: () => []
+      },
+      meta: {
+        type: Object,
+        default: () => {
+          return {}
+        }
+      },
+      responsive: {
+        type: Boolean,
+        default: false
       }
-    }
-  },
-  methods: {
-    setPage(page) {
-      this.emitChange({
-        pagination: {
-          page: page + 1
-        }
-      })
     },
-    setRecordsNumber(number) {
-      this.emitChange({
-        pagination: {
-          records: number
-        }
-      })
+    computed: {
+      mRecords() {
+        return this.meta.pagination ? this.meta.pagination.records : null
+      },
+      offset() {
+        return ((this.meta.pagination.page - 1) * this.meta.pagination.records) + 1
+      },
+      hasSlot() {
+        return (name = 'default') => !!this.$slots[name] || !!this.$scopedSlots[name]
+      },
+      groupFirstCols() {
+        return this.groupCols.reduce((filtered, group) => {
+          filtered.push(group.colspan + (filtered.length ? filtered[filtered.length - 1] : 0))
+          return filtered
+        }, [])
+      }
     },
-    changeSorting(col) {
-      if (this.meta.sorting && col.sorting !== false) {
+    watch: {
+      data: {
+        deep: true,
+        handler() {
+          this.openedNested = {}
+        }
+      }
+    },
+    methods: {
+      rowClick(record) {
+        this.$emit('rowClicked', record)
+      },
+      setPage(page) {
         this.emitChange({
-          sorting: {
-            col: col.key,
-            order: this.meta.sorting.col === col.key && this.meta.sorting.order === 'asc' ? 'desc' : 'asc'
+          pagination: {
+            page: page + 1
           }
         })
+      },
+      setRecordsNumber(number) {
+        this.emitChange({
+          pagination: {
+            records: number
+          }
+        })
+      },
+      changeSorting(col) {
+        if (this.meta.sorting && col.sorting !== false) {
+          this.emitChange({
+            sorting: {
+              col: col.key,
+              order: this.meta.sorting.col === col.key && this.meta.sorting.order === 'asc' ? 'desc' : 'asc'
+            }
+          })
+        }
+      },
+      emitChange(dataChanges = {}) {
+        this.$emit('change', merge(
+          {},
+          {
+            pagination: this.meta.pagination,
+            sorting: this.meta.sorting
+          },
+          dataChanges
+        ))
+      },
+      toggleNested(index) {
+        this.$set(this.openedNested, index, !this.openedNested[index])
+      },
+      getColAlign(col) {
+        return col.type === 'float' || col.type === 'euro' ? ALIGN_RIGHT : 0
+      },
+      isGroupFirstCol(colIndex) {
+        return this.groupCols.length && this.groupFirstCols.indexOf(colIndex) > -1
+      },
+      get: get
+    },
+    filters: {
+      formatDate: (dateString) => {
+        let date = moment(dateString)
+        if (!date.isValid()) {
+          return ''
+        }
+
+        return date.format('DD.MM.YYYY')
       }
-    },
-    emitChange(dataChanges = {}) {
-      this.$emit('change', merge(
-        {},
-        {
-          pagination: this.meta.pagination,
-          sorting: this.meta.sorting
-        },
-        dataChanges
-      ))
-    },
-    toggleNested(index) {
-      this.$set(this.openedNested, index, !this.openedNested[index])
-    },
-    getColAlign(col) {
-      return col.type === 'float' || col.type === 'euro' ? ALIGN_RIGHT : 0
-    },
-    isGroupFirstCol(colIndex) {
-      return this.groupCols.length && this.groupFirstCols.indexOf(colIndex) > -1
-    },
-    get: get
+    }
   }
-}
 </script>
 
 <style lang="scss">

@@ -15,6 +15,7 @@
         </div>
       </div>
       <slot name="body"></slot>
+      <slot name="loader"></slot>
     </div>
   </div>
 </template>
@@ -25,7 +26,10 @@ import { mapGetters, mapActions } from 'vuex'
 
 export default {
   props: {
-    source: ''
+    source: {
+      type: String,
+      default: ''
+    }
   },
   components: {
     Navigation
@@ -51,6 +55,8 @@ export default {
   .body {
     position: relative;
     z-index: 99;
+    display: flex;
+    flex-direction: column;
   }
 
   .search-bar {
@@ -58,6 +64,7 @@ export default {
     position: relative;
     background: white;
     border-left: 1px solid $background-grey;
+    z-index: 1;
   }
 
   .user-login {

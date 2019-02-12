@@ -46,19 +46,10 @@ export default {
   data() {
     return {
       visible: false,
-      promise: null
+      promise: null,
     }
   },
   methods: {
-    open() {
-      this.visible = true
-      return new Promise((resolve, reject) => {
-        this.promise = {
-          resolve: resolve,
-          reject: reject
-        }
-      })
-    },
     close(resolved) {
       this.visible = false
       if (this.promise) {

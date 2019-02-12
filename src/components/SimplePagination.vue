@@ -1,6 +1,13 @@
 <template>
-  <nav v-if="pageCount > 1">
-    <ul class="pagination pagination-lg">
+  <nav>
+    <ul class="pagination pagination-lg mb-0">
+      <li class="page-item zipfl">
+        <a
+           href class="page-link d-flex justify-content-center align-items-center page-link-iconed " :class="currentPage <= 0 ? 'page-link-disabled' : ''"
+           @click.prevent="setPage(currentPage - 1)" tabindex="-1">
+          <img src="../assets/img/action_previous.svg" class="page-link-icon"/>
+        </a>
+      </li>
       <li class="page-item" v-for="(page, index) in getPaginationElements" :key="index">
         <a v-if="page !== null && page !== currentPage"
            href class="page-link d-flex justify-content-center align-items-center"
@@ -12,6 +19,13 @@
                   {{ page === null ? '...' : page + 1 }}
                 </span>
       </li>
+      <li class="page-item">
+        <a
+          href class="page-link d-flex justify-content-center align-items-center page-link-iconed " :class="currentPage >= pageCount - 1 ? 'page-link-disabled' : ''"
+          @click.prevent="setPage(currentPage + 1)" tabindex="-1">
+          <img src="../assets/img/action_next.svg" class="page-link-icon"/>
+        </a>
+      </li>
     </ul>
   </nav>
 </template>
@@ -19,8 +33,14 @@
 <script>
 export default {
   props: {
-    pageCount: 0,
-    currentPage: 0
+    pageCount: {
+      type: Number,
+      default: 0
+    },
+    currentPage: {
+      type: Number,
+      default: 0
+    }
   },
   computed: {
     getPaginationElements() {
@@ -67,7 +87,9 @@ export default {
   },
   methods: {
     setPage(number) {
-      this.$emit('page-changed', number)
+      if (number >= 0 && number < this.pageCount) {
+        this.$emit('page-changed', number)
+      }
     }
   }
 }
@@ -76,17 +98,17 @@ export default {
 <style lang="scss" scoped>
   @import '~bootstrap/scss/functions';
   @import '~bootstrap/scss/variables';
-
-  $secondary: #9ba02b;
+  @import '../variables';
 
   .pagination-lg {
     .page-item {
+
       .page-link {
-        padding: 0;
-        font-size: 15px;
+        padding: 0.5em 1em;
+        font-size: 1em;
         box-sizing: border-box;
-        width: 45px;
-        height: $input-height;
+        line-height: 2rem;
+        height: 2rem;
 
         &:focus {
           box-shadow: none;
@@ -94,7 +116,25 @@ export default {
       }
 
       a.page-link {
-        color: $secondary;
+        color: $text-grey;
+
+        &.page-link-iconed {
+          padding: 0.25em;
+        }
+
+        .page-link-icon {
+          opacity: 0.6;
+        }
+
+        &.page-link-disabled {
+          color: $text-muted-grey;
+          cursor: not-allowed;
+          background: $background-grey;
+
+          img {
+            opacity: 0.3;
+          }
+        }
       }
 
       span.page-link {
@@ -102,9 +142,9 @@ export default {
         pointer-events: none;
 
         &.active {
-          background-color: $secondary;
+          background-color: $light-blue;
           color: #fff;
-          border-color: $secondary;
+          border-color: $light-blue;
           font-weight: 700;
         }
       }
