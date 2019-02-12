@@ -3,13 +3,17 @@ import { getBeacons, getBeacon } from '../service/apiService'
 const SET_BEACONS = 'SET_BEACONS'
 const SET_BEACON = 'SET_BEACON'
 const CLEAR = 'CLEAR'
+const SET_MODE = 'SET_MODE'
+const LIST = 'LIST'
+const MAP = 'MAP'
 
 export default {
   namespaced: true,
   state: {
-    beacons: [],
+    beacons: null,
     error: '',
-    beacon: null
+    beacon: null,
+    viewMode: LIST
   },
   mutations: {
     [SET_BEACONS](state, beacons) {
@@ -19,8 +23,11 @@ export default {
       state.beacon = beacon
     },
     [CLEAR](state) {
-      state.beacons = []
+      state.beacons = null
       state.beacon = null
+    },
+    [SET_MODE](state, viewMode) {
+      state.viewMode = viewMode
     }
   },
   actions: {
@@ -44,6 +51,10 @@ export default {
     },
     clear({ commit }) {
       commit(CLEAR)
+    },
+    setViewMode({commit, state}, viewMode) {
+      commit(SET_MODE, viewMode)
+      return state.viewMode
     }
   },
   getters: {
@@ -55,6 +66,9 @@ export default {
     },
     beacon(state) {
       return state.beacon
+    },
+    viewMode(state) {
+      return state.viewMode
     }
   }
 }

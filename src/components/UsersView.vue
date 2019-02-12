@@ -8,7 +8,7 @@
       </div>
     </template>
     <template slot="body">
-      <div class="container">
+      <div class="container" v-show="loaded">
         <div class="row user-display m-4 p-4 pb-5">
           <div class="col-12 col-header table-header">
             <div class="row">
@@ -40,12 +40,14 @@
       </div>
 
       <!--<simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta" />-->
+      <loader :visible="!loaded" :label="'Loading users...'"/>
     </template>
   </layout>
 </template>
 
 <script>
 import Layout from './Layout'
+import Loader from './Loader'
 import SimpleTable from './SimpleTable'
 import { deleteUser } from '../service/apiService'
 import Confirm from './Confirm'
@@ -55,7 +57,8 @@ export default {
   components: {
     Layout,
     SimpleTable,
-    Confirm
+    Confirm,
+    Loader
   },
   name: 'Users',
   data() {
@@ -93,7 +96,8 @@ export default {
           records: 1
         }
       },
-      search: ''
+      search: '',
+      loaded: false
     }
   },
   computed: {
@@ -101,6 +105,10 @@ export default {
       'users'
     ]),
     listUsers() {
+      if (this.users == null) {
+        return []
+      }
+
       let users = this.users.slice(0).filter((user) => {
         return user.username.toLowerCase().includes(this.search.toLowerCase())
           || user.name.toLowerCase().includes(this.search.toLowerCase())
@@ -116,6 +124,7 @@ export default {
         }
         return 0
       })
+      this.$set(this, 'loaded', true)
 
       return users
     }
@@ -196,5 +205,6 @@ export default {
     color: $grey;
     padding-top: 1em;
     padding-bottom: 1em;
+    font-size: 0.8rem;
   }
 </style>

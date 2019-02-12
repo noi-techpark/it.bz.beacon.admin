@@ -19,9 +19,9 @@
 
 <script>
 export default {
-  props: {
-    source: ''
-  },
+  // props: {
+  //   source: ''
+  // },
   name: 'Navigation',
   data() {
     return {

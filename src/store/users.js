@@ -7,7 +7,7 @@ const CLEAR = 'CLEAR'
 export default {
   namespaced: true,
   state: {
-    users: [],
+    users: null,
     error: '',
     user: null
   },
@@ -19,7 +19,7 @@ export default {
       state.user = user
     },
     [CLEAR](state) {
-      state.users = []
+      state.users = null
       state.user = null
     }
   },

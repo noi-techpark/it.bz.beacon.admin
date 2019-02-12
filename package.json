@@ -9,6 +9,7 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "@google/markerclusterer": "^1.0.3",
     "@material/slider": "^0.44.0",
     "@material/switch": "^0.44.0",
     "@material/tab-bar": "^0.44.0",

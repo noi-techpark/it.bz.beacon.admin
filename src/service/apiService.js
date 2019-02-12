@@ -109,10 +109,6 @@ export function getImagesForBeacon(id) {
   return callGet(PATH_BEACONS + '/' + id + SUB_PATH_IMAGES, true)
 }
 
-export function getImageForBeacon(beaconId, id) {
-  return callGet(PATH_BEACONS + '/' + beaconId + SUB_PATH_IMAGES + '/' + id, true)
-}
-
 // ISSUES
 export function getIssuesForBeacon(id) {
   return callGet(PATH_BEACONS + '/' + id + SUB_PATH_ISSUES, true)

@@ -2,7 +2,7 @@
   <!-- eslint-disable -->
   <layout :source="title">
     <template slot="body">
-      <div class="container pb-4">
+      <div class="container pb-4" v-show="loaded">
         <div class="row mt-4">
           <div class="col-12">
             <h2 class="beacon-title">{{ beacon.name }}</h2>
@@ -10,17 +10,17 @@
         </div>
         <div class="row">
           <div class="col-12">
-            <span class="text-muted">last seen:</span> {{ beacon.lastSeen }}
+            <span class="text-muted">last seen:</span> {{ formatLastSeen(beacon) }}
           </div>
         </div>
         <div class="row mt-4 row-eq-height">
           <div class="col-4 d-flex">
-            <div class="row beacon-detail-card">
+            <div :class="'row beacon-detail-card ' + (beacon.batteryLevel <= 5 ? 'battery-status-low' : '')">
               <div class="col-6 d-flex flex-column justify-content-between flex-grow-1 flex-shrink-0">
                 <h5>Battery status</h5>
                 <div class="mt-2">
                   <h4 class="mb-0"><strong>{{ beacon.batteryLevel }}%</strong></h4>
-                  <div class="small label-yellow">critical < 5%</div>
+                  <div :class="'small ' + (beacon.batteryLevel > 5 ? 'label-yellow' : '')">critical < 5%</div>
                 </div>
               </div>
                 <div :class="'col-6 d-flex flex-column justify-content-between flex-grow-1 flex-shrink-0 border-start ' + (beacon.status === 'CONFIGURATION_PENDING' ? 'status-pending' : '')">
@@ -35,20 +35,28 @@
           <div class="col-8 d-flex">
             <div class="row beacon-detail-card">
               <div class="col-8 d-flex flex-column justify-content-between flex-grow-1 flex-shrink-0">
-                <h5>Signal strength</h5>
-                <div id="frequency-slider" class="mdc-slider mdc-slider--discrete" tabindex="0" role="slider" aria-disabled="true" aria-valuemin="1" aria-valuemax="7" :aria-valuenow="beacon.txPower" data-step="1" aria-label="Select Value">
-                  <div class="mdc-slider__track-container">
-                    <div class="mdc-slider__track"></div>
-                    <div class="mdc-slider__track-marker-container"></div>
+                <div class="row">
+                  <div class="col-12 p-0">
+                    <h5>Signal strength</h5>
                   </div>
-                  <div class="mdc-slider__thumb-container">
-                    <div class="mdc-slider__pin slider-always-label">
-                      <span class="mdc-slider__pin-value-marker"></span>
+                </div>
+                <div class="row">
+                  <div class="col-12">
+                    <div id="frequency-slider" class="mdc-slider mdc-slider--discrete mdc-slider--display-markers" tabindex="0" role="slider" aria-disabled="true" aria-valuemin="1" aria-valuemax="7" :aria-valuenow="beacon.txPower" data-step="1" aria-label="Select Value">
+                      <div class="mdc-slider__track-container">
+                        <div class="mdc-slider__track"></div>
+                        <div class="mdc-slider__track-marker-container"></div>
+                      </div>
+                      <div class="mdc-slider__thumb-container">
+                        <div class="mdc-slider__pin slider-always-label">
+                          <span class="mdc-slider__pin-value-marker"></span>
+                        </div>
+                        <svg class="mdc-slider__thumb" width="21" height="21">
+                          <circle cx="10.5" cy="10.5" r="7.875"></circle>
+                        </svg>
+                        <div class="mdc-slider__focus-ring"></div>
+                      </div>
                     </div>
-                    <svg class="mdc-slider__thumb" width="21" height="21">
-                      <circle cx="10.5" cy="10.5" r="7.875"></circle>
-                    </svg>
-                    <div class="mdc-slider__focus-ring"></div>
                   </div>
                 </div>
               </div>
@@ -66,7 +74,14 @@
           <div class="col-4 d-flex">
             <div class="row beacon-detail-card">
               <div class="col-12 d-flex flex-column flex-grow-1 flex-shrink-0">
-                <h5>Location</h5>
+                <div class="row">
+                  <div class="col pl-0">
+                    <h5>Location</h5>
+                  </div>
+                  <div class="col-auto pr-0">
+                    <small class="text-muted">{{ beacon.locationType }}</small>
+                  </div>
+                </div>
                 <div id="location-tab-bar" class="mdc-tab-bar" role="tablist">
                   <div class="mdc-tab-scroller mdc-tab-scroller--align-start">
                     <div class="mdc-tab-scroller__scroll-area">
@@ -131,15 +146,24 @@
                     </div>
                   </div>
                   <div class="row flex-grow-1 mt-3">
-                    <div class="col-12 p-0 d-flex">
-                      <div class="description flex-grow-1"><small>{{ beacon.locationDescription }}</small></div>
+                    <div class="col-12 p-0 d-flex flex-column">
+                      <div class="description flex-grow-1"><small>{{ beacon.description }}</small></div>
+                      <small class="text-muted">Description</small>
+                    </div>
+                  </div>
+                  <div class="row mt-3" v-show="beacon.locationType === 'INDOOR'">
+                    <div class="col-12 p-0 d-flex flex-column">
+                      <input type="number" class="form-control" :value="beacon.locationDescription" readonly />
+                      <small class="text-muted">Floor</small>
                     </div>
                   </div>
                 </div>
-                <div id="location-images" :class="(locationTab === 'IMAGES' ? 'd-flex' : '') + 'mt-4 flex-grow-1 flex-column'" v-show="locationTab === 'IMAGES'">
-                  <div class="row mt-3" v-bind:key="image.id" v-if="images.length" v-for="image in images">
-                    <div class="col-12 text-center">
-                      <img :src="image.content"/>
+                <div id="location-images" :class="(locationTab === 'IMAGES' ? 'd-flex' : '') + ' location-images mt-4 flex-grow-1 flex-column position-relative'" v-show="locationTab === 'IMAGES'">
+                  <div class="location-images-wrapper">
+                    <div :class="'row ' + (key > 0 ? 'mt-3' : '')" v-bind:key="image.id" v-if="images.length" v-for="(image, key) in images">
+                      <div class="col-12 text-center p-0">
+                        <img :src="image.content" class="location-image" />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -150,7 +174,7 @@
             <div class="row beacon-detail-card flex-grow-1">
               <div class="col-12 d-flex flex-column flex-grow-1 flex-shrink-0">
                 <div class="row">
-                  <div class="col">
+                  <div class="col p-0">
                     <h5>Beacon config</h5>
                   </div>
                 </div>
@@ -332,23 +356,27 @@
           </div>
         </div>
       </div>
+      <loader :visible="!loaded" :label="'Loading beacon data...'"/>
     </template>
   </layout>
 </template>
 
 <script>
 import Layout from './Layout'
+import Loader from './Loader'
 import { getBeacon } from '../service/apiService'
 import {MDCSlider} from '@material/slider'
 import {MDCTabBar} from '@material/tab-bar'
 import {MDCSwitch} from '@material/switch'
 import config from '../service/config'
-import { getIssuesForBeacon, getImagesForBeacon, getImageForBeacon } from "../service/apiService"
+import { getIssuesForBeacon, getImagesForBeacon } from "../service/apiService"
 import store from '../store/store'
+import moment from 'moment'
 
 export default {
   components: {
-    Layout
+    Layout,
+    Loader
   },
   name: 'Beacon',
   data() {
@@ -360,7 +388,8 @@ export default {
       issues: [],
       modeTab: 'IBEACON',
       locationTab: 'GPS',
-      images: []
+      images: [],
+      loaded: false
     }
   },
   mounted() {
@@ -396,6 +425,7 @@ export default {
     const eddystoneEidSwitch = new MDCSwitch(document.querySelector('#eddystone-eid-switch'));
     const eddystoneEtlmSwitch = new MDCSwitch(document.querySelector('#eddystone-etlm-switch'));
     const eddystoneTlmSwitch = new MDCSwitch(document.querySelector('#eddystone-tlm-switch'));
+
     iBeaconSwitch.disabled = true
     eddystoneUidSwitch.disabled = true
     eddystoneUrlSwitch.disabled = true
@@ -406,7 +436,7 @@ export default {
     getBeacon(this.$route.params.id).then((beacon) => {
       Object.assign(this.beacon, beacon)
       slider.value = beacon.txPower
-      document.querySelector('.mdc-slider .mdc-slider__pin-value-marker').innerHTML = beacon.txPower
+      document.querySelector('#frequency-slider .mdc-slider__pin-value-marker').innerHTML = beacon.txPower
       document.querySelector('#location-map').setAttribute('src', this.getStaticMap(beacon))
       iBeaconSwitch.checked = beacon.iBeacon
       eddystoneUidSwitch.checked = beacon.eddystoneUid
@@ -414,6 +444,10 @@ export default {
       eddystoneEidSwitch.checked = beacon.eddystoneEid
       eddystoneEtlmSwitch.checked = beacon.eddystoneEtlm
       eddystoneTlmSwitch.checked = beacon.eddystoneTlm
+      this.$set(this, 'loaded', true)
+      setTimeout(() => {
+        slider.layout()
+      })
     })
 
     getIssuesForBeacon(this.$route.params.id).then(issues => {
@@ -443,22 +477,25 @@ export default {
   },
   methods: {
     icon(beacon) {
+      return 'https://beacon-dev.it/img/map_icon_pending.4762a85f.png';
       let uri = location.origin;
       switch(beacon.status) {
-        // case 'BATTERY_LOW':
-        // case 'ISSUE':
-          // return location.origin + require('../assets/status_issue.svg');
-        // case 'CONFIGURATION_PENDING':
-          // return location.origin + require('../assets/status_pending.svg');
+        case 'BATTERY_LOW':
+        case 'ISSUE':
+          uri += require('../assets/map_icon_issue.png')
+          break
+        case 'CONFIGURATION_PENDING':
+          uri += require('../assets/map_icon_pending.png')
+          break
         default:
-          let svg = require('../assets/status_pending.svg')
-          let png = require('../assets/status_pending.png')
-          debugger
-          uri += require('../assets/status_pending.png')
-          // return location.origin + require('../assets/status_ok.svg');
+          uri += require('../assets/map_icon_ok.png')
+          break
       }
 
       return encodeURI(uri);
+    },
+    formatLastSeen(beacon) {
+      return moment(beacon.lastSeen * 1000).format('DD.MM.YYYY');
     },
     getStaticMap(beacon) {
       return 'https://maps.googleapis.com/maps/api/staticmap' +
@@ -466,8 +503,26 @@ export default {
         '&zoom=18' +
         '&size=300x200' +
         '&maptype=roadmap' +
-        '&markers=' + beacon.lat + ',' + beacon.lng + '|icon:' + this.icon(beacon) +
-        '&key=' + config.GOOGLE_MAPS_API_KEY;
+        '&markers=anchor:center|size:tiny|icon:' + this.icon(beacon) + '|' + beacon.lat + ',' + beacon.lng +
+        '&key=' + config.GOOGLE_MAPS_API_KEY +
+        '&style=element:geometry%7Ccolor:0xf5f5f5' +
+        '&style=element:labels.icon%7Cvisibility:off' +
+        '&style=element:labels.text.fill%7Ccolor:0x616161' +
+        '&style=element:labels.text.stroke%7Ccolor:0xf5f5f5' +
+        '&style=feature:administrative.land_parcel%7Celement:labels.text.fill%7Ccolor:0xbdbdbd' +
+        '&style=feature:poi%7Celement:geometry%7Ccolor:0xeeeeee' +
+        '&style=feature:poi%7Celement:labels.text.fill%7Ccolor:0x757575' +
+        '&style=feature:poi.park%7Celement:geometry%7Ccolor:0xe5e5e5' +
+        '&style=feature:poi.park%7Celement:labels.text.fill%7Ccolor:0x9e9e9e' +
+        '&style=feature:road%7Celement:geometry%7Ccolor:0xffffff' +
+        '&style=feature:road.arterial%7Celement:labels.text.fill%7Ccolor:0x757575' +
+        '&style=feature:road.highway%7Celement:geometry%7Ccolor:0xdadada' +
+        '&style=feature:road.highway%7Celement:labels.text.fill%7Ccolor:0x616161' +
+        '&style=feature:road.local%7Celement:labels.text.fill%7Ccolor:0x9e9e9e' +
+        '&style=feature:transit.line%7Celement:geometry%7Ccolor:0xe5e5e5' +
+        '&style=feature:transit.station%7Celement:geometry%7Ccolor:0xeeeeee' +
+        '&style=feature:water%7Celement:geometry%7Ccolor:0xc9c9c9' +
+        '&style=feature:water%7Celement:labels.text.fill%7Ccolor:0x9e9e9e'
     },
     getStatusClassPostfix(beacon) {
       switch (beacon.status) {
@@ -481,7 +536,6 @@ export default {
         default:
           return 'default'
       }
-      return statusClass;
     },
     getStatusText(beacon) {
       switch (beacon.status) {
@@ -615,12 +669,14 @@ export default {
     input[readonly] {
       background: white;
       border-color: $background-grey;
+      color: $text-muted-grey;
     }
 
     .description {
       border: 1px solid $background-grey;
       color: $text-muted-grey;
       border-radius: 0.25rem;
+      padding: 0.25em 0.75em;
     }
 
     button.location-description-button {
@@ -640,6 +696,23 @@ export default {
         opacity: 0.6;
       }
     }
+
+    .location-images {
+      overflow: auto;
+      overflow-x: hidden;
+    }
+
+    .location-images-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+
+    .location-image {
+      width:100%;
+    }
   }
 
   .row-eq-height {
@@ -658,6 +731,13 @@ export default {
     background-color: $status-blue;
     border-top-right-radius: 10px;
     border-bottom-right-radius: 10px;
+  }
+
+  .battery-status-low {
+    color: white;
+    background-color: $status-yellow;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
   }
 
   .status-label-ok {
@@ -687,8 +767,19 @@ export default {
       color: $grey;
       padding-top: 1em;
       padding-bottom: 1em;
-      text-transform: uppercase;
     }
+  }
+
+
+
+  .zipfzapf {
+    flex: 1;
+  }
+  .zipfzapf::after {
+    display: block;
+    width: 2px;
+    height: 2px;
+    content: "";
   }
 
 </style>

@@ -38,6 +38,14 @@ const router = new Router({
       }
     },
     {
+      path: '/beacons',
+      name: 'beacon-new',
+      component: BeaconsView,
+      meta: {
+        nav: 'beacons'
+      }
+    },
+    {
       path: '/issues',
       name: 'issues',
       component: IssuesView,
