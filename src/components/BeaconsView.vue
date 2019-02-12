@@ -13,43 +13,47 @@
           <button type="button" :class="'btn btn-view-switch ' + (viewMode === 'LIST' ? 'btn-view-switch-active' : '')" @click="changeMode('LIST')"><img src="../assets/ic_list.svg"/></button>
           <button type="button" :class="'btn btn-view-switch ' + (viewMode === 'MAP' ? 'btn-view-switch-active' : '')" @click="changeMode('MAP')"><img src="../assets/ic_map.svg"/></button>
         </div>
-        <div class="container" v-show="loaded && viewMode === 'LIST'">
-          <div class="row beacon-display m-4 p-4 pb-5">
-            <div class="col-12 col-header table-header">
-              <div class="row">
-                <div class="col-2 pl-0">Name</div>
-                <div class="col-1">Major</div>
-                <div class="col-1">Minor</div>
-                <div class="col-5">Description</div>
-                <div class="col-1">Seen</div>
-                <div class="col-1">Battery</div>
-                <div class="col-1 pr-0">Status</div>
-              </div>
+        <div class="container mt-6 p-0" v-show="loaded && viewMode === 'LIST'">
+          <!--<div class="row beacon-display m-4 p-4 pb-5">-->
+            <!--<div class="col-12 col-header table-header">-->
+              <!--<div class="row">-->
+                <!--<div class="col-2 pl-0">Name</div>-->
+                <!--<div class="col-1">Major</div>-->
+                <!--<div class="col-1">Minor</div>-->
+                <!--<div class="col-5">Description</div>-->
+                <!--<div class="col-1">Seen</div>-->
+                <!--<div class="col-1">Battery</div>-->
+                <!--<div class="col-1 pr-0">Status</div>-->
+              <!--</div>-->
+            <!--</div>-->
+            <!--<router-link class="col-12 beacon-item" v-bind:key="beacon.id" v-if="beacons.length" v-for="beacon in listBeacons" :to="{name: 'beacon-detail', params: { id: beacon.id }}">-->
+              <!--<div class="row beacon-row">-->
+                <!--<div class="col-2 pl-0">{{ beacon.name }}</div>-->
+                <!--<div class="col-1">{{ beacon.major }}</div>-->
+                <!--<div class="col-1">{{ beacon.minor }}</div>-->
+                <!--<div class="col-5">{{ beacon.description }}</div>-->
+                <!--<div class="col-1">{{ formatLastSeen(beacon) }}</div>-->
+                <!--<div class="col-1 text-right d-flex align-middle justify-content-end">-->
+                  <!--<span>{{ beacon.batteryLevel }} %</span>-->
+                  <!--<div :class="'battery ml-2 ' + (beacon.batteryLevel <= 5 ? 'warning' : '')">-->
+                    <!--<div class="chargestatus" :style="'top:' + (100 - beacon.batteryLevel) + '%;height:' + beacon.batteryLevel + '%'"></div>-->
+                  <!--</div>-->
+                <!--</div>-->
+                <!--<div class="col-1 pr-0"><span :class='"badge badge-pill badge-status " + getStatusClass(beacon)'>{{ getStatusText(beacon) }}</span></div>-->
+              <!--</div>-->
+            <!--</router-link>-->
+            <!--<div class="col-12 alert alert-danger" v-else> {{ getError }} </div>-->
+            <!--<router-link class="fab add-fab" :to="{name: 'beacon-new'}" style="display:none"><i class="fab-icon-addissue"></i></router-link>-->
+          <!--</div>-->
+
+          <div class="row beacon-display m-4 p-4">
+            <div class="col-12 p-0">
+              <simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta" />
             </div>
-            <router-link class="col-12 beacon-item" v-bind:key="beacon.id" v-if="beacons.length" v-for="beacon in listBeacons" :to="{name: 'beacon-detail', params: { id: beacon.id }}">
-              <div class="row beacon-row">
-                <div class="col-2 pl-0">{{ beacon.name }}</div>
-                <div class="col-1">{{ beacon.major }}</div>
-                <div class="col-1">{{ beacon.minor }}</div>
-                <div class="col-5">{{ beacon.description }}</div>
-                <div class="col-1">{{ formatLastSeen(beacon) }}</div>
-                <div class="col-1 text-right d-flex align-middle justify-content-end">
-                  <span>{{ beacon.batteryLevel }} %</span>
-                  <div :class="'battery ml-2 ' + (beacon.batteryLevel <= 5 ? 'warning' : '')">
-                    <div class="chargestatus" :style="'top:' + (100 - beacon.batteryLevel) + '%;height:' + beacon.batteryLevel + '%'"></div>
-                  </div>
-                </div>
-                <div class="col-1 pr-0"><span :class='"badge badge-pill badge-status " + getStatusClass(beacon)'>{{ getStatusText(beacon) }}</span></div>
-              </div>
-            </router-link>
-            <div class="col-12 alert alert-danger" v-else> {{ getError }} </div>
-            <router-link class="fab add-fab" :to="{name: 'beacon-new'}" style="display:none"><i class="fab-icon-addissue"></i></router-link>
           </div>
         </div>
         <div id="map" class="beacon-map" v-show="loaded && viewMode === 'MAP'">
         </div>
-
-        <!--<simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta" />-->
         <loader :visible="!loaded" :label="'Loading beacons...'"/>
       </div>
     </template>
@@ -65,6 +69,7 @@
   import gmapsInit from '../service/googlemaps'
   import MarkerClusterer  from '@google/markerclusterer'
   import router from '../router/index'
+  import merge from 'lodash/merge'
 
   export default {
     components: {
@@ -80,6 +85,30 @@
           {
             title: 'Name',
             key: 'name'
+          },
+          {
+            title: 'Major',
+            key: 'major'
+          },
+          {
+            title: 'Minor',
+            key: 'minor'
+          },
+          {
+            title: 'Description',
+            key: 'description'
+          },
+          {
+            title: 'Seen',
+            key: 'lastSeen'
+          },
+          {
+            title: 'Battery',
+            key: 'batteryLevel'
+          },
+          {
+            title: 'Status',
+            key: 'status'
           }
         ],
         tableData: [],
@@ -89,7 +118,10 @@
             order: 'asc'
           },
           pagination: {
-            records: 1
+            offset: 0,
+            page: 1,
+            records: 10,
+            recordsNumberList: [2, 5, 10, 20]
           }
         },
         search: '',
@@ -103,34 +135,38 @@
       ...mapGetters('beacons', [
         'beacons',
         'viewMode'
-      ]),
-      listBeacons() {
-        if (this.beacons == null) {
-          return []
-        }
-
-        let beacons = this.beacons.slice(0).filter((beacon) => {
-          return beacon.name.toLowerCase().includes(this.search.toLowerCase())
-        })
-        beacons.sort((beaconA, beaconB) => {
-          if (beaconA.name < beaconB.name) {
-            return -1
-          }
-          if (beaconA.name > beaconB.name) {
-            return 1
-          }
-          return 0
-        })
-
-        this.$set(this, 'loaded', true)
-
-        return beacons
-      }
+      ])
+      // listBeacons() {
+      //   if (this.beacons == null) {
+      //     return []
+      //   }
+      //
+      //   let beacons = this.beacons.slice(0).filter((beacon) => {
+      //     return beacon.name.toLowerCase().includes(this.search.toLowerCase())
+      //   })
+      //   beacons.sort((beaconA, beaconB) => {
+      //     if (beaconA.name < beaconB.name) {
+      //       return -1
+      //     }
+      //     if (beaconA.name > beaconB.name) {
+      //       return 1
+      //     }
+      //     return 0
+      //   })
+      //
+      //   this.$set(this, 'loaded', true)
+      //
+      //   return beacons
+      // }
     },
     watch: {
+      search() {
+        this.reloadTableData()
+      },
       beacons() {
         this.setMapOnAll(null)
         this.markers = []
+        this.reloadTableData()
 
         if (this.beacons === null) {
           return
@@ -180,27 +216,40 @@
       changeMode(mode) {
         this.$store.dispatch('beacons/setViewMode', mode)
       },
-      reloadTableData(params) {
-        this.tableData = this.beacons.slice(0)
-        this.tableData
-          .filter((beacon) => {
+      reloadTableData(params = {}) {
+        params = merge({
+            pagination: this.tableMeta.pagination,
+            sorting: this.tableMeta.sorting,
+            filters: this.filters
+          }, params, {
+            filters: this.filters
+          })
+
+        if (this.beacons === null) {
+          this.tableData = []
+        } else {
+          this.tableData = this.beacons.slice(0).filter((beacon) => {
             return typeof beacon !== 'undefined'
+          }).filter((beacon) => {
+            return beacon.name.toLowerCase().includes(this.search.toLowerCase())
           })
+        }
+        this.tableData.sort((beaconA, beaconB) => {
+          if (beaconA[params.sorting.col] < beaconB[params.sorting.col]) {
+            return params.sorting.order === 'asc' ? -1 : 1
+          }
+          if (beaconA[params.sorting.col] > beaconB[params.sorting.col]) {
+            return params.sorting.order === 'asc' ? 1 : -1
+          }
+          return 0
+        })
+
         this.tableMeta.totalRecords = this.tableData.length
-        this.tableData
-          .sort((beaconA, beaconB) => {
-            if (beaconA[params.sorting.col] < beaconB[params.sorting.col]) {
-              return params.sorting.order === 'asc' ? -1 : 1
-            }
-            if (beaconA[params.sorting.col] > beaconB[params.sorting.col]) {
-              return params.sorting.order === 'asc' ? 1 : -1
-            }
-            return 0
-          })
-        this.tableData = this.tableData.slice(0, 0 + params.pagination.records)
+        this.tableData = this.tableData.slice((params.pagination.page - 1) * params.pagination.records, params.pagination.page * params.pagination.records)
         this.tableMeta.sorting.col = params.sorting.col
         this.tableMeta.sorting.order = params.sorting.order
-        this.tableMeta.pagination.offset = 1
+
+        this.$set(this, 'loaded', true)
       },
       formatLastSeen(beacon) {
         return moment(beacon.lastSeen * 1000).format('DD.MM.YYYY');
@@ -450,6 +499,10 @@
     display: inline-block;
   }
 
+  .mt-6 {
+    margin-top: 4em !important;
+  }
+
   .beacon-map {
     width: 100%;
     height: 100%;
@@ -459,8 +512,11 @@
     color: white;
     background: $grey;
     z-index: 1000;
-    border-radius: 0.75em;
+    border-radius: 0.5em;
     opacity: 0.7;
+    height: 2.25em;
+    line-height: 1.125em;
+    padding: 0 0.7em;
 
     &:hover {
       color: white;

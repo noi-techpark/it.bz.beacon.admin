@@ -8,7 +8,7 @@
       </div>
     </template>
     <template slot="body">
-      <div class="container" v-show="loaded">
+      <div class="container p-0" v-show="loaded">
         <div class="row user-display m-4 p-4 pb-5">
           <div class="col-12 col-header table-header">
             <div class="row">
@@ -151,7 +151,7 @@ export default {
           }
           return 0
         })
-      this.tableData = this.tableData.slice(0, 0 + params.pagination.records)
+      this.tableData = this.tableData.slice(0, params.pagination.offset + params.pagination.records)
       this.tableMeta.sorting.col = params.sorting.col
       this.tableMeta.sorting.order = params.sorting.order
       this.tableMeta.pagination.offset = 1

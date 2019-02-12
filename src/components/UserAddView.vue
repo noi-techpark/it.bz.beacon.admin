@@ -2,7 +2,7 @@
   <!-- eslint-disable -->
   <layout :source="title">
     <template slot="body">
-      <div class="container" v-show="!saving">
+      <div class="container p-0" v-show="!saving">
         <div class="row user-display m-4 p-4 pb-5">
           <div class="col-12 p-0">
             <form @submit.prevent="create">
