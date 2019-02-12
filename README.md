@@ -1,33 +1,98 @@
-# Beacon Südtirol Web-Administration
+# Beacon Südtirol Administration Web Application
 
-## Configure .env file
+The web application to administrate the beacons of the Beacon Südtirol project.
+
+## Table of contents
+
+- [Getting started](#getting-started)
+- [Running tests](#running-tests)
+- [Deployment](#deployment)
+- [Information](#information)
+
+## Getting started
+
+These instructions will get you a copy of the project up and running
+on your local machine for development and testing purposes.
+
+### Prerequisites
+
+To build the project, the following prerequisites must be met:
+
+- [YARN](https://yarnpkg.com/)
+
+### Source code
+
+Get a copy of the repository:
+
+```bash
+git clone https://github.com/idm-suedtirol/beacon-suedtirol-administration-webapp.git
+```
+
+Change directory:
+
+```bash
+cd beacon-suedtirol-administration-webapp/
+```
+
+### Configure .env file
 Make a copy of the .env file and name it ".env.local".
 Fill in the URL of the Beacon Südtirol API in the newly created file.
 
-## Install dependencies
-Run
+### Install dependencies
+To install all needed dependencies execute this command:
 ```
 yarn install
 ```
-to install all needed dependencies.
 
 ### Run a local server for development including hot-reloads
-Run
+You can run the application locally (including hot reloads) by executing the following command:
 ```
 yarn run serve
 ```
-to let the application run and listen for file changes.
 
-### Create a production release
-Run
-```
-yarn run build
-```
-to create a release ready for production. You'll find the output files in the ./dist folder
+## Running tests
 
-### Execute tests
-Run
+The unit tests can be executed with the following command:
+
 ```
 yarn run test:unit
 ```
-to execute the unit tests.
+
+## Deployment
+
+ToDo: A detailed description about how the application must be deployed.
+
+### Build for production
+Use this command to create a release ready for production:
+```
+yarn run build
+```
+ You'll find the output files in the ./dist folder
+
+## Information
+
+### Support
+
+ToDo: For support, please contact [EMAIL](mailto:EMAIL).
+
+### Contributing
+
+If you'd like to contribute, please follow the following instructions:
+
+- Fork the repository.
+
+- Checkout a topic branch from the `development` branch.
+
+- Make sure the tests are passing.
+
+- Create a pull request against the `development` branch.
+
+### Documentation
+
+ToDo: More documentation can be found at [URL](URL).
+
+### License
+
+ToDo: The code in this project is licensed under the [LICENSE].
+See the LICENSE.md file for more information.
+
