@@ -41,7 +41,7 @@
         </thead>
         <tbody>
         <template v-for="(record, index) in data">
-          <tr :key="index + '_1'" class="table-item">
+          <tr :key="index + '_1'" class="table-item" @click="rowClick(record)">
             <td v-if="hasSlot('nested')">
               <button class="btn btn-icon has-nested" :class="{'opened-nested': openedNested[index] === true}"
                       @click="toggleNested(index)">
@@ -176,6 +176,9 @@
       }
     },
     methods: {
+      rowClick(record) {
+        this.$emit('rowClicked', record)
+      },
       setPage(page) {
         this.emitChange({
           pagination: {
