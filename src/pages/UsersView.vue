@@ -33,6 +33,7 @@ import { deleteUser } from '../service/apiService'
 import Confirm from '../components/Confirm'
 import { mapActions, mapGetters } from 'vuex'
 import merge from 'lodash/merge'
+import router from '../router/index'
 
 export default {
   components: {

@@ -3,7 +3,7 @@
   <layout :source="title">
     <template slot="body">
       <div class="container p-0" v-show="!saving">
-        <div class="row user-display m-4 p-4 pb-5">
+        <div class="row user-display m-4 p-4">
           <div class="col-12 p-0">
             <form @submit.prevent="create">
               <div class="form-group row">
@@ -108,5 +108,13 @@ export default {
 <style lang="scss" scoped>
   div.form-group {
     margin-bottom: 1rem;
+  }
+
+  input {
+    font-size: 1em;
+  }
+
+  .btn {
+    font-size: 1em;
   }
 </style>
