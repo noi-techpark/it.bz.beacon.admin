@@ -38,7 +38,7 @@
               </div>
               <div class="row">
                 <div class="col-12 pl-0 pr-0">
-                  <div class="alert alert-danger" role="alert" v-if="!error">
+                  <div class="alert alert-danger" role="alert" v-if="error">
                     Unable to create new user. Please verify that the username does not already exist.
                   </div>
                 </div>
