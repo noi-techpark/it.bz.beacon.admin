@@ -225,8 +225,12 @@
           return 0
         })
 
+        params.pagination.page = Math.min(params.pagination.page, Math.ceil(this.tableMeta.totalRecords / this.tableMeta.pagination.records))
+
         this.tableMeta.totalRecords = this.tableData.length
-        this.tableData = this.tableData.slice((params.pagination.page - 1) * params.pagination.records, params.pagination.page * params.pagination.records)
+        let currentIndex = (params.pagination.page - 1) * params.pagination.records
+        let nextIndex = params.pagination.page * params.pagination.records
+        this.tableData = this.tableData.slice(currentIndex, nextIndex)
         this.tableMeta.sorting.col = params.sorting.col
         this.tableMeta.sorting.order = params.sorting.order
 
