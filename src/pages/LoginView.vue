@@ -6,15 +6,15 @@
         <div class="col-sm-12 p-0">
           <div class="row h-100 align-items-center">
             <div class="col beacon-logo-container">
-              <img src="./../assets/beacon_logo.svg" alt="Beacon Südtirol - Alto Adige" style="width: 10em">
+              <img src="../assets/beacon_logo.svg" alt="Beacon Südtirol - Alto Adige" style="width: 10em">
             </div>
           </div>
         </div>
         <div class="col partner-images">
-          <img src="./../assets/efre.png" alt="afre - fesr Südtirol - AltoAdige">
-          <img src="./../assets/eu.png" alt="European Union">
-          <img src="./../assets/rep-it.png" alt="Repubblica Italiana">
-          <img src="./../assets/alto-adige.png" alt="Autonome Provinz Südtirol - Provincia Autonoma di Bolzano Alto Adige">
+          <img src="../assets/efre.png" alt="afre - fesr Südtirol - AltoAdige">
+          <img src="../assets/eu.png" alt="European Union">
+          <img src="../assets/rep-it.png" alt="Repubblica Italiana">
+          <img src="../assets/alto-adige.png" alt="Autonome Provinz Südtirol - Provincia Autonoma di Bolzano Alto Adige">
         </div>
       </div>
     </div>

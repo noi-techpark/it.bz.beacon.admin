@@ -362,8 +362,8 @@
 </template>
 
 <script>
-import Layout from './Layout'
-import Loader from './Loader'
+import Layout from '../components/Layout'
+import Loader from '../components/Loader'
 import { getBeacon } from '../service/apiService'
 import {MDCSlider} from '@material/slider'
 import {MDCTabBar} from '@material/tab-bar'
@@ -577,12 +577,12 @@ export default {
   $mdc-theme-secondary: $background-blue;
   $mdc-theme-text-primary-on-light: #fff;
   $mdc-theme-text-secondary-on-dark: #fff;
-  @import "~@material/slider/mdc-slider";
-  @import "~@material/tab-bar/mdc-tab-bar";
-  @import "~@material/tab-scroller/mdc-tab-scroller";
-  @import "~@material/tab-indicator/mdc-tab-indicator";
-  @import "~@material/tab/mdc-tab";
-  @import "~@material/switch/mdc-switch";
+  @import "../../node_modules/@material/slider/mdc-slider";
+  @import "../../node_modules/@material/tab-bar/mdc-tab-bar";
+  @import "../../node_modules/@material/tab-scroller/mdc-tab-scroller";
+  @import "../../node_modules/@material/tab-indicator/mdc-tab-indicator";
+  @import "../../node_modules/@material/tab/mdc-tab";
+  @import "../../node_modules/@material/switch/mdc-switch";
 
   .beacon-title {
     color: $background-blue;

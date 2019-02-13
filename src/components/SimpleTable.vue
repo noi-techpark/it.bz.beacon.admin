@@ -59,8 +59,11 @@
                       {{ get(record, col.key) }}
                     </span>
                 </template>
-                <template v-if="col.type === 'beacon-status'">
-                    <beacon-status :status="get(record, col.key)"/>
+                <template v-else-if="col.type === 'beacon-status'">
+                  <beacon-status :status="get(record, col.key)"/>
+                </template>
+                <template v-else-if="col.type === 'battery-level'">
+                  <battery-level :level="get(record, col.key)"/>
                 </template>
                 <template v-else-if="col.type === 'euro'">
                     <span class="text-nowrap" :class="{'number-negative': get(record, col.key) < 0}">
@@ -68,7 +71,7 @@
                     </span>
                 </template>
                 <template v-else-if="col.type === 'date'">
-                  <span class="text-nowrap">{{ get(record, col.key) }}</span>
+                  <span class="text-nowrap">{{ get(record, col.key) | formatDate }} </span>
                 </template>
                 <template v-else-if="col.type === 'month'">
                   {{ get(record, col.key) }}
@@ -104,11 +107,14 @@
   import get from 'lodash/get'
   import Pagination from './Pagination'
   import BeaconStatus from './BeaconStatus'
+  import BatteryLevel from './BatteryLevel'
+  import moment from 'moment'
 
   export default {
     components: {
       Pagination,
-      BeaconStatus
+      BeaconStatus,
+      BatteryLevel
     },
     data() {
       return {
@@ -214,6 +220,11 @@
         return this.groupCols.length && this.groupFirstCols.indexOf(colIndex) > -1
       },
       get: get
+    },
+    filters: {
+      formatDate: (date) => {
+        return moment(date * 1000).format('DD.MM.YYYY');
+      }
     }
   }
 </script>

@@ -46,11 +46,11 @@
 </template>
 
 <script>
-import Layout from './Layout'
-import Loader from './Loader'
-import SimpleTable from './SimpleTable'
+import Layout from '../components/Layout'
+import Loader from '../components/Loader'
+import SimpleTable from '../components/SimpleTable'
 import { deleteUser } from '../service/apiService'
-import Confirm from './Confirm'
+import Confirm from '../components/Confirm'
 import { mapActions, mapGetters } from 'vuex'
 
 export default {
@@ -184,7 +184,7 @@ export default {
     right: 1em;
     transform: translateY(50%);
     border-radius: 50%;
-    background-image: url("./../assets/ic_add_user.svg");
+    background-image: url("../assets/ic_add_user.svg");
   }
 
   .user-display {
@@ -192,7 +192,7 @@ export default {
   }
 
   .btn-delete {
-    mask-image: url("./../assets/delete.svg");
+    mask-image: url("../assets/delete.svg");
     background-color: black;
 
     &:hover {

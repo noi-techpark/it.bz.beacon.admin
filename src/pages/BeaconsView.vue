@@ -61,12 +61,12 @@
 </template>
 
 <script>
-  import Layout from './Layout'
-  import SimpleTable from './SimpleTable'
+  import Layout from '../components/Layout'
+  import SimpleTable from '../components/SimpleTable'
   import { mapActions, mapGetters } from 'vuex'
   import moment from 'moment'
-  import Loader from './Loader'
-  import gmapsInit from '../service/googlemaps'
+  import Loader from '../components/Loader'
+  import { initMap, getMapStyles } from '../service/googlemaps'
   import MarkerClusterer  from '@google/markerclusterer'
   import router from '../router/index'
   import merge from 'lodash/merge'
@@ -100,11 +100,13 @@
           },
           {
             title: 'Seen',
-            key: 'lastSeen'
+            key: 'lastSeen',
+            type: 'date'
           },
           {
             title: 'Battery',
-            key: 'batteryLevel'
+            key: 'batteryLevel',
+            type: 'battery-level'
           },
           {
             title: 'Status',
@@ -137,28 +139,6 @@
         'beacons',
         'viewMode'
       ])
-    //   listBeacons() {
-    //     if (this.beacons == null) {
-    //       return []
-    //     }
-    //
-    //     let beacons = this.beacons.slice(0).filter((beacon) => {
-    //       return beacon.name.toLowerCase().includes(this.search.toLowerCase())
-    //     })
-    //     beacons.sort((beaconA, beaconB) => {
-    //       if (beaconA.name < beaconB.name) {
-    //         return -1
-    //       }
-    //       if (beaconA.name > beaconB.name) {
-    //         return 1
-    //       }
-    //       return 0
-    //     })
-    //
-    //     this.$set(this, 'loaded', true)
-    //
-    //     return beacons
-    //   }
     },
     watch: {
       search() {
@@ -252,9 +232,6 @@
 
         this.$set(this, 'loaded', true)
       },
-      formatLastSeen(beacon) {
-        return moment(beacon.lastSeen * 1000).format('DD.MM.YYYY');
-      },
       iconSvg(beacon) {
         let uri = location.origin;
         switch(beacon.status) {
@@ -276,7 +253,7 @@
     async mounted() {
       this.clear()
       try {
-        const google = await gmapsInit();
+        const google = await initMap();
         this.map = new google.maps.Map(document.getElementById('map'), {
           center: {
             lat: 46.6568142,
@@ -290,166 +267,7 @@
           streetViewControl: false,
           rotateControl: true,
           fullscreenControl: true,
-          styles: [
-            {
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#f5f5f5"
-                }
-              ]
-            },
-            {
-              "elementType": "labels.icon",
-              "stylers": [
-                {
-                  "visibility": "off"
-                }
-              ]
-            },
-            {
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#616161"
-                }
-              ]
-            },
-            {
-              "elementType": "labels.text.stroke",
-              "stylers": [
-                {
-                  "color": "#f5f5f5"
-                }
-              ]
-            },
-            {
-              "featureType": "administrative.land_parcel",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#bdbdbd"
-                }
-              ]
-            },
-            {
-              "featureType": "poi",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#eeeeee"
-                }
-              ]
-            },
-            {
-              "featureType": "poi",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#757575"
-                }
-              ]
-            },
-            {
-              "featureType": "poi.park",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#e5e5e5"
-                }
-              ]
-            },
-            {
-              "featureType": "poi.park",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#9e9e9e"
-                }
-              ]
-            },
-            {
-              "featureType": "road",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#ffffff"
-                }
-              ]
-            },
-            {
-              "featureType": "road.arterial",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#757575"
-                }
-              ]
-            },
-            {
-              "featureType": "road.highway",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#dadada"
-                }
-              ]
-            },
-            {
-              "featureType": "road.highway",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#616161"
-                }
-              ]
-            },
-            {
-              "featureType": "road.local",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#9e9e9e"
-                }
-              ]
-            },
-            {
-              "featureType": "transit.line",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#e5e5e5"
-                }
-              ]
-            },
-            {
-              "featureType": "transit.station",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#eeeeee"
-                }
-              ]
-            },
-            {
-              "featureType": "water",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#c9c9c9"
-                }
-              ]
-            },
-            {
-              "featureType": "water",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#9e9e9e"
-                }
-              ]
-            }
-          ]
+          styles: getMapStyles()
         })
         this.fetchBeacons()
       } catch (error) {
@@ -510,7 +328,7 @@
     right: 1em;
     transform: translateY(50%);
     border-radius: 50%;
-    background-image: url("./../assets/ic_add_beacon.svg");
+    background-image: url("../assets/ic_add_beacon.svg");
   }
 
   .beacon-display {
@@ -518,7 +336,7 @@
   }
 
   .btn-delete {
-    mask-image: url("./../assets/delete.svg");
+    mask-image: url("../assets/delete.svg");
     background-color: black;
 
     &:hover {

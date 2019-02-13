@@ -61,8 +61,8 @@
 </template>
 
 <script>
-import Layout from './Layout'
-import Loader from './Loader'
+import Layout from '../components/Layout'
+import Loader from '../components/Loader'
 import router from '../router/index'
 import { updateUser, getUser } from '../service/apiService'
 
