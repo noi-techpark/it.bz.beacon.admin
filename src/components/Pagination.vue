@@ -20,63 +20,63 @@
 </template>
 
 <script>
-import SimplePagination from './SimplePagination'
+  import SimplePagination from './SimplePagination'
 
-export default {
-  components: {
-    SimplePagination
-  },
-  props: {
-    totalRecords: Number,
-    offset: Number,
-    recordsNumber: Number,
-    recordsNumberList: Array,
-    recordsNumberListEnabled: Boolean
-  },
-  data() {
-    return {
-      mRecordsNumber: this.recordsNumber
-    }
-  },
-  computed: {
-    pageCount() {
-      return Math.ceil(this.totalRecords / this.recordsNumber)
+  export default {
+    components: {
+      SimplePagination
     },
-    currentPage() {
-      return Math.floor(this.offset / this.recordsNumber)
+    props: {
+      totalRecords: Number,
+      offset: Number,
+      recordsNumber: Number,
+      recordsNumberList: Array,
+      recordsNumberListEnabled: Boolean
     },
-    offsetEnd() {
-      return Math.min(this.recordsNumber * (this.currentPage + 1), this.totalRecords)
-    },
-    mRecordsNumberList() {
-      let list = this.recordsNumberList || [10, 20, 30, 50]
-      if (list.indexOf(this.recordsNumber) === -1) {
-        list.push(this.recordsNumber)
-        list.sort((a, b) => a - b)
+    data() {
+      return {
+        mRecordsNumber: this.recordsNumber
       }
-      return list
-    }
-  },
-  watch: {
-    mRecordsNumber(number) {
-      this.$emit('records-number-changed', number)
-    }
-  },
-  methods: {
-    pageChanged(page) {
-      this.$emit('page-changed', page)
-    }
-  },
-  filters: {
-    capitalize(value) {
-      if (!value) {
-        return ''
+    },
+    computed: {
+      pageCount() {
+        return Math.ceil(this.totalRecords / this.recordsNumber)
+      },
+      currentPage() {
+        return Math.floor(this.offset / this.recordsNumber)
+      },
+      offsetEnd() {
+        return Math.min(this.recordsNumber * (this.currentPage + 1), this.totalRecords)
+      },
+      mRecordsNumberList() {
+        let list = this.recordsNumberList || [10, 20, 30, 50]
+        if (list.indexOf(this.recordsNumber) === -1) {
+          list.push(this.recordsNumber)
+          list.sort((a, b) => a - b)
+        }
+        return list
       }
-      value = value.toString()
-      return value.charAt(0).toUpperCase() + value.slice(1)
+    },
+    watch: {
+      mRecordsNumber(number) {
+        this.$emit('records-number-changed', number)
+      }
+    },
+    methods: {
+      pageChanged(page) {
+        this.$emit('page-changed', page)
+      }
+    },
+    filters: {
+      capitalize(value) {
+        if (!value) {
+          return ''
+        }
+        value = value.toString()
+        return value.charAt(0).toUpperCase() + value.slice(1)
+      }
     }
   }
-}
 </script>
 
 <style lang="scss">
