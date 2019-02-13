@@ -804,6 +804,19 @@ export default {
 <style lang="scss" scoped>
 
   @import "../variables";
+<<<<<<< HEAD:src/pages/BeaconView.vue
+=======
+  $mdc-theme-primary: $background-blue;
+  $mdc-theme-secondary: $background-blue;
+  $mdc-theme-text-primary-on-light: #fff;
+  $mdc-theme-text-secondary-on-dark: #fff;
+  @import "../../node_modules/@material/slider/mdc-slider";
+  @import "../../node_modules/@material/tab-bar/mdc-tab-bar";
+  @import "../../node_modules/@material/tab-scroller/mdc-tab-scroller";
+  @import "../../node_modules/@material/tab-indicator/mdc-tab-indicator";
+  @import "../../node_modules/@material/tab/mdc-tab";
+  @import "../../node_modules/@material/switch/mdc-switch";
+>>>>>>> a3356c5... restructured pages and added battery level to pagination view:src/pages/BeaconView.vue
 
   .beacon-title {
     color: $background-blue;

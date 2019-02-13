@@ -10,17 +10,49 @@
     <template slot="body">
       <div class="row flex-grow-1">
         <div id="view-switch" class="position-absolute mt-4 ml-4 btn-group" role="group" aria-label="Switch view">
-          <button type="button" :class="'btn btn-view-switch ' + (viewMode === LIST ? 'btn-view-switch-active' : '')" @click="changeMode(LIST)"><img src="../assets/ic_list.svg"/></button>
-          <button type="button" :class="'btn btn-view-switch ' + (viewMode === MAP ? 'btn-view-switch-active' : '')" @click="changeMode(MAP)"><img src="../assets/ic_map.svg"/></button>
+          <button type="button" :class="'btn btn-view-switch ' + (viewMode === 'LIST' ? 'btn-view-switch-active' : '')" @click="changeMode('LIST')"><img src="../assets/ic_list.svg"/></button>
+          <button type="button" :class="'btn btn-view-switch ' + (viewMode === 'MAP' ? 'btn-view-switch-active' : '')" @click="changeMode('MAP')"><img src="../assets/ic_map.svg"/></button>
         </div>
-        <div class="container mt-6 p-0" v-show="loaded && viewMode === LIST">
+        <div class="container mt-6 p-0" v-show="loaded && viewMode === 'LIST'">
+          <!--<div class="row beacon-display m-4 p-4 pb-5">-->
+            <!--<div class="col-12 col-header table-header">-->
+              <!--<div class="row">-->
+                <!--<div class="col-2 pl-0">Name</div>-->
+                <!--<div class="col-1">Major</div>-->
+                <!--<div class="col-1">Minor</div>-->
+                <!--<div class="col-5">Description</div>-->
+                <!--<div class="col-1">Seen</div>-->
+                <!--<div class="col-1">Battery</div>-->
+                <!--<div class="col-1 pr-0">Status</div>-->
+              <!--</div>-->
+            <!--</div>-->
+            <!--<router-link class="col-12 beacon-item" v-bind:key="beacon.id" v-if="beacons.length" v-for="beacon in listBeacons" :to="{name: 'beacon-detail', params: { id: beacon.id }}">-->
+              <!--<div class="row beacon-row">-->
+                <!--<div class="col-2 pl-0">{{ beacon.name }}</div>-->
+                <!--<div class="col-1">{{ beacon.major }}</div>-->
+                <!--<div class="col-1">{{ beacon.minor }}</div>-->
+                <!--<div class="col-5">{{ beacon.description }}</div>-->
+                <!--<div class="col-1">{{ formatLastSeen(beacon) }}</div>-->
+                <!--<div class="col-1 text-right d-flex align-middle justify-content-end">-->
+                  <!--<span>{{ beacon.batteryLevel }} %</span>-->
+                  <!--<div :class="'battery ml-2 ' + (beacon.batteryLevel <= 5 ? 'warning' : '')">-->
+                    <!--<div class="chargestatus" :style="'top:' + (100 - beacon.batteryLevel) + '%;height:' + beacon.batteryLevel + '%'"></div>-->
+                  <!--</div>-->
+                <!--</div>-->
+                <!--<div class="col-1 pr-0"><span :class='"badge badge-pill badge-status " + getStatusClass(beacon)'>{{ getStatusText(beacon) }}</span></div>-->
+              <!--</div>-->
+            <!--</router-link>-->
+            <!--<div class="col-12 alert alert-danger" v-else> {{ getError }} </div>-->
+            <!--<router-link class="fab add-fab" :to="{name: 'beacon-new'}" style="display:none"><i class="fab-icon-addissue"></i></router-link>-->
+          <!--</div>-->
+
           <div class="row beacon-display m-4 p-4">
             <div class="col-12 p-0">
-              <simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta" @rowClicked="showDetail"/>
+              <simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta" />
             </div>
           </div>
         </div>
-        <div id="map" class="beacon-map" v-show="loaded && viewMode === MAP">
+        <div id="map" class="beacon-map" v-show="loaded && viewMode === 'MAP'">
         </div>
         <loader :visible="!loaded" :label="'Loading beacons...'"/>
       </div>
@@ -32,7 +64,7 @@
   import Layout from '../components/Layout'
   import SimpleTable from '../components/SimpleTable'
   import { mapActions, mapGetters } from 'vuex'
-  import { LIST, MAP } from '../store/beacons'
+  import moment from 'moment'
   import Loader from '../components/Loader'
   import { initMap, getMapStyles } from '../service/googlemaps'
   import MarkerClusterer  from '@google/markerclusterer'
@@ -48,8 +80,6 @@
     name: 'Beacons',
     data() {
       return {
-        LIST: LIST,
-        MAP: MAP,
         title: 'Beacons',
         tableCols: [
           {
@@ -101,10 +131,7 @@
         loaded: false,
         map: null,
         markers: [],
-        addedOnMap: false,
-        myPosition: null,
-        clusterer: null,
-        google: {}
+        addedOnMap: false
       }
     },
     computed: {
@@ -126,16 +153,16 @@
           return
         }
         this.beacons.forEach((beacon) => {
-          let marker = new this.google.maps.Marker({
+          let marker = new google.maps.Marker({
             position: {
               lat: beacon.lat,
               lng: beacon.lng
             },
             icon: {
               url: this.iconSvg(beacon),
-              size: new this.google.maps.Size(48, 48),
-              scaledSize: new this.google.maps.Size(24, 24),
-              anchor: new this.google.maps.Point(12, 12)
+              size: new google.maps.Size(48, 48),
+              scaledSize: new google.maps.Size(24, 24),
+              anchor: new google.maps.Point(12, 12)
             }
           })
           marker.addListener('click', () => {
@@ -145,10 +172,7 @@
         })
         this.setMapOnAll(this.map);
 
-        if (this.clusterer != null) {
-          this.clusterer.remove()
-        }
-        this.clusterer = new MarkerClusterer(this.map, this.markers, {
+        let markerCluster = new MarkerClusterer(this.map, this.markers, {
           styles: [
             {
               url: location.origin + require('../assets/img/map/cluster/map_icon_cluster.svg'),
@@ -158,8 +182,6 @@
             }
           ]
         })
-
-        this.$set(this, 'loaded', true)
       }
     },
     methods: {
@@ -167,85 +189,10 @@
         'fetchBeacons',
         'clear'
       ]),
-      showDetail(beacon) {
-        router.push({ name: 'beacon-detail', params: { id: beacon.id }})
-      },
       setMapOnAll(map) {
         for (let i = 0; i < this.markers.length; i++) {
           this.markers[i].setMap(map);
         }
-      },
-      showMyPosition(success, failure) {
-        let myPositionButtonIcon = document.getElementById('myLocationButtonIcon')
-        let on = false
-        let myLocationButtonBlinker = setInterval(function(){
-          myPositionButtonIcon.src = on ? require('../assets/img/map/my_location.svg') : require('../assets/img/map/my_location_empty.svg')
-          on = !on
-        }, 500);
-        navigator.geolocation.getCurrentPosition(position => {
-          clearInterval(myLocationButtonBlinker)
-          myPositionButtonIcon.src = require('../assets/img/map/my_location.svg')
-          if (this.myPosition != null) {
-            this.myPosition.setMap(null)
-          }
-          this.myPosition = new this.google.maps.Marker({
-            position: {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude
-            },
-            draggable: this.editing,
-            map: this.map,
-            icon: {
-              url: require('../assets/img/map/map_icon_my_location.svg'),
-              size: new this.google.maps.Size(24, 24),
-              scaledSize: new this.google.maps.Size(24, 24),
-              anchor: new this.google.maps.Point(12, 12)
-            }
-          })
-          success(position)
-        }, error => {
-          clearInterval(myLocationButtonBlinker)
-          myPositionButtonIcon.src = require('../assets/img/map/my_location.svg')
-          failure(error)
-        })
-      },
-      goToMyPosition() {
-        this.showMyPosition(position => {
-          this.map.panTo(new this.google.maps.LatLng(position.coords.latitude, position.coords.longitude))
-          this.map.setZoom(16)
-        }, () => {
-          alert("Please make sure you have allowed the acces to your location.")
-        })
-      },
-      MyLocationControl(controlDiv) {
-        this.controlUI = document.createElement('div')
-        this.controlUI.style.backgroundColor = '#fff'
-        this.controlUI.style.border = '2px solid #fff'
-        this.controlUI.style.borderRadius = '3px'
-        this.controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)'
-        this.controlUI.style.cursor = 'pointer'
-        this.controlUI.style.marginBottom = '0px'
-        this.controlUI.style.marginRight = '10px'
-        this.controlUI.style.width = '40px'
-        this.controlUI.style.height = '40px'
-        this.controlUI.style.textAlign = 'center'
-        this.controlUI.title = 'Click to recenter the map'
-        controlDiv.appendChild(this.controlUI)
-
-        this.controlText = document.createElement('div')
-        this.controlText.style.color = 'rgb(25,25,25)'
-        this.controlText.style.fontFamily = 'Roboto,Arial,sans-serif'
-        this.controlText.style.fontSize = '16px'
-        this.controlText.style.lineHeight = '38px'
-        this.controlText.style.paddingLeft = '5px'
-        this.controlText.style.paddingRight = '5px'
-        this.controlText.innerHTML = '<img id="myLocationButtonIcon" src="' + require('../assets/img/map/my_location.svg') +  '" class="map-control"/>'
-        this.controlUI.appendChild(this.controlText);
-
-        this.addClickListener = function(callback) {
-          this.controlUI.addEventListener('click', callback)
-        }
-
       },
       changeMode(mode) {
         this.$store.dispatch('beacons/setViewMode', mode)
@@ -279,29 +226,24 @@
         })
 
         this.tableMeta.totalRecords = this.tableData.length
-        params.pagination.page = Math.min(Math.max(params.pagination.page, 1), Math.ceil(this.tableMeta.totalRecords / this.tableMeta.pagination.records))
-
-        let currentIndex = (params.pagination.page - 1) * params.pagination.records
-        let nextIndex = params.pagination.page * params.pagination.records
-        this.tableData = this.tableData.slice(currentIndex, nextIndex)
+        this.tableData = this.tableData.slice((params.pagination.page - 1) * params.pagination.records, params.pagination.page * params.pagination.records)
         this.tableMeta.sorting.col = params.sorting.col
         this.tableMeta.sorting.order = params.sorting.order
+
+        this.$set(this, 'loaded', true)
       },
       iconSvg(beacon) {
         let uri = location.origin;
         switch(beacon.status) {
           case 'BATTERY_LOW':
           case 'ISSUE':
-            uri += require('../assets/img/map/map_icon_issue.svg')
+            uri += require('../assets/map_icon_issue.svg')
             break
           case 'CONFIGURATION_PENDING':
-            uri += require('../assets/img/map/map_icon_pending.svg')
-            break
-          case 'NO_SIGNAL':
-            uri += require('../assets/img/map/map_icon_nosignal.svg')
+            uri += require('../assets/map_icon_pending.svg')
             break
           default:
-            uri += require('../assets/img/map/map_icon_ok.svg')
+            uri += require('../assets/map_icon_ok.svg')
             break
         }
 
@@ -311,8 +253,8 @@
     async mounted() {
       this.clear()
       try {
-        this.google = await initMap();
-        this.map = new this.google.maps.Map(document.getElementById('map'), {
+        const google = await initMap();
+        this.map = new google.maps.Map(document.getElementById('map'), {
           center: {
             lat: 46.6568142,
             lng: 11.423318
@@ -327,17 +269,9 @@
           fullscreenControl: true,
           styles: getMapStyles()
         })
-
-        let myLocationButtonContainer = document.createElement('div');
-        let myLocationControl = new this.MyLocationControl(myLocationButtonContainer);
-        myLocationControl.addClickListener(() => {
-          this.goToMyPosition()
-        });
-        myLocationButtonContainer.index = 1;
-        this.map.controls[this.google.maps.ControlPosition.RIGHT_BOTTOM].push(myLocationButtonContainer);
         this.fetchBeacons()
       } catch (error) {
-        // console.error(error);
+        console.error(error);
       }
     },
   }
@@ -469,5 +403,6 @@
       }
     }
   }
+
 
 </style>
