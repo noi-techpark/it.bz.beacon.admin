@@ -1,5 +1,5 @@
 <template>
-  <div class="col-12 text-right d-flex align-middle justify-content-end p-0">
+  <div class="text-right d-flex align-middle justify-content-end p-0">
     <span>{{ level }} %</span>
     <div :class="'battery ml-2 ' + (level <= 5 ? 'warning' : '')">
     <div class="chargestatus" :style="'top:' + (100 - level) + '%;height:' + level + '%'"></div>

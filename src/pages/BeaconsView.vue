@@ -225,9 +225,9 @@
           return 0
         })
 
+        this.tableMeta.totalRecords = this.tableData.length
         params.pagination.page = Math.min(params.pagination.page, Math.ceil(this.tableMeta.totalRecords / this.tableMeta.pagination.records))
 
-        this.tableMeta.totalRecords = this.tableData.length
         let currentIndex = (params.pagination.page - 1) * params.pagination.records
         let nextIndex = params.pagination.page * params.pagination.records
         this.tableData = this.tableData.slice(currentIndex, nextIndex)
