@@ -65,11 +65,29 @@ export function getMapStyles() {
       ]
     },
     {
+      "featureType": "administrative.country",
+      "elementType": "geometry.stroke",
+      "stylers": [
+        {
+          "color": "#4d4f5c"
+        }
+      ]
+    },
+    {
       "featureType": "administrative.land_parcel",
       "elementType": "labels.text.fill",
       "stylers": [
         {
           "color": "#bdbdbd"
+        }
+      ]
+    },
+    {
+      "featureType": "administrative.province",
+      "elementType": "geometry.stroke",
+      "stylers": [
+        {
+          "color": "#4d4f5c"
         }
       ]
     },

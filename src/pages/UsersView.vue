@@ -134,6 +134,46 @@ export default {
       'fetchUsers',
       'clear'
     ]),
+
+    reloadTableData(params = {}) {
+      params = merge({
+        pagination: this.tableMeta.pagination,
+        sorting: this.tableMeta.sorting,
+        filters: this.filters
+      }, params, {
+        filters: this.filters
+      })
+
+      if (this.users === null) {
+        this.tableData = []
+      } else {
+        this.tableData = this.users.slice(0).filter((user) => {
+          return typeof user !== 'undefined'
+        }).filter((user) => {
+          return user.name.toLowerCase().includes(this.search.toLowerCase())
+        })
+      }
+      this.tableData.sort((userA, userB) => {
+        if (userA[params.sorting.col] < userB[params.sorting.col]) {
+          return params.sorting.order === 'asc' ? -1 : 1
+        }
+        if (userA[params.sorting.col] > userB[params.sorting.col]) {
+          return params.sorting.order === 'asc' ? 1 : -1
+        }
+        return 0
+      })
+
+      this.tableMeta.totalRecords = this.tableData.length
+      params.pagination.page = Math.min(Math.max(params.pagination.page, 1), Math.ceil(this.tableMeta.totalRecords / this.tableMeta.pagination.records))
+
+      let currentIndex = (params.pagination.page - 1) * params.pagination.records
+      let nextIndex = params.pagination.page * params.pagination.records
+      this.tableData = this.tableData.slice(currentIndex, nextIndex)
+      this.tableMeta.sorting.col = params.sorting.col
+      this.tableMeta.sorting.order = params.sorting.order
+
+      this.$set(this, 'loaded', true)
+    },
     reloadTableData(params) {
       this.tableData = this.users.slice(0)
       this.tableData
