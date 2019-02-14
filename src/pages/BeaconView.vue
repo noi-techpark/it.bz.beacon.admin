@@ -135,35 +135,35 @@
                   </div>
                   <div class="row mt-3">
                     <div class="col-12 p-0">
-                      <input type="text" class="form-control" :value="beacon.lat" :readonly="!editing" />
-                      <small class="text-muted">GPS-N</small>
+                      <input type="text" class="form-control" v-model="beacon.lat" :readonly="!editing" />
+                      <small class="text-muted">Latitude</small>
                     </div>
                   </div>
                   <div class="row mt-3">
                     <div class="col-12 p-0">
-                      <input type="text" class="form-control" :value="beacon.lng" :readonly="!editing" />
-                      <small class="text-muted">GPS-E</small>
+                      <input type="text" class="form-control" v-model="beacon.lng" :readonly="!editing" />
+                      <small class="text-muted">Longitude</small>
                     </div>
                   </div>
                 </div>
                 <div id="location-description" :class="(locationTab === 'DESCRIPTION' ? 'd-flex' : '') + ' mt-4 flex-grow-1 flex-column'" v-show="locationTab === 'DESCRIPTION'">
                   <div class="row">
                     <div class="col-6 pl-0">
-                      <button :class="'location-description-button ' + (beacon.locationType === 'OUTDOOR' ? 'location-description-button-active' : '')" :disabled="!editing">OUTDOOR</button>
+                      <button class="location-description-button" :class="{'location-description-button-active' : beacon.locationType === 'OUTDOOR'}"  :disabled="!editing" @click="changeLocationType('OUTDOOR')">OUTDOOR</button>
                     </div>
                     <div class="col-6 pr-0">
-                      <button :class="'location-description-button ' + (beacon.locationType === 'INDOOR' ? 'location-description-button-active' : '')" :disabled="!editing">INDOOR</button>
+                      <button class="location-description-button" :class="{'location-description-button-active' : beacon.locationType === 'INDOOR'}" :disabled="!editing" @click="changeLocationType('INDOOR')">INDOOR</button>
                     </div>
                   </div>
                   <div class="row flex-grow-1 mt-3">
                     <div class="col-12 p-0 d-flex flex-column">
-                      <div class="description flex-grow-1 " :class="{'description-disabled': !editing}"><small>{{ beacon.description }}</small></div>
+                      <textarea class="description flex-grow-1" :class="{'description-disabled': !editing}" v-model="beacon.description"/>
                       <small class="text-muted">Description</small>
                     </div>
                   </div>
                   <div class="row mt-3" v-show="beacon.locationType === 'INDOOR'">
                     <div class="col-12 p-0 d-flex flex-column">
-                      <input type="number" class="form-control" :value="beacon.locationDescription" :readonly="!editing" />
+                      <input type="number" class="form-control" v-model="beacon.locationDescription" :readonly="!editing" />
                       <small class="text-muted">Floor</small>
                     </div>
                   </div>
@@ -232,15 +232,15 @@
                   </div>
                   <div class="row mt-3">
                     <div class="col-8 pl-0">
-                      <input type="text" class="form-control" :value="beacon.uuid" :readonly="!editing" />
+                      <input type="text" class="form-control" v-model="beacon.uuid" :readonly="!editing" />
                       <small class="text-muted">UUID</small>
                     </div>
                     <div class="col-2">
-                      <input type="text" class="form-control" :value="beacon.major" :readonly="!editing" />
+                      <input type="text" class="form-control" v-model="beacon.major" :readonly="!editing" />
                       <small class="text-muted">Major</small>
                     </div>
                     <div class="col-2 pr-0">
-                      <input type="text" class="form-control" :value="beacon.minor" :readonly="!editing" />
+                      <input type="text" class="form-control" v-model="beacon.minor" :readonly="!editing" />
                       <small class="text-muted">Minor</small>
                     </div>
                   </div>
@@ -263,11 +263,11 @@
                   </div>
                   <div class="row mt-3">
                     <div class="col-6 pl-0">
-                      <input type="text" class="form-control" :value="beacon.namespace" :readonly="!editing" />
+                      <input type="text" class="form-control" v-model="beacon.namespace" :readonly="!editing" />
                       <small class="text-muted">Namespace</small>
                     </div>
                     <div class="col-6 pr-0">
-                      <input type="text" class="form-control" :value="beacon.instanceId" :readonly="!editing" />
+                      <input type="text" class="form-control" v-model="beacon.instanceId" :readonly="!editing" />
                       <small class="text-muted">Instance ID</small>
                     </div>
                   </div>
@@ -288,7 +288,7 @@
                   </div>
                   <div class="row mt-3">
                     <div class="col-12 pl-0 pr-0">
-                      <input type="text" class="form-control" :value="beacon.url" :readonly="!editing" />
+                      <input type="text" class="form-control" v-model="beacon.url" :readonly="!editing" />
                       <small class="text-muted">URL</small>
                     </div>
                   </div>
@@ -392,7 +392,9 @@ export default {
   data() {
     return {
       title: 'Beacon',
-      beacon: {},
+      beacon: {
+        locationType: ''
+      },
       beaconBackup: {},
       issues: [],
       modeTab: 'IBEACON',
@@ -445,6 +447,28 @@ export default {
     this.controls.eddystoneEtlmSwitch = new MDCSwitch(document.querySelector('#eddystone-etlm-switch'));
     this.controls.eddystoneTlmSwitch = new MDCSwitch(document.querySelector('#eddystone-tlm-switch'));
 
+    this.controls.frequencySlider.listen('MDCSlider:change', event => {
+      this.beacon.txPower = event.detail.value
+    })
+    this.controls.iBeaconSwitch.nativeControl_.addEventListener('change', (event) => {
+      this.beacon.iBeacon = event.target.checked
+    })
+    this.controls.eddystoneUidSwitch.nativeControl_.addEventListener('change', (event) => {
+      this.beacon.eddystoneUid = event.target.checked
+    })
+    this.controls.eddystoneUrlSwitch.nativeControl_.addEventListener('change', (event) => {
+      this.beacon.eddystoneUrl = event.target.checked
+    })
+    this.controls.eddystoneEidSwitch.nativeControl_.addEventListener('change', (event) => {
+      this.beacon.eddystoneEid = event.target.checked
+    })
+    this.controls.eddystoneEtlmSwitch.nativeControl_.addEventListener('change', (event) => {
+      this.beacon.eddystoneEtlm = event.target.checked
+    })
+    this.controls.eddystoneTlmSwitch.nativeControl_.addEventListener('change', (event) => {
+      this.beacon.eddystoneTlm = event.target.checked
+    })
+
     this.controls.iBeaconSwitch.disabled = true
     this.controls.eddystoneUidSwitch.disabled = true
     this.controls.eddystoneUrlSwitch.disabled = true
@@ -486,7 +510,6 @@ export default {
   },
   watch: {
     editing() {
-      console.log(this.editing)
       this.controls.frequencySlider.disabled = !this.editing
       this.controls.iBeaconSwitch.disabled = !this.editing
       this.controls.eddystoneUidSwitch.disabled = !this.editing
@@ -527,6 +550,11 @@ export default {
           this.$set(this, 'editing', true)
           event.target.selectedIndex = 0
           break;
+      }
+    },
+    changeLocationType(type) {
+      if (this.editing) {
+       this.beacon.locationType = type
       }
     },
     icon(beacon) {
@@ -687,10 +715,13 @@ export default {
       color: $text-muted-grey;
     }
 
-    .description {
+    textarea.description {
       border: 1px solid $background-grey;
       border-radius: 0.25rem;
       padding: 0.25em 0.75em;
+      resize: none;
+      font-size: 0.8em;
+      color: $text-grey;
 
       &.description-disabled {
         color: $text-muted-grey;

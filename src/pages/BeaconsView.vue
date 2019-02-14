@@ -197,6 +197,9 @@
 
         this.tableMeta.totalRecords = this.tableData.length
         params.pagination.page = Math.min(Math.max(params.pagination.page, 1), Math.ceil(this.tableMeta.totalRecords / this.tableMeta.pagination.records))
+        console.log('total ' + this.tableMeta.totalRecords)
+        console.log('precords ' + this.tableMeta.pagination.records)
+        console.log('ppage ' + params.pagination.page)
 
         let currentIndex = (params.pagination.page - 1) * params.pagination.records
         let nextIndex = params.pagination.page * params.pagination.records
