@@ -26,6 +26,9 @@
           case 'ISSUE':
             statusClass += 'issue'
             break;
+          case 'NO_SIGNAL':
+            statusClass += 'nosignal'
+            break;
           default:
             statusClass += 'default'
             break;
@@ -41,6 +44,8 @@
             return 'ISSUE';
           case 'CONFIGURATION_PENDING':
             return 'PENDING';
+          case 'NO_SIGNAL':
+            return 'NO SIGNAL';
           default:
             return this.status;
         }
@@ -70,6 +75,10 @@
 
     &.badge-status-pending {
       background-color: $status-blue;
+    }
+
+    &.badge-status-nosignal {
+      background-color: $status-red;
     }
   }
 </style>

@@ -33,7 +33,7 @@
                   <div :class="'small ' + (beacon.batteryLevel > 5 ? 'label-yellow' : '')">critical < 5%</div>
                 </div>
               </div>
-                <div :class="'col-6 d-flex flex-column justify-content-between flex-grow-1 flex-shrink-0 border-start ' + (beacon.status === 'CONFIGURATION_PENDING' ? 'status-pending' : '')">
+                <div :class="'col-6 d-flex flex-column justify-content-between flex-grow-1 flex-shrink-0 border-start ' + getStatusCardClass(beacon)">
                   <h5>Device status</h5>
                   <div class="mt-2">
                     <h4 class="mb-0"><strong>{{ getStatusText(beacon) }}</strong></h4>
@@ -594,6 +594,21 @@ export default {
           return 'default'
       }
     },
+    getStatusCardClass(beacon) {
+      switch (beacon.status) {
+        case 'OK':
+          return 'status-ok'
+        case 'BATTERY_LOW':
+        case 'ISSUE':
+          return 'status-issue'
+        case 'CONFIGURATION_PENDING':
+          return 'status-pending'
+        case 'NO_SIGNAL':
+          return 'status-nosignal'
+        default:
+          return ''
+      }
+    },
     getStatusText(beacon) {
       switch (beacon.status) {
         case 'OK':
@@ -622,7 +637,7 @@ export default {
         case 'NO_SIGNAL':
           return 'Device status unknown';
         default:
-          return beacon.status;
+          return '';
       }
     }
   }
