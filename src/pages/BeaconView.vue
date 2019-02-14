@@ -581,7 +581,7 @@ export default {
     },
     resetBeacon() {
       if (this.beaconBackup != null) {
-        this.beacon = this.beaconBackup
+        Object.assign(this.beacon, this.beaconBackup)
         this.updateControls()
       }
     },
