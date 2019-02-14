@@ -81,12 +81,4 @@
 
 <style lang="scss">
 
-  select.form-control.record-number {
-    line-height: 2rem;
-    height: 2rem;
-
-    font-weight: lighter;
-    font-size: 1em;
-  }
-
 </style>

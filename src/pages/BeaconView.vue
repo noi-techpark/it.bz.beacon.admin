@@ -9,12 +9,22 @@
           </div>
         </div>
         <div class="row">
-          <div class="col-12">
+          <div class="col">
             <span class="text-muted">last seen:</span> {{ formatLastSeen(beacon) }}
           </div>
+          <div class="col-xs-12 col-sm-6 col-md-3 col-lg-2" v-show="!editing">
+            <select class="form-control" @change="executeAction">
+              <option value="">Action</option>
+              <option value="edit">Edit</option>
+            </select>
+          </div>
+          <div class="col-auto edit-actions" v-show="editing">
+            <button class="btn btn-outline-secondary mr-4" @click="cancelEdit">Cancel</button>
+            <button class="btn btn-primary">Save</button>
+          </div>
         </div>
-        <div class="row mt-4 row-eq-height">
-          <div class="col-4 d-flex">
+        <div class="row row-eq-height">
+          <div class="col-md-12 col-lg-6 col-xl-4 d-flex mt-4 ">
             <div :class="'row beacon-detail-card ' + (beacon.batteryLevel <= 5 ? 'battery-status-low' : '')">
               <div class="col-6 d-flex flex-column justify-content-between flex-grow-1 flex-shrink-0">
                 <h5>Battery status</h5>
@@ -32,7 +42,7 @@
                 </div>
             </div>
           </div>
-          <div class="col-8 d-flex">
+          <div class="col-md-12 col-lg-6 col-xl-8 d-flex mt-4 ">
             <div class="row beacon-detail-card">
               <div class="col-8 d-flex flex-column justify-content-between flex-grow-1 flex-shrink-0">
                 <div class="row">
@@ -42,7 +52,7 @@
                 </div>
                 <div class="row">
                   <div class="col-12">
-                    <div id="frequency-slider" class="mdc-slider mdc-slider--discrete mdc-slider--display-markers" tabindex="0" role="slider" aria-disabled="true" aria-valuemin="1" aria-valuemax="7" :aria-valuenow="beacon.txPower" data-step="1" aria-label="Select Value">
+                    <div id="frequency-slider" class="mdc-slider mdc-slider--discrete mdc-slider--display-markers" tabindex="0" role="slider" :aria-disabled="!editing" aria-valuemin="1" aria-valuemax="7" :aria-valuenow="beacon.txPower" data-step="1" aria-label="Select Value">
                       <div class="mdc-slider__track-container">
                         <div class="mdc-slider__track"></div>
                         <div class="mdc-slider__track-marker-container"></div>
@@ -70,8 +80,8 @@
             </div>
           </div>
         </div>
-        <div class="row mt-4 row-eq-height">
-          <div class="col-4 d-flex">
+        <div class="row row-eq-height">
+          <div class="col-md-12 col-lg-6 col-xl-4 d-flex mt-4">
             <div class="row beacon-detail-card">
               <div class="col-12 d-flex flex-column flex-grow-1 flex-shrink-0">
                 <div class="row">
@@ -125,13 +135,13 @@
                   </div>
                   <div class="row mt-3">
                     <div class="col-12 p-0">
-                      <input type="text" class="form-control" :value="beacon.lat" readonly />
+                      <input type="text" class="form-control" :value="beacon.lat" :readonly="!editing" />
                       <small class="text-muted">GPS-N</small>
                     </div>
                   </div>
                   <div class="row mt-3">
                     <div class="col-12 p-0">
-                      <input type="text" class="form-control" :value="beacon.lng" readonly />
+                      <input type="text" class="form-control" :value="beacon.lng" :readonly="!editing" />
                       <small class="text-muted">GPS-E</small>
                     </div>
                   </div>
@@ -139,21 +149,21 @@
                 <div id="location-description" :class="(locationTab === 'DESCRIPTION' ? 'd-flex' : '') + ' mt-4 flex-grow-1 flex-column'" v-show="locationTab === 'DESCRIPTION'">
                   <div class="row">
                     <div class="col-6 pl-0">
-                      <button :class="'location-description-button ' + (beacon.locationType === 'OUTDOOR' ? 'location-description-button-active' : '')" disabled>OUTDOOR</button>
+                      <button :class="'location-description-button ' + (beacon.locationType === 'OUTDOOR' ? 'location-description-button-active' : '')" :disabled="!editing">OUTDOOR</button>
                     </div>
                     <div class="col-6 pr-0">
-                      <button :class="'location-description-button ' + (beacon.locationType === 'INDOOR' ? 'location-description-button-active' : '')" disabled>INDOOR</button>
+                      <button :class="'location-description-button ' + (beacon.locationType === 'INDOOR' ? 'location-description-button-active' : '')" :disabled="!editing">INDOOR</button>
                     </div>
                   </div>
                   <div class="row flex-grow-1 mt-3">
                     <div class="col-12 p-0 d-flex flex-column">
-                      <div class="description flex-grow-1"><small>{{ beacon.description }}</small></div>
+                      <div class="description flex-grow-1 " :class="{'description-disabled': !editing}"><small>{{ beacon.description }}</small></div>
                       <small class="text-muted">Description</small>
                     </div>
                   </div>
                   <div class="row mt-3" v-show="beacon.locationType === 'INDOOR'">
                     <div class="col-12 p-0 d-flex flex-column">
-                      <input type="number" class="form-control" :value="beacon.locationDescription" readonly />
+                      <input type="number" class="form-control" :value="beacon.locationDescription" :readonly="!editing" />
                       <small class="text-muted">Floor</small>
                     </div>
                   </div>
@@ -170,7 +180,7 @@
               </div>
             </div>
           </div>
-          <div class="col-8 d-flex flex-column">
+          <div class="col-md-12 col-lg-6 col-xl-8 d-flex flex-column mt-4">
             <div class="row beacon-detail-card flex-grow-1">
               <div class="col-12 d-flex flex-column flex-grow-1 flex-shrink-0">
                 <div class="row">
@@ -222,15 +232,15 @@
                   </div>
                   <div class="row mt-3">
                     <div class="col-8 pl-0">
-                      <input type="text" class="form-control" :value="beacon.uuid" readonly />
+                      <input type="text" class="form-control" :value="beacon.uuid" :readonly="!editing" />
                       <small class="text-muted">UUID</small>
                     </div>
                     <div class="col-2">
-                      <input type="text" class="form-control" :value="beacon.major" readonly />
+                      <input type="text" class="form-control" :value="beacon.major" :readonly="!editing" />
                       <small class="text-muted">Major</small>
                     </div>
                     <div class="col-2 pr-0">
-                      <input type="text" class="form-control" :value="beacon.minor" readonly />
+                      <input type="text" class="form-control" :value="beacon.minor" :readonly="!editing" />
                       <small class="text-muted">Minor</small>
                     </div>
                   </div>
@@ -253,11 +263,11 @@
                   </div>
                   <div class="row mt-3">
                     <div class="col-6 pl-0">
-                      <input type="text" class="form-control" :value="beacon.namespace" readonly />
+                      <input type="text" class="form-control" :value="beacon.namespace" :readonly="!editing" />
                       <small class="text-muted">Namespace</small>
                     </div>
                     <div class="col-6 pr-0">
-                      <input type="text" class="form-control" :value="beacon.instanceId" readonly />
+                      <input type="text" class="form-control" :value="beacon.instanceId" :readonly="!editing" />
                       <small class="text-muted">Instance ID</small>
                     </div>
                   </div>
@@ -278,7 +288,7 @@
                   </div>
                   <div class="row mt-3">
                     <div class="col-12 pl-0 pr-0">
-                      <input type="text" class="form-control" :value="beacon.url" readonly />
+                      <input type="text" class="form-control" :value="beacon.url" :readonly="!editing" />
                       <small class="text-muted">URL</small>
                     </div>
                   </div>
@@ -382,18 +392,26 @@ export default {
   data() {
     return {
       title: 'Beacon',
-      beacon: {
-        name: '',
-      },
+      beacon: {},
+      beaconBackup: {},
       issues: [],
       modeTab: 'IBEACON',
       locationTab: 'GPS',
       images: [],
-      loaded: false
+      loaded: false,
+      editing: false,
+      controls: {
+        frequencySlider: null,
+        iBeaconSwitch: null,
+        eddystoneUidSwitch: null,
+        eddystoneUrlSwitch: null,
+        eddystoneEidSwitch: null,
+        eddystoneEtlmSwitch: null,
+        eddystoneTlmSwitch: null
+      }
     }
   },
   mounted() {
-    const slider = new MDCSlider(document.querySelector('#frequency-slider'));
     const modeTabBar = new MDCTabBar(document.querySelector('#mode-tab-bar'));
     modeTabBar.listen('MDCTabBar:activated', event =>  {
       switch(event.detail.index) {
@@ -419,35 +437,26 @@ export default {
           break;
       }
     });
-    const iBeaconSwitch = new MDCSwitch(document.querySelector('#ibeacon-switch'));
-    const eddystoneUidSwitch = new MDCSwitch(document.querySelector('#eddystone-uid-switch'));
-    const eddystoneUrlSwitch = new MDCSwitch(document.querySelector('#eddystone-url-switch'));
-    const eddystoneEidSwitch = new MDCSwitch(document.querySelector('#eddystone-eid-switch'));
-    const eddystoneEtlmSwitch = new MDCSwitch(document.querySelector('#eddystone-etlm-switch'));
-    const eddystoneTlmSwitch = new MDCSwitch(document.querySelector('#eddystone-tlm-switch'));
+    this.controls.frequencySlider = new MDCSlider(document.querySelector('#frequency-slider'));
+    this.controls.iBeaconSwitch = new MDCSwitch(document.querySelector('#ibeacon-switch'));
+    this.controls.eddystoneUidSwitch = new MDCSwitch(document.querySelector('#eddystone-uid-switch'));
+    this.controls.eddystoneUrlSwitch = new MDCSwitch(document.querySelector('#eddystone-url-switch'));
+    this.controls.eddystoneEidSwitch = new MDCSwitch(document.querySelector('#eddystone-eid-switch'));
+    this.controls.eddystoneEtlmSwitch = new MDCSwitch(document.querySelector('#eddystone-etlm-switch'));
+    this.controls.eddystoneTlmSwitch = new MDCSwitch(document.querySelector('#eddystone-tlm-switch'));
 
-    iBeaconSwitch.disabled = true
-    eddystoneUidSwitch.disabled = true
-    eddystoneUrlSwitch.disabled = true
-    eddystoneEidSwitch.disabled = true
-    eddystoneEtlmSwitch.disabled = true
-    eddystoneTlmSwitch.disabled = true
+    this.controls.iBeaconSwitch.disabled = true
+    this.controls.eddystoneUidSwitch.disabled = true
+    this.controls.eddystoneUrlSwitch.disabled = true
+    this.controls.eddystoneEidSwitch.disabled = true
+    this.controls.eddystoneEtlmSwitch.disabled = true
+    this.controls.eddystoneTlmSwitch.disabled = true
 
     getBeacon(this.$route.params.id).then((beacon) => {
+      Object.assign(this.beaconBackup, beacon)
       Object.assign(this.beacon, beacon)
-      slider.value = beacon.txPower
-      document.querySelector('#frequency-slider .mdc-slider__pin-value-marker').innerHTML = beacon.txPower
-      document.querySelector('#location-map').setAttribute('src', this.getStaticMap(beacon))
-      iBeaconSwitch.checked = beacon.iBeacon
-      eddystoneUidSwitch.checked = beacon.eddystoneUid
-      eddystoneUrlSwitch.checked = beacon.eddystoneUrl
-      eddystoneEidSwitch.checked = beacon.eddystoneEid
-      eddystoneEtlmSwitch.checked = beacon.eddystoneEtlm
-      eddystoneTlmSwitch.checked = beacon.eddystoneTlm
+      this.updateControls(),
       this.$set(this, 'loaded', true)
-      setTimeout(() => {
-        slider.layout()
-      })
     })
 
     getIssuesForBeacon(this.$route.params.id).then(issues => {
@@ -475,20 +484,63 @@ export default {
       })
     })
   },
+  watch: {
+    editing() {
+      console.log(this.editing)
+      this.controls.frequencySlider.disabled = !this.editing
+      this.controls.iBeaconSwitch.disabled = !this.editing
+      this.controls.eddystoneUidSwitch.disabled = !this.editing
+      this.controls.eddystoneUrlSwitch.disabled = !this.editing
+      this.controls.eddystoneEidSwitch.disabled = !this.editing
+      this.controls.eddystoneEtlmSwitch.disabled = !this.editing
+      this.controls.eddystoneTlmSwitch.disabled = !this.editing
+    }
+  },
   methods: {
+    updateControls() {
+      this.controls.frequencySlider.value = this.beacon.txPower
+      document.querySelector('#frequency-slider .mdc-slider__pin-value-marker').innerHTML = this.beacon.txPower
+      document.querySelector('#location-map').setAttribute('src', this.getStaticMap(this.beacon))
+      this.controls.iBeaconSwitch.checked = this.beacon.iBeacon
+      this.controls.eddystoneUidSwitch.checked = this.beacon.eddystoneUid
+      this.controls.eddystoneUrlSwitch.checked = this.beacon.eddystoneUrl
+      this.controls.eddystoneEidSwitch.checked = this.beacon.eddystoneEid
+      this.controls.eddystoneEtlmSwitch.checked = this.beacon.eddystoneEtlm
+      this.controls.eddystoneTlmSwitch.checked = this.beacon.eddystoneTlm
+      setTimeout(() => {
+        this.controls.frequencySlider.layout()
+      })
+    },
+    cancelEdit() {
+      this.resetBeacon()
+      this.$set(this, 'editing', false)
+    },
+    resetBeacon() {
+      if (this.beaconBackup != null) {
+        this.beacon = this.beaconBackup
+        this.updateControls()
+      }
+    },
+    executeAction(event) {
+      switch(event.target.value) {
+        case 'edit':
+          this.$set(this, 'editing', true)
+          event.target.selectedIndex = 0
+          break;
+      }
+    },
     icon(beacon) {
-      return 'https://beacon-dev.it/img/map_icon_pending.4762a85f.png';
       let uri = location.origin;
       switch(beacon.status) {
         case 'BATTERY_LOW':
         case 'ISSUE':
-          uri += require('../assets/map_icon_issue.png')
+          uri += require('../assets/img/map/map_icon_issue.png')
           break
         case 'CONFIGURATION_PENDING':
-          uri += require('../assets/map_icon_pending.png')
+          uri += require('../assets/img/map/map_icon_pending.png')
           break
         default:
-          uri += require('../assets/map_icon_ok.png')
+          uri += require('../assets/img/map/map_icon_ok.png')
           break
       }
 
@@ -500,7 +552,7 @@ export default {
     getStaticMap(beacon) {
       return 'https://maps.googleapis.com/maps/api/staticmap' +
         '?center=' + beacon.lat + ',' + beacon.lng +
-        '&zoom=18' +
+        '&zoom=16' +
         '&size=300x200' +
         '&maptype=roadmap' +
         '&markers=anchor:center|size:tiny|icon:' + this.icon(beacon) + '|' + beacon.lat + ',' + beacon.lng +
@@ -573,16 +625,6 @@ export default {
 <style lang="scss" scoped>
 
   @import "../variables";
-  $mdc-theme-primary: $background-blue;
-  $mdc-theme-secondary: $background-blue;
-  $mdc-theme-text-primary-on-light: #fff;
-  $mdc-theme-text-secondary-on-dark: #fff;
-  @import "../../node_modules/@material/slider/mdc-slider";
-  @import "../../node_modules/@material/tab-bar/mdc-tab-bar";
-  @import "../../node_modules/@material/tab-scroller/mdc-tab-scroller";
-  @import "../../node_modules/@material/tab-indicator/mdc-tab-indicator";
-  @import "../../node_modules/@material/tab/mdc-tab";
-  @import "../../node_modules/@material/switch/mdc-switch";
 
   .beacon-title {
     color: $background-blue;
@@ -604,57 +646,6 @@ export default {
       font-size: 1.125rem;
     }
 
-    .mdc-slider {
-      margin-bottom: -0.9em;
-
-      &.mdc-slider--disabled {
-        opacity: 0.6;
-      }
-
-      .mdc-slider__track {
-        background-color: $mdc-theme-secondary !important;
-      }
-      .mdc-slider__thumb {
-        fill: $mdc-theme-secondary !important;
-      }
-      .mdc-slider__pin {
-        background-color: $mdc-theme-secondary !important;
-        color: white;
-      }
-    }
-
-    .mdc-tab-bar {
-      border-bottom: 1px solid $background-grey;
-
-      .mdc-tab {
-        text-transform: none;
-        padding: 0 1em;
-        letter-spacing: normal;
-      }
-
-      .mdc-tab--active {
-        .mdc-tab__text-label {
-          color: $light-blue;
-        }
-      }
-
-      .mdc-tab__text-label {
-        color: $text-muted-grey;
-      }
-
-      .mdc-tab-indicator {
-        > .mdc-tab-indicator__content--underline {
-          background-color: $light-blue
-        }
-      }
-
-      .mdc-tab__ripple {
-        &.mdc-ripple-upgraded--background-focused {
-          background: none;
-        }
-      }
-    }
-
     .form-control {
       font-size: 80%;
     }
@@ -674,9 +665,12 @@ export default {
 
     .description {
       border: 1px solid $background-grey;
-      color: $text-muted-grey;
       border-radius: 0.25rem;
       padding: 0.25em 0.75em;
+
+      &.description-disabled {
+        color: $text-muted-grey;
+      }
     }
 
     button.location-description-button {
@@ -686,6 +680,7 @@ export default {
       border-radius: 1rem;
       display:block;
       width: 100%;
+      cursor: pointer;
 
       &.location-description-button-active {
         background: $status-blue;
@@ -693,6 +688,7 @@ export default {
       }
 
       &[disabled] {
+        cursor: default;
         opacity: 0.6;
       }
     }
@@ -770,16 +766,30 @@ export default {
     }
   }
 
+  .edit-actions {
+    .btn {
+      width: 180px;
+      padding: 0.1em 0.5em;
+      font-size: 0.9em;
 
+      &.btn-primary {
+        background: $light-blue;
+        border-color: $light-blue;
 
-  .zipfzapf {
-    flex: 1;
-  }
-  .zipfzapf::after {
-    display: block;
-    width: 2px;
-    height: 2px;
-    content: "";
+        &:hover {
+          background: $lighter-blue;
+          border-color: $lighter-blue;
+        }
+      }
+
+      &.btn-outline-secondary {
+        border-color: $grey;
+
+        &:hover {
+          background: $grey;
+        }
+      }
+    }
   }
 
 </style>
