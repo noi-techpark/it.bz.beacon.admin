@@ -130,7 +130,7 @@
                 <div id="location-gps" class="mt-4" v-show="locationTab === 'GPS'">
                   <div class="row">
                     <div class="col-12 p-0">
-                      <img src="" id="location-map" style="width:100%"/>
+                      <div id="map" class="col-12" style="height:200px"></div>
                     </div>
                   </div>
                   <div class="row mt-3">
@@ -382,6 +382,7 @@ import config from '../service/config'
 import { getIssuesForBeacon, getImagesForBeacon } from "../service/apiService"
 import store from '../store/store'
 import moment from 'moment'
+import { initMap, getMapStyles } from '../service/googlemaps'
 
 export default {
   components: {
@@ -480,6 +481,7 @@ export default {
       Object.assign(this.beaconBackup, beacon)
       Object.assign(this.beacon, beacon)
       this.updateControls(),
+      this.loadMap(),
       this.$set(this, 'loaded', true)
     })
 
@@ -520,10 +522,49 @@ export default {
     }
   },
   methods: {
+    async loadMap() {
+      try {
+        const google = await initMap();
+        this.map = new google.maps.Map(document.getElementById('map'), {
+          center: {
+            lat: this.beacon.lat,
+            lng: this.beacon.lng
+          },
+          zoom: 16,
+          disableDefaultUI: false,
+          zoomControl: false,
+          mapTypeControl: false,
+          scaleControl: false,
+          streetViewControl: false,
+          rotateControl: false,
+          fullscreenControl: false,
+          draggable: false,
+          scrollwheel: false,
+          panControl: false,
+          styles: getMapStyles()
+        })
+
+        let marker = new google.maps.Marker({
+          position: {
+            lat: this.beacon.lat,
+            lng: this.beacon.lng
+          },
+          map: this.map,
+          icon: {
+            url: this.iconSvg(this.beacon),
+            size: new google.maps.Size(48, 48),
+            scaledSize: new google.maps.Size(24, 24),
+            anchor: new google.maps.Point(12, 12)
+          }
+        })
+
+      } catch (error) {
+        console.error(error);
+      }
+    },
     updateControls() {
       this.controls.frequencySlider.value = this.beacon.txPower
       document.querySelector('#frequency-slider .mdc-slider__pin-value-marker').innerHTML = this.beacon.txPower
-      document.querySelector('#location-map').setAttribute('src', this.getStaticMap(this.beacon))
       this.controls.iBeaconSwitch.checked = this.beacon.iBeacon
       this.controls.eddystoneUidSwitch.checked = this.beacon.eddystoneUid
       this.controls.eddystoneUrlSwitch.checked = this.beacon.eddystoneUrl
@@ -557,21 +598,21 @@ export default {
        this.beacon.locationType = type
       }
     },
-    icon(beacon) {
+    iconSvg(beacon) {
       let uri = location.origin;
       switch(beacon.status) {
         case 'BATTERY_LOW':
         case 'ISSUE':
-          uri += require('../assets/img/map/map_icon_issue.png')
+          uri += require('../assets/img/map/map_icon_issue.svg')
           break
         case 'CONFIGURATION_PENDING':
-          uri += require('../assets/img/map/map_icon_pending.png')
+          uri += require('../assets/img/map/map_icon_pending.svg')
           break
         case 'NO_SIGNAL':
-          uri += require('../assets/img/map/map_icon_nosignal.png')
+          uri += require('../assets/img/map/map_icon_nosignal.svg')
           break
         default:
-          uri += require('../assets/img/map/map_icon_ok.png')
+          uri += require('../assets/img/map/map_icon_ok.svg')
           break
       }
 
@@ -579,33 +620,6 @@ export default {
     },
     formatLastSeen(beacon) {
       return moment(beacon.lastSeen * 1000).format('DD.MM.YYYY');
-    },
-    getStaticMap(beacon) {
-      return 'https://maps.googleapis.com/maps/api/staticmap' +
-        '?center=' + beacon.lat + ',' + beacon.lng +
-        '&zoom=16' +
-        '&size=300x200' +
-        '&maptype=roadmap' +
-        '&markers=anchor:center|size:tiny|icon:' + this.icon(beacon) + '|' + beacon.lat + ',' + beacon.lng +
-        '&key=' + config.GOOGLE_MAPS_API_KEY +
-        '&style=element:geometry%7Ccolor:0xf5f5f5' +
-        '&style=element:labels.icon%7Cvisibility:off' +
-        '&style=element:labels.text.fill%7Ccolor:0x616161' +
-        '&style=element:labels.text.stroke%7Ccolor:0xf5f5f5' +
-        '&style=feature:administrative.land_parcel%7Celement:labels.text.fill%7Ccolor:0xbdbdbd' +
-        '&style=feature:poi%7Celement:geometry%7Ccolor:0xeeeeee' +
-        '&style=feature:poi%7Celement:labels.text.fill%7Ccolor:0x757575' +
-        '&style=feature:poi.park%7Celement:geometry%7Ccolor:0xe5e5e5' +
-        '&style=feature:poi.park%7Celement:labels.text.fill%7Ccolor:0x9e9e9e' +
-        '&style=feature:road%7Celement:geometry%7Ccolor:0xffffff' +
-        '&style=feature:road.arterial%7Celement:labels.text.fill%7Ccolor:0x757575' +
-        '&style=feature:road.highway%7Celement:geometry%7Ccolor:0xdadada' +
-        '&style=feature:road.highway%7Celement:labels.text.fill%7Ccolor:0x616161' +
-        '&style=feature:road.local%7Celement:labels.text.fill%7Ccolor:0x9e9e9e' +
-        '&style=feature:transit.line%7Celement:geometry%7Ccolor:0xe5e5e5' +
-        '&style=feature:transit.station%7Celement:geometry%7Ccolor:0xeeeeee' +
-        '&style=feature:water%7Celement:geometry%7Ccolor:0xc9c9c9' +
-        '&style=feature:water%7Celement:labels.text.fill%7Ccolor:0x9e9e9e'
     },
     getStatusClassPostfix(beacon) {
       switch (beacon.status) {
