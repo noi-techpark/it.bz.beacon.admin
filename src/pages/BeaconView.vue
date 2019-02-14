@@ -539,6 +539,9 @@ export default {
         case 'CONFIGURATION_PENDING':
           uri += require('../assets/img/map/map_icon_pending.png')
           break
+        case 'NO_SIGNAL':
+          uri += require('../assets/img/map/map_icon_nosignal.png')
+          break
         default:
           uri += require('../assets/img/map/map_icon_ok.png')
           break
@@ -585,6 +588,8 @@ export default {
           return 'issue'
         case 'CONFIGURATION_PENDING':
           return 'pending'
+        case 'NO_SIGNAL':
+          return 'nosignal'
         default:
           return 'default'
       }
@@ -598,6 +603,8 @@ export default {
           return 'ISSUE';
         case 'CONFIGURATION_PENDING':
           return 'PENDING';
+        case 'NO_SIGNAL':
+          return 'NO SIGNAL';
         default:
           return beacon.status;
       }
@@ -612,6 +619,8 @@ export default {
           return 'Battery level low';
         case 'CONFIGURATION_PENDING':
           return 'Configuration pending';
+        case 'NO_SIGNAL':
+          return 'Device status unknown';
         default:
           return beacon.status;
       }
@@ -725,6 +734,20 @@ export default {
   .status-pending {
     color: white;
     background-color: $status-blue;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
+
+  .status-issue {
+    color: white;
+    background-color: $status-yellow;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
+
+  .status-nosignal {
+    color: white;
+    background-color: $status-red;
     border-top-right-radius: 10px;
     border-bottom-right-radius: 10px;
   }
