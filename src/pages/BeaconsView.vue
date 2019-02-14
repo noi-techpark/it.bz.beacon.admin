@@ -237,13 +237,13 @@
         switch(beacon.status) {
           case 'BATTERY_LOW':
           case 'ISSUE':
-            uri += require('../assets/map_icon_issue.svg')
+            uri += require('../assets/img/map/map_icon_issue.svg')
             break
           case 'CONFIGURATION_PENDING':
-            uri += require('../assets/map_icon_pending.svg')
+            uri += require('../assets/img/map/map_icon_pending.svg')
             break
           default:
-            uri += require('../assets/map_icon_ok.svg')
+            uri += require('../assets/img/map/map_icon_ok.svg')
             break
         }
 
