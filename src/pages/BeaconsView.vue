@@ -232,7 +232,7 @@
         this.controlText.style.lineHeight = '38px'
         this.controlText.style.paddingLeft = '5px'
         this.controlText.style.paddingRight = '5px'
-        this.controlText.innerHTML = '<img id="myLocationButtonIcon" src="' + require('../assets/img/map/my_location.svg') +  '"/>'
+        this.controlText.innerHTML = '<img id="myLocationButtonIcon" src="' + require('../assets/img/map/my_location.svg') +  '" class="map-control"/>'
         this.controlUI.appendChild(this.controlText);
 
         this.addClickListener = function(callback) {
@@ -462,6 +462,5 @@
       }
     }
   }
-
 
 </style>

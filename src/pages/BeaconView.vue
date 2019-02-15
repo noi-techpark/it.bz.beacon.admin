@@ -670,7 +670,7 @@ export default {
       let latLng = new google.maps.LatLng(this.beacon.lat, this.beacon.lng)
       this.marker.setPosition(latLng)
       this.map.panTo(latLng)
-      this.map.zoom = 16
+      this.map.setZoom(16)
     },
     resetBeacon() {
       if (this.beaconBackup != null) {

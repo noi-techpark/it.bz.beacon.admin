@@ -384,3 +384,11 @@ select.form-control {
   font-weight: lighter;
   font-size: 0.8rem;
 }
+
+.map-control {
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+  }
+}
