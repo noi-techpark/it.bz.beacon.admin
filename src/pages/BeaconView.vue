@@ -135,13 +135,13 @@
                   </div>
                   <div class="row mt-3">
                     <div class="col-12 p-0">
-                      <input type="text" class="form-control" v-model="beacon.lat" :readonly="!editing" />
+                      <input type="text" class="form-control" v-model="beacon.lat" :readonly="!editing" @change="updateMap"/>
                       <small class="text-muted">Latitude</small>
                     </div>
                   </div>
                   <div class="row mt-3">
                     <div class="col-12 p-0">
-                      <input type="text" class="form-control" v-model="beacon.lng" :readonly="!editing" />
+                      <input type="text" class="form-control" v-model="beacon.lng" :readonly="!editing" @change="updateMap" />
                       <small class="text-muted">Longitude</small>
                     </div>
                   </div>
@@ -157,7 +157,7 @@
                   </div>
                   <div class="row flex-grow-1 mt-3">
                     <div class="col-12 p-0 d-flex flex-column">
-                      <textarea class="description flex-grow-1" :class="{'description-disabled': !editing}" v-model="beacon.description"/>
+                      <textarea class="description flex-grow-1" :class="{'description-disabled': !editing}" v-model="beacon.description"></textarea>
                       <small class="text-muted">Description</small>
                     </div>
                   </div>
@@ -394,7 +394,25 @@ export default {
     return {
       title: 'Beacon',
       beacon: {
-        locationType: ''
+        ibeacon: false,
+        major: 0,
+        minor: 0,
+        eddystone: false,
+        namespace: '',
+        instanceId: '',
+        url: '',
+        eddystoneUid: false,
+        eddystoneUrl: false,
+        eddystoneTlm: false,
+        eddystoneEid: false,
+        eddystoneEtlm: false,
+        txPower: 1,
+        interval: 100,
+        locationType: 'OUTDOOR',
+        description: '',
+        locationDescription: '',
+        lat: 0,
+        lng: 0
       },
       beaconBackup: {},
       issues: [],
@@ -411,7 +429,9 @@ export default {
         eddystoneEidSwitch: null,
         eddystoneEtlmSwitch: null,
         eddystoneTlmSwitch: null
-      }
+      },
+      map: {},
+      marker: {}
     }
   },
   mounted() {
@@ -519,6 +539,7 @@ export default {
       this.controls.eddystoneEidSwitch.disabled = !this.editing
       this.controls.eddystoneEtlmSwitch.disabled = !this.editing
       this.controls.eddystoneTlmSwitch.disabled = !this.editing
+      this.setMapControlsEnabled(this.editing)
     }
   },
   methods: {
@@ -531,24 +552,15 @@ export default {
             lng: this.beacon.lng
           },
           zoom: 16,
-          disableDefaultUI: false,
-          zoomControl: false,
-          mapTypeControl: false,
-          scaleControl: false,
-          streetViewControl: false,
-          rotateControl: false,
-          fullscreenControl: false,
-          draggable: false,
-          scrollwheel: false,
-          panControl: false,
           styles: getMapStyles()
         })
 
-        let marker = new google.maps.Marker({
+        this.marker = new google.maps.Marker({
           position: {
             lat: this.beacon.lat,
             lng: this.beacon.lng
           },
+          draggable: this.editing,
           map: this.map,
           icon: {
             url: this.iconSvg(this.beacon),
@@ -557,6 +569,12 @@ export default {
             anchor: new google.maps.Point(12, 12)
           }
         })
+        this.marker.addListener('dragend', event => {
+          this.beacon.lat = event.latLng.lat()
+          this.beacon.lng = event.latLng.lng()
+        });
+
+        this.setMapControlsEnabled(this.editing)
 
       } catch (error) {
         console.error(error);
@@ -577,7 +595,29 @@ export default {
     },
     cancelEdit() {
       this.resetBeacon()
+      this.updateMap()
       this.$set(this, 'editing', false)
+    },
+    setMapControlsEnabled(enabled) {
+      this.marker.setDraggable(enabled)
+      this.map.setOptions({
+        disableDefaultUI: false,
+        zoomControl: enabled,
+        mapTypeControl: false,
+        scaleControl: false,
+        streetViewControl: false,
+        rotateControl: enabled,
+        fullscreenControl: false,
+        draggable: enabled,
+        scrollwheel: enabled,
+        panControl: enabled
+      })
+    },
+    updateMap() {
+      let latLng = new google.maps.LatLng(this.beacon.lat, this.beacon.lng)
+      this.marker.setPosition(latLng)
+      this.map.setCenter(latLng);
+      this.map.zoom = 16;
     },
     resetBeacon() {
       if (this.beaconBackup != null) {
