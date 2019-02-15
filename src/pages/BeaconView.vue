@@ -172,7 +172,7 @@
                   <div class="location-images-wrapper">
                     <div :class="'row ' + (key > 0 ? 'mt-3' : '')" v-bind:key="image.id" v-if="images.length" v-for="(image, key) in images">
                       <div class="col-12 text-center p-0">
-                        <img :src="image.content" class="location-image" />
+                        <img :src="image.content" class="location-image" @click="showImage(image.content)" />
                       </div>
                     </div>
                   </div>
@@ -367,6 +367,7 @@
         </div>
       </div>
       <loader :visible="!loaded" :label="'Loading beacon data...'"/>
+      <image-modal ref="openImage"/>
     </template>
   </layout>
 </template>
@@ -383,11 +384,13 @@ import { getIssuesForBeacon, getImagesForBeacon } from "../service/apiService"
 import store from '../store/store'
 import moment from 'moment'
 import { initMap, getMapStyles } from '../service/googlemaps'
+import ImageModal from '../components/ImageModal'
 
 export default {
   components: {
     Layout,
-    Loader
+    Loader,
+    ImageModal
   },
   name: 'Beacon',
   data() {
@@ -579,6 +582,9 @@ export default {
       } catch (error) {
         console.error(error);
       }
+    },
+    showImage(image) {
+      this.$refs.openImage.open(image)
     },
     updateControls() {
       this.controls.frequencySlider.value = this.beacon.txPower
@@ -816,7 +822,8 @@ export default {
     }
 
     .location-image {
-      width:100%;
+      max-width:100%;
+      cursor: pointer;
     }
   }
 

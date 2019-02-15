@@ -46,11 +46,11 @@ export default {
   data() {
     return {
       visible: false,
-      promise: null
+      promise: null,
     }
   },
   methods: {
-    open() {
+    open(imageSrc) {
       this.visible = true
       return new Promise((resolve, reject) => {
         this.promise = {
