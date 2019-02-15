@@ -69,7 +69,7 @@
       background-color: $status-green;
     }
 
-    &.badge-status-battery, .badge-status-issue {
+    &.badge-status-battery, &.badge-status-issue {
       background-color: $status-yellow;
     }
 

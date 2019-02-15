@@ -5,12 +5,16 @@
       <div class="container pb-4" v-show="loaded">
         <div class="row mt-4">
           <div class="col-12">
-            <h2 class="beacon-title">{{ beacon.name }}</h2>
+            <h2 class="beacon-title mb-3" v-if="!editing">{{ beacon.name }}</h2>
+            <div v-if="editing">
+              <input type="text" class="form-control" v-model="beacon.name" :readonly="!editing" />
+              <small class="text-muted">Name</small>
+            </div>
           </div>
         </div>
         <div class="row">
           <div class="col">
-            <span class="text-muted">last seen:</span> {{ formatLastSeen(beacon) }}
+            <span class="text-muted">last seen:</span> {{ beacon.lastSeen | formatTimestamp }}
           </div>
           <div class="col-xs-12 col-sm-6 col-md-3 col-lg-2" v-show="!editing">
             <select class="form-control" @change="executeAction">
@@ -20,7 +24,17 @@
           </div>
           <div class="col-auto edit-actions" v-show="editing">
             <button class="btn btn-outline-secondary mr-4" @click="cancelEdit">Cancel</button>
-            <button class="btn btn-primary">Save</button>
+            <button class="btn btn-primary" @click="save">Save</button>
+          </div>
+        </div>
+        <div class="row mt-4" v-if="editing && beacon.status === 'CONFIGURATION_PENDING' && !configResetted">
+          <div class="col-12">
+            <div class="alert alert-configuration-pending mb-0 p-3" role="alert">
+              The following values may contain pending configuration values and do not represent the current values written to the beacon.
+              <div class="row d-flex justify-content-end mt-3">
+                <button class="btn btn-secondary" @click="resetConfiguration">Reset pending configuration</button>
+              </div>
+            </div>
           </div>
         </div>
         <div class="row row-eq-height">
@@ -356,8 +370,8 @@
                     <span class="row">
                       <span class="col-3">{{ issue.problem }}</span>
                       <span class="col-3">{{ issue.problemDescription }}</span>
-                      <span class="col-3">{{ issue.reportDate }}</span>
-                      <span class="col-3">{{ issue.resolveDate }}</span>
+                      <span class="col-3">{{ issue.reportDate | formatDate }}</span>
+                      <span class="col-3">{{ issue.resolveDate | formatDate }}</span>
                     </span>
                   </div>
                 </div>
@@ -367,6 +381,7 @@
         </div>
       </div>
       <loader :visible="!loaded" :label="'Loading beacon data...'"/>
+      <loader :visible="saving" :label="'Saving beacon data...'"/>
       <image-modal ref="openImage"/>
     </template>
   </layout>
@@ -375,7 +390,7 @@
 <script>
 import Layout from '../components/Layout'
 import Loader from '../components/Loader'
-import { getBeacon } from '../service/apiService'
+import { getBeacon, updateBeacon } from '../service/apiService'
 import {MDCSlider} from '@material/slider'
 import {MDCTabBar} from '@material/tab-bar'
 import {MDCSwitch} from '@material/switch'
@@ -415,7 +430,8 @@ export default {
         description: '',
         locationDescription: '',
         lat: 0,
-        lng: 0
+        lng: 0,
+        pendingConfiguration: {}
       },
       beaconBackup: {},
       issues: [],
@@ -424,6 +440,8 @@ export default {
       images: [],
       loaded: false,
       editing: false,
+      saving: false,
+      configResetted: false,
       controls: {
         frequencySlider: null,
         iBeaconSwitch: null,
@@ -503,8 +521,8 @@ export default {
     getBeacon(this.$route.params.id).then((beacon) => {
       Object.assign(this.beaconBackup, beacon)
       Object.assign(this.beacon, beacon)
-      this.updateControls(),
-      this.loadMap(),
+      this.updateControls()
+      this.loadMap()
       this.$set(this, 'loaded', true)
     })
 
@@ -535,6 +553,7 @@ export default {
   },
   watch: {
     editing() {
+      this.configResetted = false
       this.controls.frequencySlider.disabled = !this.editing
       this.controls.iBeaconSwitch.disabled = !this.editing
       this.controls.eddystoneUidSwitch.disabled = !this.editing
@@ -543,6 +562,19 @@ export default {
       this.controls.eddystoneEtlmSwitch.disabled = !this.editing
       this.controls.eddystoneTlmSwitch.disabled = !this.editing
       this.setMapControlsEnabled(this.editing)
+      if (this.editing && this.beacon.pendingConfiguration != null) {
+        this.beacon.uuid = this.beacon.pendingConfiguration.uuid
+        this.beacon.major = this.beacon.pendingConfiguration.major
+        this.beacon.minor = this.beacon.pendingConfiguration.minor
+        this.beacon.iBeacon = this.beacon.pendingConfiguration.iBeacon
+        this.beacon.interval = this.beacon.pendingConfiguration.interval
+        this.beacon.txPower = this.beacon.pendingConfiguration.txPower
+        this.beacon.eddystoneUid = this.beacon.pendingConfiguration.eddystoneUid
+        this.beacon.eddystoneUrl = this.beacon.pendingConfiguration.eddystoneUrl
+        this.beacon.eddystoneEid = this.beacon.pendingConfiguration.eddystoneEid
+        this.beacon.eddystoneEtlm = this.beacon.pendingConfiguration.eddystoneEtlm
+        this.beacon.eddystoneTlm = this.beacon.pendingConfiguration.eddystoneTlm
+      }
     }
   },
   methods: {
@@ -599,6 +631,21 @@ export default {
         this.controls.frequencySlider.layout()
       })
     },
+    resetConfiguration() {
+      this.resetBeacon()
+      this.configResetted = true
+    },
+    save() {
+      this.saving = true
+      updateBeacon(this.beacon).then(beacon => {
+        Object.assign(this.beaconBackup, beacon)
+        Object.assign(this.beacon, beacon)
+        this.updateControls()
+        this.updateMap()
+        this.$set(this, 'editing', false)
+        this.$set(this, 'saving', false)
+      })
+    },
     cancelEdit() {
       this.resetBeacon()
       this.updateMap()
@@ -622,8 +669,8 @@ export default {
     updateMap() {
       let latLng = new google.maps.LatLng(this.beacon.lat, this.beacon.lng)
       this.marker.setPosition(latLng)
-      this.map.setCenter(latLng);
-      this.map.zoom = 16;
+      this.map.panTo(latLng)
+      this.map.zoom = 16
     },
     resetBeacon() {
       if (this.beaconBackup != null) {
@@ -663,9 +710,6 @@ export default {
       }
 
       return encodeURI(uri);
-    },
-    formatLastSeen(beacon) {
-      return moment(beacon.lastSeen * 1000).format('DD.MM.YYYY');
     },
     getStatusClassPostfix(beacon) {
       switch (beacon.status) {
@@ -727,6 +771,19 @@ export default {
         default:
           return '';
       }
+    }
+  },
+  filters: {
+    formatTimestamp(timestamp) {
+      return moment(timestamp * 1000).format('DD.MM.YYYY')
+    },
+    formatDate(dateString) {
+      let date = moment(dateString)
+      if (!date.isValid()) {
+        return ''
+      }
+
+      return date.format('DD.MM.YYYY')
     }
   }
 }
@@ -918,6 +975,17 @@ export default {
         &:hover {
           background: $grey;
         }
+      }
+    }
+  }
+
+  .alert {
+    &.alert-configuration-pending {
+      color: white;
+      background: $background-blue;
+
+      .btn {
+        font-size: 0.8rem;
       }
     }
   }

@@ -104,6 +104,33 @@ export function getBeacon(id) {
   return callGet(PATH_BEACONS + '/' + id, true);
 }
 
+export function updateBeacon(beacon) {
+  let data =  {
+    description: beacon.description,
+    eddystoneEid: beacon.eddystoneEid,
+    eddystoneEtlm: beacon.eddystoneEtlm,
+    eddystoneTlm: beacon.eddystoneTlm,
+    eddystoneUid: beacon.eddystoneUid,
+    eddystoneUrl: beacon.eddystoneUrl,
+    iBeacon: beacon.iBeacon,
+    instanceId: beacon.instanceId,
+    interval: beacon.interval,
+    lat: beacon.lat,
+    lng: beacon.lng,
+    locationDescription: beacon.locationDescription,
+    locationType: beacon.locationType,
+    major: beacon.major,
+    minor: beacon.minor,
+    name: beacon.name,
+    namespace: beacon.namespace,
+    telemetry: beacon.telemetry,
+    txPower: beacon.txPower,
+    url: beacon.url,
+    uuid: beacon.uuid
+  }
+  return callPatch(PATH_BEACONS + '/' + beacon.id, true, data)
+}
+
 // BEACON IMAGES
 export function getImagesForBeacon(id) {
   return callGet(PATH_BEACONS + '/' + id + SUB_PATH_IMAGES, true)

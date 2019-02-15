@@ -1,11 +1,11 @@
 <template>
   <nav>
     <ul class="pagination pagination-lg mb-0">
-      <li class="page-item">
+      <li class="page-item zipfl">
         <a
-           href class="page-link d-flex justify-content-center align-items-center " :class="currentPage <= 0 ? 'page-link-disabled' : ''"
+           href class="page-link d-flex justify-content-center align-items-center page-link-iconed " :class="currentPage <= 0 ? 'page-link-disabled' : ''"
            @click.prevent="setPage(currentPage - 1)" tabindex="-1">
-          <<
+          <img src="../assets/img/action_previous.svg" class="page-link-icon"/>
         </a>
       </li>
       <li class="page-item" v-for="(page, index) in getPaginationElements" :key="index">
@@ -21,9 +21,9 @@
       </li>
       <li class="page-item">
         <a
-          href class="page-link d-flex justify-content-center align-items-center " :class="currentPage >= pageCount - 1 ? 'page-link-disabled' : ''"
+          href class="page-link d-flex justify-content-center align-items-center page-link-iconed " :class="currentPage >= pageCount - 1 ? 'page-link-disabled' : ''"
           @click.prevent="setPage(currentPage + 1)" tabindex="-1">
-          >>
+          <img src="../assets/img/action_next.svg" class="page-link-icon"/>
         </a>
       </li>
     </ul>
@@ -112,10 +112,22 @@ export default {
       a.page-link {
         color: $text-grey;
 
+        &.page-link-iconed {
+          padding: 0.25em;
+        }
+
+        .page-link-icon {
+          opacity: 0.6;
+        }
+
         &.page-link-disabled {
           color: $text-muted-grey;
           cursor: not-allowed;
           background: $background-grey;
+
+          img {
+            opacity: 0.3;
+          }
         }
       }
 
