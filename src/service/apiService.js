@@ -43,7 +43,7 @@ function callPatch(path, auth, data) {
 }
 
 function callDelete(path, auth) {
-  return call('delete', auth, path)
+  return call('delete', path, auth)
 }
 
 // AUTHENTICATION
@@ -132,11 +132,16 @@ export function updateBeacon(beacon) {
 }
 
 // BEACON IMAGES
-export function getImagesForBeacon(id) {
-  return callGet(PATH_BEACONS + '/' + id + SUB_PATH_IMAGES, true)
+export function getImagesForBeacon(beaconId) {
+  return callGet(PATH_BEACONS + '/' + beaconId + SUB_PATH_IMAGES, true)
+}
+
+export function deleteImageForBeacon(beaconId, id) {
+  debugger
+  return callDelete(PATH_BEACONS + '/' + beaconId + SUB_PATH_IMAGES + '/' + id, true)
 }
 
 // ISSUES
-export function getIssuesForBeacon(id) {
-  return callGet(PATH_BEACONS + '/' + id + SUB_PATH_ISSUES, true)
+export function getIssuesForBeacon(beaconId) {
+  return callGet(PATH_BEACONS + '/' + beaconId + SUB_PATH_ISSUES, true)
 }

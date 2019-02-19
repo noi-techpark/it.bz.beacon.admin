@@ -193,6 +193,10 @@
                       </div>
                     </div>
                   </div>
+                  <confirm ref="deleteImageConfirm" titleText="Delete image" confirmText="Delete" cancelText="Cancel">
+                    Are you sure to you want to delete the image?<br />
+                    This cannot be undone.
+                  </confirm>
                 </div>
               </div>
             </div>
@@ -398,17 +402,19 @@ import {MDCSlider} from '@material/slider'
 import {MDCTabBar} from '@material/tab-bar'
 import {MDCSwitch} from '@material/switch'
 import config from '../service/config'
-import { getIssuesForBeacon, getImagesForBeacon } from "../service/apiService"
+import { getIssuesForBeacon, getImagesForBeacon, deleteImageForBeacon } from "../service/apiService"
 import store from '../store/store'
 import moment from 'moment'
 import { initMap, getMapStyles } from '../service/googlemaps'
 import ImageModal from '../components/ImageModal'
+import Confirm from '../components/Confirm'
 
 export default {
   components: {
     Layout,
     Loader,
-    ImageModal
+    ImageModal,
+    Confirm
   },
   name: 'Beacon',
   data() {
@@ -528,30 +534,8 @@ export default {
       this.$set(this, 'loaded', true)
     })
 
-    getIssuesForBeacon(this.$route.params.id).then(issues => {
-      this.issues = issues
-    })
-
-    getImagesForBeacon(this.$route.params.id).then(beaconImages => {
-      this.images = []
-
-      beaconImages.forEach(beaconImage => {
-        let xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = () => {
-          if (xhr.readyState === 4 && xhr.status === 200) {
-            let url = window.URL || window.webkitURL;
-            this.images.push({
-              id: beaconImage.id,
-              content: url.createObjectURL(xhr.response)
-            })
-          }
-        }
-        xhr.open('GET', config.API_BASE_URL + '/v1/admin/beacons/' + this.$route.params.id + '/images/' + beaconImage.id);
-        xhr.setRequestHeader("Authorization", "Bearer " + store.getters['login/token'])
-        xhr.responseType = 'blob';
-        xhr.send();
-      })
-    })
+    this.reloadIssues();
+    this.reloadImages();
   },
   watch: {
     editing() {
@@ -626,6 +610,33 @@ export default {
       } catch (error) {
         //console.error(error);
       }
+    },
+    reloadIssues() {
+      getIssuesForBeacon(this.$route.params.id).then(issues => {
+        this.issues = issues
+      })
+    },
+    reloadImages() {
+      getImagesForBeacon(this.$route.params.id).then(beaconImages => {
+        this.images = []
+
+        beaconImages.forEach(beaconImage => {
+          let xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+              let url = window.URL || window.webkitURL;
+              this.images.push({
+                id: beaconImage.id,
+                content: url.createObjectURL(xhr.response)
+              })
+            }
+          }
+          xhr.open('GET', config.API_BASE_URL + '/v1/admin/beacons/' + this.$route.params.id + '/images/' + beaconImage.id);
+          xhr.setRequestHeader("Authorization", "Bearer " + store.getters['login/token'])
+          xhr.responseType = 'blob';
+          xhr.send();
+        })
+      })
     },
     showImage(image) {
       this.$refs.openImage.open(image)
@@ -787,13 +798,22 @@ export default {
           return '';
       }
     },
-    remvoeImage(image) {
-      // this.$refs.deleteUserConfirm.open()
-      //   .then(() => deleteUser(user.id)
-      //     .then(() => {
-      //       this.fetchUsers()
-      //     }))
-      //   .catch(() => {})
+    removeImage(image) {
+      this.$refs.deleteImageConfirm.open()
+        .then(() => {
+          deleteImageForBeacon(this.beacon.id, image.id)
+            .then(() => {
+              debugger
+              this.reloadImages()
+            })
+            .catch((error) => {
+              debugger
+              console.log(error)
+            })
+          })
+        .catch(() => {
+          debugger
+        })
     }
   },
   filters: {
@@ -900,9 +920,18 @@ export default {
 
     .location-image-wrapper {
 
+      display: inline-block;
+      position: relative;
+      cursor: pointer;
+      text-align: center;
+
       .location-image {
-        max-width:100%;
-        cursor: pointer;
+      }
+
+      .btn-delete {
+        position: absolute;
+        top: 0.25em;
+        right: 0.125em;
       }
     }
   }
@@ -1015,7 +1044,11 @@ export default {
 
   .btn-delete {
     mask-image: url("./../assets/delete.svg");
-    background-color: black;
+    background-color: $text-grey;
+
+    height: 24px;
+    width: 24px;
+
     &:hover {
       background-color: red;
     }

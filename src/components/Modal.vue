@@ -27,7 +27,7 @@
 
 <script>
 import { Scrollable } from '../directive/Scrollable'
-import { fixScrollable } from '../service/scrollable'
+import { freezeScrollable } from '../service/scrollable'
 
 export default {
   components: {
@@ -52,7 +52,7 @@ export default {
   },
   mounted() {
     window.addEventListener('keyup', this.closeModalOnEsc)
-    fixScrollable(true)
+    freezeScrollable(true)
     this.prevfocusedElement = document.activeElement
     if (this.$refs.focusElement) {
       this.$refs.focusElement.focus()
@@ -63,7 +63,7 @@ export default {
       this.prevfocusedElement.focus()
     }
     window.removeEventListener('keyup', this.closeModalOnEsc)
-    fixScrollable(false)
+    freezeScrollable(false)
   },
   methods: {
     close() {
