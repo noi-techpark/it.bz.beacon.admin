@@ -14,7 +14,7 @@
         </div>
         <div class="row">
           <div class="col">
-            <span class="text-muted">last seen:</span> {{ beacon.lastSeen | formatTimestamp }}
+            <span class="text-muted">last seen:</span> {{ beacon.lastSeen | formatDate }}
           </div>
           <div class="col-xs-12 col-sm-6 col-md-3 col-lg-2" v-show="!editing">
             <select class="form-control" @change="executeAction">
@@ -186,7 +186,10 @@
                   <div class="location-images-wrapper">
                     <div :class="'row ' + (key > 0 ? 'mt-3' : '')" v-bind:key="image.id" v-if="images.length" v-for="(image, key) in images">
                       <div class="col-12 text-center p-0">
-                        <img :src="image.content" class="location-image" @click="showImage(image.content)" />
+                        <div class="location-image-wrapper">
+                          <button type="button" class="btn btn-delete" title="Delete image" @click.prevent.stop="removeImage(image)"></button>
+                          <img :src="image.content" class="location-image" @click="showImage(image.content)" />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -783,12 +786,17 @@ export default {
         default:
           return '';
       }
+    },
+    remvoeImage(image) {
+      // this.$refs.deleteUserConfirm.open()
+      //   .then(() => deleteUser(user.id)
+      //     .then(() => {
+      //       this.fetchUsers()
+      //     }))
+      //   .catch(() => {})
     }
   },
   filters: {
-    formatTimestamp(timestamp) {
-      return moment(timestamp * 1000).format('DD.MM.YYYY')
-    },
     formatDate(dateString) {
       let date = moment(dateString)
       if (!date.isValid()) {
@@ -890,9 +898,12 @@ export default {
       bottom: 0;
     }
 
-    .location-image {
-      max-width:100%;
-      cursor: pointer;
+    .location-image-wrapper {
+
+      .location-image {
+        max-width:100%;
+        cursor: pointer;
+      }
     }
   }
 
@@ -999,6 +1010,14 @@ export default {
       .btn {
         font-size: 0.8rem;
       }
+    }
+  }
+
+  .btn-delete {
+    mask-image: url("./../assets/delete.svg");
+    background-color: black;
+    &:hover {
+      background-color: red;
     }
   }
 
