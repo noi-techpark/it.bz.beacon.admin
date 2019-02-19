@@ -1,10 +1,10 @@
 <template>
   <!-- eslint-disable -->
-  <modal ref="confirmModal" v-if="visible" @close="close" :small="true">
+  <modal ref="confirmModal" v-if="visible" @close="close" :small="false">
     <div slot="header" class="image-header">Beacon location</div>
     <div slot="body">
-      <div class="d-flex justify-content-center">
-        <img :src="imageSrc"/>
+      <div class="image-wrapper d-flex justify-content-center">
+        <img class="image" :src="imageSrc"/>
       </div>
     </div>
     <div slot="footer" class="image-modal-actions">
@@ -58,6 +58,20 @@ export default {
 <style lang="scss" scoped>
 
   @import '../variables';
+
+  .image-wrapper {
+
+    width: 100%;
+    min-height: 400px;
+    max-height: 600px;
+    position: relative;
+
+    img.image {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+  }
 
   .image-header {
     font-size: 1.5rem;
