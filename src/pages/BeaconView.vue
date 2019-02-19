@@ -14,7 +14,6 @@
         </div>
         <div class="row">
           <div class="col">
-<<<<<<< HEAD
             <span class="text-muted">last seen:</span> {{ beacon.lastSeen | formatDate }}
           </div>
           <div class="col-xs-12 col-sm-6 col-md-3 col-lg-2" v-show="!editing">
@@ -36,9 +35,6 @@
                 <button class="btn btn-secondary" @click="resetConfiguration">Reset pending configuration</button>
               </div>
             </div>
-=======
-            <span class="text-muted">last seen:</span> {{ formatLastSeen(beacon) }}
->>>>>>> d3ab7c2... new map icons and editmode
           </div>
           <div class="col-xs-12 col-sm-6 col-md-3 col-lg-2" v-show="!editing">
             <select class="form-control" @change="executeAction">
@@ -163,60 +159,35 @@
                   </div>
                   <div class="row mt-3">
                     <div class="col-12 p-0">
-<<<<<<< HEAD
                       <input type="text" class="form-control" v-model="beacon.lat" :readonly="!editing" @change="updateMap"/>
                       <small class="text-muted">Latitude</small>
-=======
-                      <input type="text" class="form-control" :value="beacon.lat" :readonly="!editing" />
-                      <small class="text-muted">GPS-N</small>
->>>>>>> d3ab7c2... new map icons and editmode
                     </div>
                   </div>
                   <div class="row mt-3">
                     <div class="col-12 p-0">
-<<<<<<< HEAD
                       <input type="text" class="form-control" v-model="beacon.lng" :readonly="!editing" @change="updateMap" />
                       <small class="text-muted">Longitude</small>
-=======
-                      <input type="text" class="form-control" :value="beacon.lng" :readonly="!editing" />
-                      <small class="text-muted">GPS-E</small>
->>>>>>> d3ab7c2... new map icons and editmode
                     </div>
                   </div>
                 </div>
                 <div id="location-description" :class="(locationTab === 'DESCRIPTION' ? 'd-flex' : '') + ' mt-4 flex-grow-1 flex-column'" v-show="locationTab === 'DESCRIPTION'">
                   <div class="row">
                     <div class="col-6 pl-0">
-<<<<<<< HEAD
                       <button class="location-description-button" :class="{'location-description-button-active' : beacon.locationType === 'OUTDOOR'}"  :disabled="!editing" @click="changeLocationType('OUTDOOR')">OUTDOOR</button>
                     </div>
                     <div class="col-6 pr-0">
                       <button class="location-description-button" :class="{'location-description-button-active' : beacon.locationType === 'INDOOR'}" :disabled="!editing" @click="changeLocationType('INDOOR')">INDOOR</button>
-=======
-                      <button :class="'location-description-button ' + (beacon.locationType === 'OUTDOOR' ? 'location-description-button-active' : '')" :disabled="!editing">OUTDOOR</button>
-                    </div>
-                    <div class="col-6 pr-0">
-                      <button :class="'location-description-button ' + (beacon.locationType === 'INDOOR' ? 'location-description-button-active' : '')" :disabled="!editing">INDOOR</button>
->>>>>>> d3ab7c2... new map icons and editmode
                     </div>
                   </div>
                   <div class="row flex-grow-1 mt-3">
                     <div class="col-12 p-0 d-flex flex-column">
-<<<<<<< HEAD
                       <textarea class="description flex-grow-1" :class="{'description-disabled': !editing}" v-model="beacon.description"></textarea>
-=======
-                      <div class="description flex-grow-1 " :class="{'description-disabled': !editing}"><small>{{ beacon.description }}</small></div>
->>>>>>> d3ab7c2... new map icons and editmode
                       <small class="text-muted">Description</small>
                     </div>
                   </div>
                   <div class="row mt-3" v-show="beacon.locationType === 'INDOOR'">
                     <div class="col-12 p-0 d-flex flex-column">
-<<<<<<< HEAD
                       <input type="number" class="form-control" v-model="beacon.locationDescription" :readonly="!editing" />
-=======
-                      <input type="number" class="form-control" :value="beacon.locationDescription" :readonly="!editing" />
->>>>>>> d3ab7c2... new map icons and editmode
                       <small class="text-muted">Floor</small>
                     </div>
                   </div>
@@ -285,7 +256,6 @@
                   </div>
                   <div class="row mt-3">
                     <div class="col-8 pl-0">
-<<<<<<< HEAD
                       <input type="text" class="form-control" v-model="beacon.uuid" :readonly="!editing" />
                       <small class="text-muted">UUID</small>
                     </div>
@@ -295,17 +265,6 @@
                     </div>
                     <div class="col-2 pr-0">
                       <input type="text" class="form-control" v-model="beacon.minor" :readonly="!editing" />
-=======
-                      <input type="text" class="form-control" :value="beacon.uuid" :readonly="!editing" />
-                      <small class="text-muted">UUID</small>
-                    </div>
-                    <div class="col-2">
-                      <input type="text" class="form-control" :value="beacon.major" :readonly="!editing" />
-                      <small class="text-muted">Major</small>
-                    </div>
-                    <div class="col-2 pr-0">
-                      <input type="text" class="form-control" :value="beacon.minor" :readonly="!editing" />
->>>>>>> d3ab7c2... new map icons and editmode
                       <small class="text-muted">Minor</small>
                     </div>
                   </div>
@@ -328,19 +287,11 @@
                   </div>
                   <div class="row mt-3">
                     <div class="col-6 pl-0">
-<<<<<<< HEAD
                       <input type="text" class="form-control" v-model="beacon.namespace" :readonly="!editing" />
                       <small class="text-muted">Namespace</small>
                     </div>
                     <div class="col-6 pr-0">
                       <input type="text" class="form-control" v-model="beacon.instanceId" :readonly="!editing" />
-=======
-                      <input type="text" class="form-control" :value="beacon.namespace" :readonly="!editing" />
-                      <small class="text-muted">Namespace</small>
-                    </div>
-                    <div class="col-6 pr-0">
-                      <input type="text" class="form-control" :value="beacon.instanceId" :readonly="!editing" />
->>>>>>> d3ab7c2... new map icons and editmode
                       <small class="text-muted">Instance ID</small>
                     </div>
                   </div>
@@ -361,11 +312,7 @@
                   </div>
                   <div class="row mt-3">
                     <div class="col-12 pl-0 pr-0">
-<<<<<<< HEAD
                       <input type="text" class="form-control" v-model="beacon.url" :readonly="!editing" />
-=======
-                      <input type="text" class="form-control" :value="beacon.url" :readonly="!editing" />
->>>>>>> d3ab7c2... new map icons and editmode
                       <small class="text-muted">URL</small>
                     </div>
                   </div>
@@ -1047,7 +994,6 @@ export default {
         }
       }
     }
-<<<<<<< HEAD
   }
 
   .alert {
@@ -1059,8 +1005,6 @@ export default {
         font-size: 0.8rem;
       }
     }
-=======
->>>>>>> d3ab7c2... new map icons and editmode
   }
 
 </style>
