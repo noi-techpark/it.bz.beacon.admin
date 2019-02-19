@@ -415,7 +415,6 @@ export default {
         ibeacon: false,
         major: 0,
         minor: 0,
-        eddystone: false,
         namespace: '',
         instanceId: '',
         url: '',
@@ -452,7 +451,8 @@ export default {
         eddystoneTlmSwitch: null
       },
       map: {},
-      marker: {}
+      marker: {},
+      google: {}
     }
   },
   mounted() {
@@ -562,26 +562,36 @@ export default {
       this.controls.eddystoneEtlmSwitch.disabled = !this.editing
       this.controls.eddystoneTlmSwitch.disabled = !this.editing
       this.setMapControlsEnabled(this.editing)
+
       if (this.editing && this.beacon.pendingConfiguration != null) {
+        this.beacon.interval = this.beacon.pendingConfiguration.interval
+        this.beacon.txPower = this.beacon.pendingConfiguration.txPower
+
+        this.beacon.iBeacon = this.beacon.pendingConfiguration.iBeacon
         this.beacon.uuid = this.beacon.pendingConfiguration.uuid
         this.beacon.major = this.beacon.pendingConfiguration.major
         this.beacon.minor = this.beacon.pendingConfiguration.minor
-        this.beacon.iBeacon = this.beacon.pendingConfiguration.iBeacon
-        this.beacon.interval = this.beacon.pendingConfiguration.interval
-        this.beacon.txPower = this.beacon.pendingConfiguration.txPower
+
         this.beacon.eddystoneUid = this.beacon.pendingConfiguration.eddystoneUid
+        this.beacon.namespace = this.beacon.pendingConfiguration.namespace
+        this.beacon.instanceId = this.beacon.pendingConfiguration.instanceId
+
         this.beacon.eddystoneUrl = this.beacon.pendingConfiguration.eddystoneUrl
+        this.beacon.url = this.beacon.pendingConfiguration.url
+
         this.beacon.eddystoneEid = this.beacon.pendingConfiguration.eddystoneEid
         this.beacon.eddystoneEtlm = this.beacon.pendingConfiguration.eddystoneEtlm
         this.beacon.eddystoneTlm = this.beacon.pendingConfiguration.eddystoneTlm
+
+        this.updateControls()
       }
     }
   },
   methods: {
     async loadMap() {
       try {
-        const google = await initMap();
-        this.map = new google.maps.Map(document.getElementById('map'), {
+        this.google = await initMap();
+        this.map = new this.google.maps.Map(document.getElementById('map'), {
           center: {
             lat: this.beacon.lat,
             lng: this.beacon.lng
@@ -590,7 +600,7 @@ export default {
           styles: getMapStyles()
         })
 
-        this.marker = new google.maps.Marker({
+        this.marker = new this.google.maps.Marker({
           position: {
             lat: this.beacon.lat,
             lng: this.beacon.lng
@@ -599,9 +609,9 @@ export default {
           map: this.map,
           icon: {
             url: this.iconSvg(this.beacon),
-            size: new google.maps.Size(48, 48),
-            scaledSize: new google.maps.Size(24, 24),
-            anchor: new google.maps.Point(12, 12)
+            size: new this.google.maps.Size(48, 48),
+            scaledSize: new this.google.maps.Size(24, 24),
+            anchor: new this.google.maps.Point(12, 12)
           }
         })
         this.marker.addListener('dragend', event => {
@@ -612,7 +622,7 @@ export default {
         this.setMapControlsEnabled(this.editing)
 
       } catch (error) {
-        console.error(error);
+        //console.error(error);
       }
     },
     showImage(image) {
@@ -644,6 +654,9 @@ export default {
         this.updateMap()
         this.$set(this, 'editing', false)
         this.$set(this, 'saving', false)
+      }).catch(() => {
+        alert('An error occured during saving. Please check your input values.')
+        this.$set(this, 'saving', false)
       })
     },
     cancelEdit() {
@@ -667,7 +680,7 @@ export default {
       })
     },
     updateMap() {
-      let latLng = new google.maps.LatLng(this.beacon.lat, this.beacon.lng)
+      let latLng = new this.google.maps.LatLng(this.beacon.lat, this.beacon.lng)
       this.marker.setPosition(latLng)
       this.map.panTo(latLng)
       this.map.setZoom(16)

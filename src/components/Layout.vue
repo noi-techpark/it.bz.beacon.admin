@@ -26,7 +26,10 @@ import { mapGetters, mapActions } from 'vuex'
 
 export default {
   props: {
-    source: ''
+    source: {
+      type: String,
+      default: ''
+    }
   },
   components: {
     Navigation

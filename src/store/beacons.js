@@ -4,8 +4,8 @@ const SET_BEACONS = 'SET_BEACONS'
 const SET_BEACON = 'SET_BEACON'
 const CLEAR = 'CLEAR'
 const SET_MODE = 'SET_MODE'
-const LIST = 'LIST'
-const MAP = 'MAP'
+export const LIST = 'LIST'
+export const MAP = 'MAP'
 
 export default {
   namespaced: true,

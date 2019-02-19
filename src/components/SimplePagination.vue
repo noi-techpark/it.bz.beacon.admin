@@ -33,8 +33,14 @@
 <script>
 export default {
   props: {
-    pageCount: 0,
-    currentPage: 0
+    pageCount: {
+      type: Number,
+      default: 0
+    },
+    currentPage: {
+      type: Number,
+      default: 0
+    }
   },
   computed: {
     getPaginationElements() {

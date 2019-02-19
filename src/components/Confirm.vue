@@ -50,15 +50,6 @@ export default {
     }
   },
   methods: {
-    open(imageSrc) {
-      this.visible = true
-      return new Promise((resolve, reject) => {
-        this.promise = {
-          resolve: resolve,
-          reject: reject
-        }
-      })
-    },
     close(resolved) {
       this.visible = false
       if (this.promise) {

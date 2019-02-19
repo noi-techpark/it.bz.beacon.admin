@@ -37,6 +37,7 @@ cd beacon-suedtirol-administration-webapp/
 ### Configure .env file
 Make a copy of the .env file and name it ".env.local".
 Fill in the URL of the Beacon Südtirol API in the newly created file.
+The same configuration can be made with environment variables.
 
 ### Install dependencies
 To install all needed dependencies execute this command:

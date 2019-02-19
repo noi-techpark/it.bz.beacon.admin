@@ -14,7 +14,6 @@ const initPromise = new Promise((resolve, reject) => {
 export function initMap() {
   if (initialized) {
     return initPromise;
-
   }
 
   initialized = true;
