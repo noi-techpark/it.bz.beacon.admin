@@ -14,7 +14,7 @@
         </div>
         <div class="row">
           <div class="col">
-            <span class="text-muted">last seen:</span> {{ beacon.lastSeen | formatDate }}
+            <span class="text-muted">last seen:</span> {{ beacon.lastSeen | formatTimestamp }}
           </div>
           <div class="col-xs-12 col-sm-6 col-md-3 col-lg-2" v-show="!editing">
             <select class="form-control" @change="executeAction">
@@ -35,16 +35,6 @@
                 <button class="btn btn-secondary" @click="resetConfiguration">Reset pending configuration</button>
               </div>
             </div>
-          </div>
-          <div class="col-xs-12 col-sm-6 col-md-3 col-lg-2" v-show="!editing">
-            <select class="form-control" @change="executeAction">
-              <option value="">Action</option>
-              <option value="edit">Edit</option>
-            </select>
-          </div>
-          <div class="col-auto edit-actions" v-show="editing">
-            <button class="btn btn-outline-secondary mr-4" @click="cancelEdit">Cancel</button>
-            <button class="btn btn-primary">Save</button>
           </div>
         </div>
         <div class="row row-eq-height">
@@ -461,8 +451,7 @@ export default {
         eddystoneTlmSwitch: null
       },
       map: {},
-      marker: {},
-      google: {}
+      marker: {}
     }
   },
   mounted() {
@@ -571,7 +560,6 @@ export default {
       this.controls.eddystoneEidSwitch.disabled = !this.editing
       this.controls.eddystoneEtlmSwitch.disabled = !this.editing
       this.controls.eddystoneTlmSwitch.disabled = !this.editing
-
       this.setMapControlsEnabled(this.editing)
 
       if (this.editing && this.beacon.pendingConfiguration != null) {
@@ -601,8 +589,8 @@ export default {
   methods: {
     async loadMap() {
       try {
-        this.google = await initMap();
-        this.map = new this.google.maps.Map(document.getElementById('map'), {
+        const google = await initMap();
+        this.map = new google.maps.Map(document.getElementById('map'), {
           center: {
             lat: this.beacon.lat,
             lng: this.beacon.lng
@@ -611,7 +599,7 @@ export default {
           styles: getMapStyles()
         })
 
-        this.marker = new this.google.maps.Marker({
+        this.marker = new google.maps.Marker({
           position: {
             lat: this.beacon.lat,
             lng: this.beacon.lng
@@ -620,9 +608,9 @@ export default {
           map: this.map,
           icon: {
             url: this.iconSvg(this.beacon),
-            size: new this.google.maps.Size(48, 48),
-            scaledSize: new this.google.maps.Size(24, 24),
-            anchor: new this.google.maps.Point(12, 12)
+            size: new google.maps.Size(48, 48),
+            scaledSize: new google.maps.Size(24, 24),
+            anchor: new google.maps.Point(12, 12)
           }
         })
         this.marker.addListener('dragend', event => {
@@ -642,7 +630,6 @@ export default {
     updateControls() {
       this.controls.frequencySlider.value = this.beacon.txPower
       document.querySelector('#frequency-slider .mdc-slider__pin-value-marker').innerHTML = this.beacon.txPower
-
       this.controls.iBeaconSwitch.checked = this.beacon.iBeacon
       this.controls.eddystoneUidSwitch.checked = this.beacon.eddystoneUid
       this.controls.eddystoneUrlSwitch.checked = this.beacon.eddystoneUrl
@@ -692,7 +679,7 @@ export default {
       })
     },
     updateMap() {
-      let latLng = new this.google.maps.LatLng(this.beacon.lat, this.beacon.lng)
+      let latLng = new google.maps.LatLng(this.beacon.lat, this.beacon.lng)
       this.marker.setPosition(latLng)
       this.map.panTo(latLng)
       this.map.setZoom(16)
@@ -711,7 +698,12 @@ export default {
           break;
       }
     },
-    icon(beacon) {
+    changeLocationType(type) {
+      if (this.editing) {
+       this.beacon.locationType = type
+      }
+    },
+    iconSvg(beacon) {
       let uri = location.origin;
       switch(beacon.status) {
         case 'BATTERY_LOW':
@@ -794,6 +786,9 @@ export default {
     }
   },
   filters: {
+    formatTimestamp(timestamp) {
+      return moment(timestamp * 1000).format('DD.MM.YYYY')
+    },
     formatDate(dateString) {
       let date = moment(dateString)
       if (!date.isValid()) {
