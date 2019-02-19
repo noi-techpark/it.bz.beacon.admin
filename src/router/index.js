@@ -58,6 +58,17 @@ const router = new Router({
       name: 'login',
       component: LoginView,
       meta: {
+        title: 'Home Page - Example App',
+        metaTags: [
+          {
+            name: 'description',
+            content: 'The home page of our example app.'
+          },
+          {
+            property: 'og:description',
+            content: 'The home page of our example app.'
+          }
+        ],
         nav: 'login'
       }
     },

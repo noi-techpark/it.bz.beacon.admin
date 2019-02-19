@@ -225,8 +225,13 @@
       get: get
     },
     filters: {
-      formatDate: (date) => {
-        return moment(date * 1000).format('DD.MM.YYYY');
+      formatDate: (dateString) => {
+        let date = moment(dateString)
+        if (!date.isValid()) {
+          return ''
+        }
+
+        return date.format('DD.MM.YYYY')
       }
     }
   }

@@ -14,7 +14,7 @@
         </div>
         <div class="row">
           <div class="col">
-            <span class="text-muted">last seen:</span> {{ beacon.lastSeen | formatTimestamp }}
+            <span class="text-muted">last seen:</span> {{ beacon.lastSeen | formatDate }}
           </div>
           <div class="col-xs-12 col-sm-6 col-md-3 col-lg-2" v-show="!editing">
             <select class="form-control" @change="executeAction">
@@ -787,9 +787,6 @@ export default {
     }
   },
   filters: {
-    formatTimestamp(timestamp) {
-      return moment(timestamp * 1000).format('DD.MM.YYYY')
-    },
     formatDate(dateString) {
       let date = moment(dateString)
       if (!date.isValid()) {
