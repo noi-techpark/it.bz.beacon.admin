@@ -477,7 +477,6 @@ export default {
   },
   methods: {
     icon(beacon) {
-      return 'https://beacon-dev.it/img/map_icon_pending.4762a85f.png';
       let uri = location.origin;
       switch(beacon.status) {
         case 'BATTERY_LOW':
