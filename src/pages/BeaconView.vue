@@ -704,7 +704,7 @@ export default {
        this.beacon.locationType = type
       }
     },
-    iconSvg(beacon) {
+    icon(beacon) {
       let uri = location.origin;
       switch(beacon.status) {
         case 'BATTERY_LOW':
