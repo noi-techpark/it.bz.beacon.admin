@@ -6,6 +6,7 @@
         <div class="issue-header pt-3 pb-3 pr-4 pl-4">
           <div class="row">
             <div class="col-12 p-0">New Issue</div>
+            <button type="button" class="btn btn-close" @click="close(false)"><img src="../assets/ic_close.svg"/></button>
           </div>
           <div class="row mt-4">
             <div class="col-12 p-0">
@@ -248,6 +249,18 @@ export default {
 
   .alert-danger {
     font-size: 0.8rem;
+  }
+
+  .btn-close {
+    color: white;
+    position: absolute;
+    top: 0.5rem;
+    right: 0;
+
+    &:focus {
+      outline: 0;
+      box-shadow: none;
+    }
   }
 
 </style>

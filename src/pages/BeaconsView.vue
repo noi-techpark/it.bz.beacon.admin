@@ -18,12 +18,13 @@
             <div class="col-12 p-0">
               <simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta" @rowClicked="showDetail"/>
             </div>
-            <button type="button" class="fab add-fab" :to="{name: 'beacon-new'}"></button>
+            <button type="button" class="fab add-fab" :to="{name: 'beacon-new'}" @click="openAddBeaconsModal"></button>
           </div>
         </div>
         <div id="map" class="beacon-map" v-show="loaded && viewMode === MAP">
         </div>
         <loader :visible="!loaded" :label="'Loading beacons...'"/>
+        <add-beacons-modal ref="addBeaconsModal" />
       </div>
     </template>
   </layout>
@@ -39,12 +40,14 @@
   import MarkerClusterer  from '@google/markerclusterer'
   import router from '../router/index'
   import merge from 'lodash/merge'
+  import AddBeaconsModal from '../components/AddBeaconsModal'
 
   export default {
     components: {
       Layout,
       SimpleTable,
-      Loader
+      Loader,
+      AddBeaconsModal
     },
     name: 'Beacons',
     data() {
@@ -168,6 +171,15 @@
         'fetchBeacons',
         'clear'
       ]),
+      openAddBeaconsModal() {
+        this.$refs.addBeaconsModal.open()
+          .then(() => {
+            this.clear()
+            this.$set(this, 'loaded', false)
+            this.fetchBeacons()
+          })
+          .catch(() => {})
+      },
       showDetail(beacon) {
         router.push({ name: 'beacon-detail', params: { id: beacon.id }})
       },
