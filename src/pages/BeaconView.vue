@@ -192,6 +192,9 @@
                         </div>
                       </div>
                     </div>
+                    <!--<button type="button" class="fab add-fab" @click="newImage"><i class="fab-icon-adduser"></i></button>-->
+                    <input id="imageUpload" type="file" class="image-upload-input" name="imageUpload" @change="newImage" accept="image/*">
+                    <label for="imageUpload" class="fab image-upload-fab">+</label>
                   </div>
                   <confirm ref="deleteImageConfirm" titleText="Delete image" confirmText="Delete" cancelText="Cancel">
                     Are you sure to you want to delete the image?<br />
@@ -402,7 +405,7 @@ import {MDCSlider} from '@material/slider'
 import {MDCTabBar} from '@material/tab-bar'
 import {MDCSwitch} from '@material/switch'
 import config from '../service/config'
-import { getIssuesForBeacon, getImagesForBeacon, deleteImageForBeacon } from "../service/apiService"
+import { getIssuesForBeacon, getImagesForBeacon, deleteImageForBeacon, createImageForBeacon } from "../service/apiService"
 import store from '../store/store'
 import moment from 'moment'
 import { initMap, getMapStyles } from '../service/googlemaps'
@@ -637,6 +640,19 @@ export default {
           xhr.send();
         })
       })
+    },
+    newImage(event) {
+      let name = event.target.name
+      let files = event.target.files
+      let fileCount = event.target.files.length
+      debugger
+      if (event.target.files.length > 0) {
+        createImageForBeacon(this.beacon.id, event.target.files[0])
+          .then(() => {
+            this.reloadImages()
+          })
+          .catch(() => {})
+      }
     },
     showImage(image) {
       this.$refs.openImage.open(image)
@@ -916,22 +932,48 @@ export default {
       left: 0;
       right: 0;
       bottom: 0;
-    }
 
-    .location-image-wrapper {
 
-      display: inline-block;
-      position: relative;
-      cursor: pointer;
-      text-align: center;
-
-      .location-image {
+      .image-upload-input {
+        width: 0.1px;
+        height: 0.1px;
+        opacity: 0;
+        overflow: hidden;
+        position: absolute;
+        z-index: -1;
       }
 
-      .btn-delete {
+      .image-upload-fab {
+        width: 40px;
+        height: 40px;
+        display: inline-block;
         position: absolute;
-        top: 0.25em;
-        right: 0.125em;
+        bottom: 0.125rem;
+        right: 0.125rem;
+        border-radius: 50%;
+        line-height: 40px;
+        font-size: 30px;
+        margin-bottom: 0;
+        text-align: center;
+        cursor: pointer;
+      }
+
+      .location-image-wrapper {
+
+        display: inline-block;
+        position: relative;
+        cursor: pointer;
+        text-align: center;
+
+        .location-image {
+          width: 100%;
+        }
+
+        .btn-delete {
+          position: absolute;
+          top: 0.45rem;
+          right: 0.125rem;
+        }
       }
     }
   }

@@ -9,8 +9,7 @@ const PATH_USERS = '/v1/admin/users'
 const SUB_PATH_ISSUES = '/issues'
 const SUB_PATH_IMAGES = '/images'
 
-function call(method, path, auth, data) {
-  var headers = {}
+function call(method, path, auth, data, headers = {}) {
   if (auth) {
     headers = {
       'Authorization': 'Bearer ' + store.getters['login/token']
@@ -34,8 +33,8 @@ function callGet(path, auth) {
   return call('get', path, auth)
 }
 
-function callPost(path, auth, data) {
-  return call('post', path, auth, data)
+function callPost(path, auth, data, headers = {}) {
+  return call('post', path, auth, data, headers)
 }
 
 function callPatch(path, auth, data) {
@@ -137,8 +136,14 @@ export function getImagesForBeacon(beaconId) {
 }
 
 export function deleteImageForBeacon(beaconId, id) {
-  debugger
   return callDelete(PATH_BEACONS + '/' + beaconId + SUB_PATH_IMAGES + '/' + id, true)
+}
+
+export function createImageForBeacon(beaconId, file) {
+  let formData = new FormData();
+  formData.append('file', file);
+
+  return callPost(PATH_BEACONS + '/' + beaconId + SUB_PATH_IMAGES, true, formData, {'Content-Type': 'multipart/form-data'})
 }
 
 // ISSUES
