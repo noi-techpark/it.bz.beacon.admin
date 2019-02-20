@@ -192,7 +192,6 @@
                         </div>
                       </div>
                     </div>
-                    <!--<button type="button" class="fab add-fab" @click="newImage"><i class="fab-icon-adduser"></i></button>-->
                     <input id="imageUpload" type="file" class="image-upload-input" name="imageUpload" @change="newImage" accept="image/*">
                     <label for="imageUpload" class="fab image-upload-fab">+</label>
                   </div>
@@ -393,24 +392,30 @@
             <div class="row beacon-detail-card mt-4 flex-grow-1">
               <div class="col-12 d-flex flex-column flex-grow-1 flex-shrink-0">
                 <h5>Reports</h5>
-                <div class="row issue-display mt-4">
-                  <div class="col-12 col-header table-header pl-0 pr-0">
-                    <div class="row">
-                      <div class="col-3">Problem</div>
-                      <div class="col-3">Description</div>
-                      <div class="col-3">Report</div>
-                      <div class="col-3">Resolved</div>
-                    </div>
-                  </div>
-                  <div class="col-12 issue-item pl-0 pr-0" v-bind:key="issue.id" v-if="issues.length" v-for="issue in issues">
-                    <span class="row">
-                      <span class="col-3">{{ issue.problem }}</span>
-                      <span class="col-3">{{ issue.problemDescription }}</span>
-                      <span class="col-3">{{ issue.reportDate | formatDate }}</span>
-                      <span class="col-3">{{ issue.resolveDate | formatDate }}</span>
-                    </span>
-                  </div>
+                <div class="table-responsive mt-3">
+                  <table class="table table-issues">
+                    <thead>
+                    <tr class="col-header table-header pl-0 pr-0">
+                      <th scope="col">Problem</th>
+                      <th scope="col">Description</th>
+                      <th scope="col">Report</th>
+                      <th scope="col">Resolved</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr class="issue-item" v-bind:key="issue.id" v-if="issues.length" v-for="issue in issues">
+                      <td class="align-middle" scope="row">{{ issue.problem }}</td>
+                      <td class="align-middle">{{ issue.problemDescription }}</td>
+                      <td class="align-middle">{{ issue.reportDate | formatDate }}</td>
+                      <td class="align-middle">
+                        <span v-if="issue.resolveDate">{{ issue.resolveDate | formatDate }}</span>
+                        <button type="button" class="btn btn-resolve" v-if="!issue.resolveDate" @click="resolveIssue(issue)" >Resolve</button>
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
                 </div>
+                <button type="button" class="fab add-issue-fab" @click="createIssue"></button>
               </div>
             </div>
           </div>
@@ -419,6 +424,8 @@
       <loader :visible="!loaded" :label="'Loading beacon data...'"/>
       <loader :visible="saving" :label="'Saving beacon data...'"/>
       <image-modal ref="openImage"/>
+      <issue-modal ref="issueModal" :beaconId="beacon.id"/>
+      <issue-solution-modal ref="resolveIssueModal"/>
     </template>
   </layout>
 </template>
@@ -431,11 +438,13 @@ import {MDCSlider} from '@material/slider'
 import {MDCTabBar} from '@material/tab-bar'
 import {MDCSwitch} from '@material/switch'
 import config from '../service/config'
-import { getIssuesForBeacon, getImagesForBeacon, deleteImageForBeacon, createImageForBeacon } from "../service/apiService"
+import { getIssuesForBeacon, getImagesForBeacon, deleteImageForBeacon, createImageForBeacon, createIssue, resolveIssue } from "../service/apiService"
 import store from '../store/store'
 import moment from 'moment'
 import { initMap, getMapStyles } from '../service/googlemaps'
 import ImageModal from '../components/ImageModal'
+import IssueModal from '../components/IssueModal'
+import IssueSolutionModal from '../components/IssueSolutionModal'
 import Confirm from '../components/Confirm'
 
 export default {
@@ -443,6 +452,8 @@ export default {
     Layout,
     Loader,
     ImageModal,
+    IssueModal,
+    IssueSolutionModal,
     Confirm
   },
   name: 'Beacon',
@@ -683,6 +694,31 @@ export default {
     },
     reloadIssues() {
       getIssuesForBeacon(this.$route.params.id).then(issues => {
+        issues.sort((issueA, issueB) => {
+          if (issueA.resolveDate == null && issueB.resolveDate == null) {
+            if(issueA.reportDate > issueB.reportDate) {
+              return -1
+            } else if (issueA.reportDate < issueB.reportDate) {
+              return 1
+            } else {
+              return 0
+            }
+          } else if (issueA.resolveDate != null && issueB.resolveDate != null) {
+            if (issueA.resolveDate > issueB.resolveDate) {
+              return -1
+            } else if (issueA.resolveDate < issueB.resolveDate) {
+              return 1
+            } else {
+              return 0
+            }
+          } else {
+            if (issueA.resolveDate == null) {
+              return -1
+            } else {
+              return 1
+            }
+          }
+        })
         this.issues = issues
       })
     },
@@ -721,6 +757,20 @@ export default {
     },
     showImage(image) {
       this.$refs.openImage.open(image)
+    },
+    createIssue() {
+      this.$refs.issueModal.open()
+        .then(() => {
+          this.reloadIssues()
+        })
+        .catch(() => {})
+    },
+    resolveIssue(issue) {
+      this.$refs.resolveIssueModal.open(issue)
+        .then(() => {
+          this.reloadIssues()
+        })
+        .catch(() => {})
     },
     updateControls() {
       this.controls.frequencySlider.value = this.beacon.txPower
@@ -1006,6 +1056,7 @@ export default {
       }
 
       .image-upload-fab {
+        color: white;
         width: 40px;
         height: 40px;
         display: inline-block;
@@ -1146,6 +1197,24 @@ export default {
     }
   }
 
+  .btn {
+    &.btn-resolve {
+      color: $background-blue;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      padding: 0;
+
+      &:hover {
+        color: $light-blue;
+      }
+
+      &:focus {
+        outline: 0;
+        box-shadow: none;
+      }
+    }
+  }
+
   .btn-delete {
     mask-image: url("./../assets/delete.svg");
     background-color: $text-grey;
@@ -1156,6 +1225,43 @@ export default {
     &:hover {
       background-color: red;
     }
+  }
+
+  .table-issues {
+
+    thead {
+      border-bottom: none;
+
+      .table-header {
+        border-bottom: none;
+
+        th {
+          border-bottom: none;
+        }
+      }
+    }
+
+    .issue-item {
+
+      td {
+        border-bottom: 1px solid $background-grey;
+        font-size: 0.8rem;
+        color: $text-grey;
+      }
+    }
+  }
+
+  .add-issue-fab {
+    height: 40px;
+    width: 40px;
+    position: absolute;
+    bottom: 0;
+    right: 1em;
+    transform: translateY(50%);
+    border-radius: 50%;
+    background-image: url("../assets/ic_add_issue.svg");
+    background-size: 50%;
+    cursor: pointer;
   }
 
 </style>

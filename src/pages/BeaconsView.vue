@@ -18,6 +18,7 @@
             <div class="col-12 p-0">
               <simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta" @rowClicked="showDetail"/>
             </div>
+            <button type="button" class="fab add-fab" :to="{name: 'beacon-new'}"></button>
           </div>
         </div>
         <div id="map" class="beacon-map" v-show="loaded && viewMode === MAP">
@@ -395,6 +396,7 @@
     transform: translateY(50%);
     border-radius: 50%;
     background-image: url("../assets/ic_add_beacon.svg");
+    cursor: pointer;
   }
 
   .beacon-display {

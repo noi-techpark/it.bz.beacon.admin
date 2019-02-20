@@ -53,7 +53,7 @@ export default {
 
 .main-navigation {
   position: relative;
-  z-index: 100;
+  z-index: 99;
   font-size: 14px;
 }
 

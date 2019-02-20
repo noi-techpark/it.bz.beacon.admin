@@ -159,3 +159,12 @@ export function getIssue(id) {
 export function getIssuesForBeacon(beaconId) {
   return callGet(PATH_BEACONS + '/' + beaconId + SUB_PATH_ISSUES, true)
 }
+
+export function createIssue(issueCreation) {
+  return callPost(PATH_ISSUES, true, issueCreation)
+}
+
+export function resolveIssue(id, issueSolution) {
+  return callPost(PATH_ISSUES + '/' + id + '/resolve', true, issueSolution)
+}
+
