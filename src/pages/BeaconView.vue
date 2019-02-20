@@ -234,6 +234,15 @@
                             </span>
                           <span class="mdc-tab__ripple"></span>
                         </button>
+                        <button class="mdc-tab mdc-tab--min-width" role="tab" aria-selected="true" tabindex="0">
+                            <span class="mdc-tab__content">
+                              <span class="mdc-tab__text-label">General</span>
+                            </span>
+                          <span class="mdc-tab-indicator">
+                              <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                            </span>
+                          <span class="mdc-tab__ripple"></span>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -362,6 +371,23 @@
                     </div>
                   </div>
                 </div>
+                <div id="config-general" class="row mt-4 flex-column" v-show="modeTab === 'GENERAL'">
+                  <div class="row">
+                    <div class="col pl-0">
+                      <small class="text-muted">Telemetry</small>
+                    </div>
+                    <div class="col-auto pr-0">
+                      <div id="telemetry-switch" class="mdc-switch">
+                        <div class="mdc-switch__track"></div>
+                        <div class="mdc-switch__thumb-underlay">
+                          <div class="mdc-switch__thumb">
+                            <input type="checkbox" id="telemetry-basic-switch" class="mdc-switch__native-control" role="switch">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="row beacon-detail-card mt-4 flex-grow-1">
@@ -435,6 +461,7 @@ export default {
         eddystoneTlm: false,
         eddystoneEid: false,
         eddystoneEtlm: false,
+        telemetry: false,
         txPower: 1,
         interval: 100,
         locationType: 'OUTDOOR',
@@ -460,7 +487,8 @@ export default {
         eddystoneUrlSwitch: null,
         eddystoneEidSwitch: null,
         eddystoneEtlmSwitch: null,
-        eddystoneTlmSwitch: null
+        eddystoneTlmSwitch: null,
+        telemetrySwitch: null
       },
       map: {},
       marker: {}
@@ -472,6 +500,9 @@ export default {
       switch(event.detail.index) {
         case 1:
           this.$set(this, 'modeTab', 'EDDYSTONE')
+          break;
+        case 2:
+          this.$set(this, 'modeTab', 'GENERAL')
           break;
         default:
           this.$set(this, 'modeTab', 'IBEACON')
@@ -499,6 +530,7 @@ export default {
     this.controls.eddystoneEidSwitch = new MDCSwitch(document.querySelector('#eddystone-eid-switch'));
     this.controls.eddystoneEtlmSwitch = new MDCSwitch(document.querySelector('#eddystone-etlm-switch'));
     this.controls.eddystoneTlmSwitch = new MDCSwitch(document.querySelector('#eddystone-tlm-switch'));
+    this.controls.telemetrySwitch = new MDCSwitch(document.querySelector('#telemetry-switch'));
 
     this.controls.frequencySlider.listen('MDCSlider:change', event => {
       this.beacon.txPower = event.detail.value
@@ -549,6 +581,9 @@ export default {
         this.updateControls()
       }
     })
+    this.controls.telemetrySwitch.nativeControl_.addEventListener('change', (event) => {
+      this.beacon.telemetry = event.target.checked
+    })
 
     this.controls.iBeaconSwitch.disabled = true
     this.controls.eddystoneUidSwitch.disabled = true
@@ -556,6 +591,7 @@ export default {
     this.controls.eddystoneEidSwitch.disabled = true
     this.controls.eddystoneEtlmSwitch.disabled = true
     this.controls.eddystoneTlmSwitch.disabled = true
+    this.controls.telemetrySwitch.disabled = true
 
     getBeacon(this.$route.params.id).then((beacon) => {
       Object.assign(this.beaconBackup, beacon)
@@ -578,6 +614,7 @@ export default {
       this.controls.eddystoneEidSwitch.disabled = !this.editing
       this.controls.eddystoneEtlmSwitch.disabled = !this.editing
       this.controls.eddystoneTlmSwitch.disabled = !this.editing
+      this.controls.telemetrySwitch.disabled = !this.editing
       this.setMapControlsEnabled(this.editing)
 
       if (this.editing && this.beacon.pendingConfiguration != null) {
@@ -599,6 +636,8 @@ export default {
         this.beacon.eddystoneEid = this.beacon.pendingConfiguration.eddystoneEid
         this.beacon.eddystoneEtlm = this.beacon.pendingConfiguration.eddystoneEtlm
         this.beacon.eddystoneTlm = this.beacon.pendingConfiguration.eddystoneTlm
+
+        this.beacon.telemetry = this.beacon.pendingConfiguration.telemetry
 
         this.updateControls()
       }
@@ -675,7 +714,9 @@ export default {
           .then(() => {
             this.reloadImages()
           })
-          .catch(() => {})
+          .catch(() => {
+            alert('Image upload failed. Please try again.')
+          })
       }
     },
     showImage(image) {
@@ -690,6 +731,7 @@ export default {
       this.controls.eddystoneEidSwitch.checked = this.beacon.eddystoneEid
       this.controls.eddystoneEtlmSwitch.checked = this.beacon.eddystoneEtlm
       this.controls.eddystoneTlmSwitch.checked = this.beacon.eddystoneTlm
+      this.controls.telemetrySwitch.checked = this.beacon.telemetry
       setTimeout(() => {
         this.controls.frequencySlider.layout()
       })
