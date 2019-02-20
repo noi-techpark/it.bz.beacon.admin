@@ -508,18 +508,46 @@ export default {
     })
     this.controls.eddystoneUidSwitch.nativeControl_.addEventListener('change', (event) => {
       this.beacon.eddystoneUid = event.target.checked
+      if (!event.target.checked) {
+        this.beacon.eddystoneUrl = false
+        this.beacon.eddystoneEid = false
+        this.beacon.eddystoneEtlm = false
+        this.beacon.eddystoneTlm = false
+
+        this.updateControls()
+      }
     })
     this.controls.eddystoneUrlSwitch.nativeControl_.addEventListener('change', (event) => {
       this.beacon.eddystoneUrl = event.target.checked
+      if (event.target.checked) {
+        this.beacon.eddystoneUid = true
+
+        this.updateControls()
+      }
     })
     this.controls.eddystoneEidSwitch.nativeControl_.addEventListener('change', (event) => {
       this.beacon.eddystoneEid = event.target.checked
+      if (event.target.checked) {
+        this.beacon.eddystoneUid = true
+
+        this.updateControls()
+      }
     })
     this.controls.eddystoneEtlmSwitch.nativeControl_.addEventListener('change', (event) => {
       this.beacon.eddystoneEtlm = event.target.checked
+      if (event.target.checked) {
+        this.beacon.eddystoneUid = true
+
+        this.updateControls()
+      }
     })
     this.controls.eddystoneTlmSwitch.nativeControl_.addEventListener('change', (event) => {
       this.beacon.eddystoneTlm = event.target.checked
+      if (event.target.checked) {
+        this.beacon.eddystoneUid = true
+
+        this.updateControls()
+      }
     })
 
     this.controls.iBeaconSwitch.disabled = true
@@ -642,10 +670,6 @@ export default {
       })
     },
     newImage(event) {
-      let name = event.target.name
-      let files = event.target.files
-      let fileCount = event.target.files.length
-      debugger
       if (event.target.files.length > 0) {
         createImageForBeacon(this.beacon.id, event.target.files[0])
           .then(() => {
@@ -819,17 +843,13 @@ export default {
         .then(() => {
           deleteImageForBeacon(this.beacon.id, image.id)
             .then(() => {
-              debugger
               this.reloadImages()
             })
             .catch((error) => {
-              debugger
               console.log(error)
             })
           })
-        .catch(() => {
-          debugger
-        })
+        .catch(() => {})
     }
   },
   filters: {
