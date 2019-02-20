@@ -54,6 +54,14 @@ const router = new Router({
       }
     },
     {
+      path: '/issues/beacon/:id',
+      name: 'issue-detail',
+      component: BeaconView,
+      meta: {
+        nav: 'issues'
+      }
+    },
+    {
       path: '/login',
       name: 'login',
       component: LoginView,

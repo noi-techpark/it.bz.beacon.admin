@@ -5,6 +5,7 @@ import store from '../store/store'
 const PATH_SIGNIN = '/v1/signin'
 const PATH_CHECK_TOKEN = '/v1/checkToken'
 const PATH_BEACONS = '/v1/admin/beacons'
+const PATH_ISSUES = '/v1/admin/issues'
 const PATH_USERS = '/v1/admin/users'
 const SUB_PATH_ISSUES = '/issues'
 const SUB_PATH_IMAGES = '/images'
@@ -147,6 +148,14 @@ export function createImageForBeacon(beaconId, file) {
 }
 
 // ISSUES
+export function getIssues() {
+  return callGet(PATH_ISSUES, true)
+}
+
+export function getIssue(id) {
+  return callGet(PATH_ISSUES + '/' + id, true)
+}
+
 export function getIssuesForBeacon(beaconId) {
   return callGet(PATH_BEACONS + '/' + beaconId + SUB_PATH_ISSUES, true)
 }

@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import login from './login'
 import users from './users'
 import beacons from './beacons'
+import issues from './issues'
 
 Vue.use(Vuex)
 
@@ -11,6 +12,7 @@ export default new Vuex.Store({
   modules: {
     login,
     users,
-    beacons
+    beacons,
+    issues
   }
 })
