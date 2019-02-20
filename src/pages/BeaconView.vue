@@ -171,7 +171,7 @@
                   </div>
                   <div class="row flex-grow-1 mt-3">
                     <div class="col-12 p-0 d-flex flex-column">
-                      <textarea class="description flex-grow-1" :class="{'description-disabled': !editing}" v-model="beacon.description"></textarea>
+                      <textarea class="description flex-grow-1" :class="{'description-disabled': !editing}" :disabled="!editing" v-model="beacon.description"></textarea>
                       <small class="text-muted">Description</small>
                     </div>
                   </div>
