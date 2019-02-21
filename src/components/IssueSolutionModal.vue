@@ -34,7 +34,7 @@
         <div class="issue-solution-body pt-3 pb-3 pr-4 pl-4">
           <div class="row mt-2">
             <div class="col-12 p-0">
-              <input type="text" class="form-control form-issue-control" v-model="issueSolution.solution" placeholder="Insert the solution" required="required"/>
+              <input type="text" class="form-control form-issue-solution-control" v-model="issueSolution.solution" placeholder="Insert the solution" required="required" :readonly="saving"/>
               <small class="form-issue-label">Solution</small>
             </div>
           </div>
@@ -50,7 +50,7 @@
           </div>
           <div class="row mt-2">
             <div class="col-12 p-0">
-              <textarea class="form-control form-issue-solution-control" v-model="issueSolution.solutionDescription" placeholder="Insert a short description of the steps which lead to the problem solution"></textarea>
+              <textarea class="form-control form-issue-solution-control" v-model="issueSolution.solutionDescription" placeholder="Insert a short description of the steps which lead to the problem solution" :readonly="saving"></textarea>
               <small class="form-issue-solution-label">Solution description</small>
             </div>
           </div>
@@ -61,7 +61,10 @@
               </div>
             </div>
             <div class="col-12 p-0 d-flex justify-content-end mt-2">
-              <button type="submit" class="btn btn-issue-resolve pl-5 pr-5">Resolve</button>
+              <button type="submit" class="btn btn-issue-resolve pl-5 pr-5" :disabled="saving">
+                <span class="btn-title" v-show="!saving">Resolve</span>
+                <div class="spinner" v-show="saving"></div>
+              </button>
             </div>
           </div>
         </div>
@@ -105,11 +108,13 @@ export default {
         solutionDescription: ''
       },
       resolveDate: '',
-      error: false
+      error: false,
+      saving: false
     }
   },
   methods: {
     open(issue) {
+      this.clear()
       this.visible = true
       this.issue = issue
       return new Promise((resolve, reject) => {
@@ -132,20 +137,26 @@ export default {
     },
     resolve() {
       this.error = false
+      this.saving = true
       resolveIssue(this.issue.id, this.issueSolution)
         .then(() => {
+          this.$set(this, 'saving', false)
           this.close(true)
         })
         .catch(() => {
+          this.$set(this, 'saving', false)
           this.$set(this, 'error', true)
         })
+    },
+    clear() {
+      this.issueSolution.solution = ''
+      this.issueSolution.solutionDescription = ''
+      this.issueSolution.resolver = this.getUsername
+      this.resolveDate = moment().format('DD.MM.YYYY')
     }
   },
   mounted() {
-    this.issueSolution.solution = ''
-    this.issueSolution.solutionDescription = '',
-    this.issueSolution.resolver = this.getUsername
-    this.resolveDate = moment().format('DD.MM.YYYY')
+    this.clear()
   },
   filters: {
     formatDate: (dateString) => {
@@ -227,6 +238,11 @@ export default {
       outline: 0;
       box-shadow: none;
       border: 1px solid $grey;
+
+      &:not([readonly]) {
+        color: $text-grey;
+        border: 1px solid $light-blue;
+      }
     }
 
     &::placeholder {
@@ -296,5 +312,24 @@ export default {
       box-shadow: none;
     }
   }
+
+  @keyframes spinner {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .spinner {
+    content: '';
+    box-sizing: border-box;
+    width: 20px;
+    height: 20px;
+    margin: 4px;
+    border-radius: 50%;
+    border: 1px solid $background-grey;
+    border-top-color: white;
+    animation: spinner .6s linear infinite;
+  }
+
 
 </style>

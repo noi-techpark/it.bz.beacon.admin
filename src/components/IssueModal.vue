@@ -10,7 +10,7 @@
           </div>
           <div class="row mt-4">
             <div class="col-12 p-0">
-              <input type="text" class="form-control form-issue-control" v-model="issueCreation.problem" placeholder="Insert the problem" required="required"/>
+              <input type="text" class="form-control form-issue-control" v-model="issueCreation.problem" placeholder="Insert the problem" required="required" :readonly="saving"/>
               <small class="form-issue-label">Problem</small>
             </div>
           </div>
@@ -28,7 +28,7 @@
           </div>
           <div class="row mt-4">
             <div class="col-12 p-0">
-              <textarea class="form-control form-issue-solution-control" v-model="issueCreation.problemDescription" placeholder="Insert a short description of the problem"></textarea>
+              <textarea class="form-control form-issue-solution-control" v-model="issueCreation.problemDescription" placeholder="Insert a short description of the problem" :readonly="saving"></textarea>
               <small class="form-issue-solution-label">Problem description</small>
             </div>
           </div>
@@ -39,7 +39,10 @@
               </div>
             </div>
             <div class="col-12 p-0 d-flex justify-content-end mt-2">
-              <button type="submit" class="btn btn-issue-resolve pl-5 pr-5">Create Issue</button>
+              <button type="submit" class="btn btn-issue-resolve pl-5 pr-5" :disabled="saving">
+                <span class="btn-title" v-show="!saving">Create Issue</span>
+                <div class="spinner" v-show="saving"></div>
+              </button>
             </div>
           </div>
         </div>
@@ -88,11 +91,13 @@ export default {
         reporter: ''
       },
       reportDate: '',
-      error: false
+      error: false,
+      saving: false
     }
   },
   methods: {
     open() {
+      this.clear()
       this.visible = true
       return new Promise((resolve, reject) => {
         this.promise = {
@@ -113,20 +118,28 @@ export default {
       this.promise = null
     },
     resolve() {
+      this.saving = true;
       this.error = false
       createIssue(this.issueCreation)
         .then(() => {
+          this.$set(this, 'saving', false)
           this.close(true)
         })
         .catch(() => {
+          this.$set(this, 'saving', false)
           this.$set(this, 'error', true)
         })
+    },
+    clear() {
+      this.issueCreation.beaconId = this.beaconId
+      this.issueCreation.reporter = this.getUsername
+      this.issueCreation.problem = ''
+      this.issueCreation.problemDescription = ''
+      this.reportDate = moment().format('DD.MM.YYYY')
     }
   },
   mounted() {
-    this.issueCreation.beaconId = this.beaconId
-    this.issueCreation.reporter = this.getUsername
-    this.reportDate = moment().format('DD.MM.YYYY')
+    this.clear()
   }
 }
 </script>
@@ -170,6 +183,15 @@ export default {
     &[readonly] {
       color: white;
       background: transparent;
+
+      &::placeholder {
+        color: white;
+        opacity: 0.5
+      }
+    }
+
+    &::placeholder {
+      opacity: 0.5
     }
 
     &:focus {
@@ -261,6 +283,24 @@ export default {
       outline: 0;
       box-shadow: none;
     }
+  }
+
+  @keyframes spinner {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .spinner {
+    content: '';
+    box-sizing: border-box;
+    width: 20px;
+    height: 20px;
+    margin: 4px;
+    border-radius: 50%;
+    border: 1px solid $background-grey;
+    border-top-color: white;
+    animation: spinner .6s linear infinite;
   }
 
 </style>
