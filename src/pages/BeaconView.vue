@@ -400,7 +400,7 @@
                     <h5>Issues</h5>
                   </div>
                   <div class="col-auto pr-0">
-                    <button type="button" class="add-issue" @click="createIssue">New issue</button>
+                    <button type="button" class="btn btn-add-issue" @click="createIssue">New issue</button>
                   </div>
                 </div>
                 <div class="row">
@@ -418,13 +418,13 @@
                       </tr>
                       </thead>
                       <tbody>
-                      <tr class="issue-item" v-bind:key="issue.id" v-if="issues.length" v-for="issue in issues">
+                      <tr class="issue-item" :class="{'issue-item-resolved': issue.resolveDate > 0}" v-bind:key="issue.id" v-if="issues.length" v-for="issue in issues" @click.prevent.stop="showIssueDetail(issue)">
                         <td class="align-middle" scope="row">{{ issue.problem }}</td>
                         <td class="align-middle">{{ issue.problemDescription }}</td>
                         <td class="align-middle">{{ issue.reportDate | formatDate }}</td>
                         <td class="align-middle">
                           <span v-if="issue.resolveDate">{{ issue.resolveDate | formatDate }}</span>
-                          <button type="button" class="btn btn-resolve" v-if="!issue.resolveDate" @click="resolveIssue(issue)" >Resolve</button>
+                          <button type="button" class="btn btn-resolve" v-if="!issue.resolveDate" @click.prevent.stop="resolveIssue(issue)" >Resolve</button>
                         </td>
                       </tr>
                       </tbody>
@@ -441,6 +441,7 @@
       <image-modal ref="openImage"/>
       <issue-modal ref="issueModal" :beaconId="beacon.id"/>
       <issue-solution-modal ref="resolveIssueModal"/>
+      <issue-detail-modal ref="issueDetailModal"/>
     </template>
   </layout>
 </template>
@@ -460,6 +461,7 @@ import { initMap, getMapStyles } from '../service/googlemaps'
 import ImageModal from '../components/ImageModal'
 import IssueModal from '../components/IssueModal'
 import IssueSolutionModal from '../components/IssueSolutionModal'
+import IssueDetailModal from '../components/IssueDetailModal'
 import Confirm from '../components/Confirm'
 
 export default {
@@ -469,6 +471,7 @@ export default {
     ImageModal,
     IssueModal,
     IssueSolutionModal,
+    IssueDetailModal,
     Confirm
   },
   name: 'Beacon',
@@ -773,6 +776,13 @@ export default {
     },
     showImage(image) {
       this.$refs.openImage.open(image)
+    },
+    showIssueDetail(issue) {
+      if (issue.resolved) {
+        this.$refs.issueDetailModal.open(issue)
+          .then(() => {})
+          .catch(() => {})
+      }
     },
     createIssue() {
       this.$refs.issueModal.open()
@@ -1224,6 +1234,18 @@ export default {
         box-shadow: none;
       }
     }
+
+    &.btn-add-issue {
+      background: $light-blue;
+      border-color: $light-blue;
+      font-size: 0.8rem;
+      color: white;
+
+      &:hover {
+        background: $lighter-blue;
+        border-color: $lighter-blue;
+      }
+    }
   }
 
   .btn-delete {
@@ -1240,7 +1262,6 @@ export default {
 
   .table-issues-wrapper {
     position: relative;
-    height: 100%;
     min-height: 180px;
 
     .table-issues {
@@ -1250,6 +1271,7 @@ export default {
       bottom: 0;
       left: 0;
       right: 0;
+      padding-bottom: 4em;
 
       thead {
         border-bottom: none;
@@ -1270,25 +1292,17 @@ export default {
           font-size: 0.8rem;
           color: $text-grey;
         }
+
+        &.issue-item-resolved {
+          cursor: pointer;
+
+          &:hover {
+            td {
+              color: $lighter-blue;
+            }
+          }
+        }
       }
-    }
-  }
-
-  .add-issue {
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    color: $yellow-highlight;
-    background: none;
-    border: none;
-    cursor: pointer;
-
-    &:hover {
-      color: $darker-yellow;
-    }
-
-    &:focus, &:active {
-      outline: 0;
-      box-shadow: none;
     }
   }
 

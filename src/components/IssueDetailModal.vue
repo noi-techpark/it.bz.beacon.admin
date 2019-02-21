@@ -5,7 +5,7 @@
       <form @submit.prevent="resolve">
         <div class="issue-header pt-3 pb-3 pr-4 pl-4">
           <div class="row">
-            <div class="col-12 p-0">Issue solution</div>
+            <div class="col-12 p-0">Issue</div>
             <button type="button" class="btn btn-close" @click="close(false)"><img src="../assets/ic_close.svg"/></button>
           </div>
           <div class="row mt-4">
@@ -34,34 +34,24 @@
         <div class="issue-solution-body pt-3 pb-3 pr-4 pl-4">
           <div class="row mt-2">
             <div class="col-12 p-0">
-              <input type="text" class="form-control form-issue-control" v-model="issueSolution.solution" placeholder="Insert the solution" required="required"/>
+              <input type="text" class="form-control form-issue-solution-control" :value="issue.solution" readonly />
               <small class="form-issue-label">Solution</small>
             </div>
           </div>
           <div class="row mt-2">
             <div class="col-6 p-0 pr-2">
-              <input type="text" class="form-control form-issue-solution-control" :value="resolveDate" readonly/>
+              <input type="text" class="form-control form-issue-solution-control" :value="issue.resolveDate | formatDate" readonly/>
               <small class="form-issue-solution-label form-issue-solution-label-readonly">Resolve date</small>
             </div>
             <div class="col-6 p-0 pl-2">
-              <input type="text" class="form-control form-issue-solution-control" v-model="issueSolution.resolver" readonly/>
+              <input type="text" class="form-control form-issue-solution-control" :value="issue.resolver" readonly/>
               <small class="form-issue-solution-label form-issue-solution-label-readonly">Resolver</small>
             </div>
           </div>
           <div class="row mt-2">
             <div class="col-12 p-0">
-              <textarea class="form-control form-issue-solution-control" v-model="issueSolution.solutionDescription" placeholder="Insert a short description of the steps which lead to the problem solution"></textarea>
+              <textarea class="form-control form-issue-solution-control" :value="issue.solutionDescription" readonly></textarea>
               <small class="form-issue-solution-label">Solution description</small>
-            </div>
-          </div>
-          <div class="row mt-2">
-            <div class="col-12 pl-0 pr-0">
-              <div class="alert alert-danger" role="alert" v-if="error">
-                Unable to set the issue as resolved. Please verify that it has not been resolved yet.
-              </div>
-            </div>
-            <div class="col-12 p-0 d-flex justify-content-end mt-2">
-              <button type="submit" class="btn btn-issue-resolve pl-5 pr-5">Resolve</button>
             </div>
           </div>
         </div>
@@ -74,8 +64,6 @@
 import Modal from './Modal'
 import moment from 'moment'
 import { Scrollable } from '../directive/Scrollable'
-import { resolveIssue } from '../service/apiService'
-import { mapGetters } from 'vuex'
 
 export default {
   components: {
@@ -83,11 +71,6 @@ export default {
   },
   directives: {
     Scrollable
-  },
-  computed: {
-    ...mapGetters('login', [
-      'getUsername'
-    ])
   },
   data() {
     return {
@@ -98,13 +81,10 @@ export default {
         problemDescription: '',
         reportDate: '',
         reporter: '',
-        beacon: {}
-      },
-      issueSolution: {
         solution: '',
-        solutionDescription: ''
+        solutionDescription: '',
+        resolver: ''
       },
-      resolveDate: '',
       error: false
     }
   },
@@ -129,23 +109,7 @@ export default {
         }
       }
       this.promise = null
-    },
-    resolve() {
-      this.error = false
-      resolveIssue(this.issue.id, this.issueSolution)
-        .then(() => {
-          this.close(true)
-        })
-        .catch(() => {
-          this.$set(this, 'error', true)
-        })
     }
-  },
-  mounted() {
-    this.issueSolution.solution = ''
-    this.issueSolution.solutionDescription = '',
-    this.issueSolution.resolver = this.getUsername
-    this.resolveDate = moment().format('DD.MM.YYYY')
   },
   filters: {
     formatDate: (dateString) => {
