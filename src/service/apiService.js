@@ -43,6 +43,7 @@ function callPatch(path, auth, data) {
 }
 
 function callDelete(path, auth) {
+  debugger
   return call('delete', path, auth)
 }
 

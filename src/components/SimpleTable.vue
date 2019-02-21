@@ -59,6 +59,9 @@
                       {{ get(record, col.key) }}
                     </span>
                 </template>
+                <template v-else-if="col.type === 'delete-button'">
+                  <button type="button" class="btn btn-delete" title="Delete user" @click.prevent.stop="rowDeleteClick(record)"></button>
+                </template>
                 <template v-else-if="col.type === 'beacon-status'">
                   <beacon-status :status="get(record, col.key)"/>
                 </template>
@@ -179,6 +182,9 @@
       rowClick(record) {
         this.$emit('rowClicked', record)
       },
+      rowDeleteClick(record) {
+        this.$emit('rowDeleteClicked', record)
+      },
       setPage(page) {
         this.emitChange({
           pagination: {
@@ -237,7 +243,8 @@
   }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+  @import '../variables';
 
   .simple-table {
     position: relative;
@@ -309,6 +316,16 @@
     }
     .fade-enter, .fade-leave-to {
       opacity: 0;
+    }
+  }
+
+  .btn-delete {
+    mask-image: url("../assets/delete.svg");
+    background-color: black;
+    height: 1.3rem;
+
+    &:hover {
+      background-color: red;
     }
   }
 </style>

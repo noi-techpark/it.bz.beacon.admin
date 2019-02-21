@@ -11,7 +11,7 @@
       <div class="container mt-6 p-0" v-show="loaded">
         <div class="row beacon-display m-4 p-4 position-relative">
           <div class="col-12 p-0">
-            <simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta" @rowClicked="showDetail" />
+            <simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta" @rowClicked="showDetail" @rowDeleteClicked="removeUser" />
           </div>
           <router-link class="fab add-fab" :to="{name: 'user-new'}"><i class="fab-icon-adduser"></i></router-link>
           <confirm ref="deleteUserConfirm" titleText="Delete user" confirmText="Delete" cancelText="Cancel">
@@ -66,6 +66,11 @@ export default {
         {
           title: 'Email',
           key: 'email'
+        },
+        {
+          title: '',
+          key: 'id',
+          type: 'delete-button'
         }
       ],
       tableData: [],
@@ -147,10 +152,15 @@ export default {
     },
     removeUser(user) {
       this.$refs.deleteUserConfirm.open()
-        .then(() => deleteUser(user.id)
-          .then(() => {
-            this.fetchUsers()
-          }))
+        .then(() => {
+          deleteUser(user)
+            .then(() => {
+              this.fetchUsers()
+            })
+            .catch((error) => {
+              console.log(error)
+            })
+        })
         .catch(() => {})
     }
   },
@@ -178,15 +188,6 @@ export default {
 
   .user-display {
     position: relative;
-  }
-
-  .btn-delete {
-    mask-image: url("../assets/delete.svg");
-    background-color: black;
-
-    &:hover {
-      background-color: red;
-    }
   }
 
   .table-header {
