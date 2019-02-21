@@ -198,6 +198,11 @@ export default {
     }
   }
 
+  textarea.form-issue-control {
+    resize: none;
+    height: 6em;
+  }
+
   textarea.form-issue-solution-control {
     resize: none;
     height: 6em;

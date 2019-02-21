@@ -233,6 +233,11 @@ export default {
       opacity: 0.5;
     }
   }
+  
+  textarea.form-issue-control {
+    resize: none;
+    height: 6em;
+  }
 
   textarea.form-issue-solution-control {
     resize: none;
