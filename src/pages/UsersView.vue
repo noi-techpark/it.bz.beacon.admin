@@ -157,9 +157,7 @@ export default {
             .then(() => {
               this.fetchUsers()
             })
-            .catch((error) => {
-              console.log(error)
-            })
+            .catch(() => {})
         })
         .catch(() => {})
     }
