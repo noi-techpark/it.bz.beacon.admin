@@ -1,8 +1,8 @@
 <template>
   <div class="text-right d-flex align-middle justify-content-end p-0">
-    <span>{{ level }} %</span>
+    <span class="battery-label">{{ level }} %</span>
     <div :class="'battery ml-2 ' + (level <= 5 ? 'warning' : '')">
-    <div class="chargestatus" :style="'top:' + (100 - level) + '%;height:' + level + '%'"></div>
+      <div class="chargestatus" :style="'top:' + (100 - level) + '%;height:' + level + '%'"></div>
     </div>
   </div>
 </template>
@@ -66,6 +66,10 @@
 
       }
     }
+  }
+
+  .battery-label {
+    white-space:nowrap;
   }
 
   .chargestatus {

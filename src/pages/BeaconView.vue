@@ -395,34 +395,42 @@
             </div>
             <div class="row beacon-detail-card mt-4 flex-grow-1">
               <div class="col-12 d-flex flex-column flex-grow-1 flex-shrink-0">
-                <h5>Reports</h5>
-                <div class="table-responsive mt-3 table-issues-wrapper d-flex flex-column">
-                  <div :class="issues.length <= 0 ? 'no-issues flex-grow-1 d-flex justify-content-center align-content-center text-center flex-column' : ''" v-show="issues.length <= 0">
-                    <small class="text-muted">No issues reported.</small>
+                <div class="row">
+                  <div class="col pl-0">
+                    <h5>Issues</h5>
                   </div>
-                  <table class="table table-issues" v-show="issues.length > 0">
-                    <thead>
-                    <tr class="col-header table-header pl-0 pr-0">
-                      <th scope="col">Problem</th>
-                      <th scope="col">Description</th>
-                      <th scope="col">Report</th>
-                      <th scope="col">Resolved</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr class="issue-item" v-bind:key="issue.id" v-if="issues.length" v-for="issue in issues">
-                      <td class="align-middle" scope="row">{{ issue.problem }}</td>
-                      <td class="align-middle">{{ issue.problemDescription }}</td>
-                      <td class="align-middle">{{ issue.reportDate | formatDate }}</td>
-                      <td class="align-middle">
-                        <span v-if="issue.resolveDate">{{ issue.resolveDate | formatDate }}</span>
-                        <button type="button" class="btn btn-resolve" v-if="!issue.resolveDate" @click="resolveIssue(issue)" >Resolve</button>
-                      </td>
-                    </tr>
-                    </tbody>
-                  </table>
+                  <div class="col-auto pr-0">
+                    <button type="button" class="add-issue" @click="createIssue">New issue</button>
+                  </div>
                 </div>
-                <button type="button" class="fab add-issue-fab" @click="createIssue"></button>
+                <div class="row">
+                  <div class="table-responsive mt-3 table-issues-wrapper d-flex flex-column">
+                    <div :class="issues.length <= 0 ? 'no-issues flex-grow-1 d-flex justify-content-center align-content-center text-center flex-column' : ''" v-show="issues.length <= 0">
+                      <small class="text-muted">No issues reported.</small>
+                    </div>
+                    <table class="table table-issues" v-show="issues.length > 0">
+                      <thead>
+                      <tr class="col-header table-header pl-0 pr-0">
+                        <th scope="col">Problem</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Report</th>
+                        <th scope="col">Resolved</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr class="issue-item" v-bind:key="issue.id" v-if="issues.length" v-for="issue in issues">
+                        <td class="align-middle" scope="row">{{ issue.problem }}</td>
+                        <td class="align-middle">{{ issue.problemDescription }}</td>
+                        <td class="align-middle">{{ issue.reportDate | formatDate }}</td>
+                        <td class="align-middle">
+                          <span v-if="issue.resolveDate">{{ issue.resolveDate | formatDate }}</span>
+                          <button type="button" class="btn btn-resolve" v-if="!issue.resolveDate" @click="resolveIssue(issue)" >Resolve</button>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1027,6 +1035,7 @@ export default {
       display:block;
       width: 100%;
       cursor: pointer;
+      font-size: 0.8rem;
 
       &.location-description-button-active {
         background: $status-blue;
@@ -1265,21 +1274,21 @@ export default {
     }
   }
 
-  .add-issue-fab {
-    height: 40px;
-    width: 40px;
-    position: absolute;
-    bottom: 0;
-    right: 1em;
-    transform: translateY(50%);
-    border-radius: 50%;
+  .add-issue {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: $yellow-highlight;
+    background: none;
+    border: none;
     cursor: pointer;
-    background: $yellow-highlight url("../assets/ic_add_issue.svg") no-repeat center;
-    background-size: 50%;
-    color: $text-grey;
 
     &:hover {
-      background-color: $darker-yellow;
+      color: $darker-yellow;
+    }
+
+    &:focus, &:active {
+      outline: 0;
+      box-shadow: none;
     }
   }
 
