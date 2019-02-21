@@ -1263,6 +1263,10 @@ export default {
     background: $yellow-highlight url("../assets/ic_add_issue.svg") no-repeat center;
     background-size: 50%;
     color: $text-grey;
+
+    &:hover {
+      background-color: $darker-yellow;
+    }
   }
 
 </style>

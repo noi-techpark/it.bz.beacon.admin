@@ -15,24 +15,40 @@
             </div>
           </div>
           <div class="row mt-2">
+            <div class="col-6 p-0 pr-2">
+              <input type="text" class="form-control form-issue-control" :value="issue.reportDate | formatDate" readonly/>
+              <small class="form-issue-label form-issue-label-readonly">Report date</small>
+            </div>
+            <div class="col-6 p-0 pl-2">
+              <input type="text" class="form-control form-issue-control" :value="issue.reporter" readonly/>
+              <small class="form-issue-label form-issue-label-readonly">Reporter</small>
+            </div>
+          </div>
+          <div class="row mt-2">
+            <div class="col-12 p-0">
+              <textarea class="form-control form-issue-control" :value="issue.problemDescription" readonly></textarea>
+              <small class="form-issue-solution-label">Problem description</small>
+            </div>
+          </div>
+        </div>
+        <div class="issue-solution-body pt-3 pb-3 pr-4 pl-4">
+          <div class="row mt-2">
             <div class="col-12 p-0">
               <input type="text" class="form-control form-issue-control" v-model="issueSolution.solution" placeholder="Insert the solution" required="required"/>
               <small class="form-issue-label">Solution</small>
             </div>
           </div>
-        </div>
-        <div class="issue-solution-body pt-3 pb-3 pr-4 pl-4">
-          <div class="row mt-4">
+          <div class="row mt-2">
             <div class="col-6 p-0 pr-2">
-              <input type="text" class="form-control form-issue-solution-control" :value="issue.reportDate | formatDate" readonly/>
-              <small class="form-issue-solution-label form-issue-solution-label-readonly">Report date</small>
+              <input type="text" class="form-control form-issue-solution-control" :value="resolveDate" readonly/>
+              <small class="form-issue-solution-label form-issue-solution-label-readonly">Resolve date</small>
             </div>
             <div class="col-6 p-0 pl-2">
-              <input type="text" class="form-control form-issue-solution-control" :value="issue.reporter" readonly/>
-              <small class="form-issue-solution-label form-issue-solution-label-readonly">Reporter</small>
+              <input type="text" class="form-control form-issue-solution-control" v-model="issueSolution.resolver" readonly/>
+              <small class="form-issue-solution-label form-issue-solution-label-readonly">Resolver</small>
             </div>
           </div>
-          <div class="row mt-4">
+          <div class="row mt-2">
             <div class="col-12 p-0">
               <textarea class="form-control form-issue-solution-control" v-model="issueSolution.solutionDescription" placeholder="Insert a short description of the steps which lead to the problem solution"></textarea>
               <small class="form-issue-solution-label">Solution description</small>
@@ -59,6 +75,7 @@ import Modal from './Modal'
 import moment from 'moment'
 import { Scrollable } from '../directive/Scrollable'
 import { resolveIssue } from '../service/apiService'
+import { mapGetters } from 'vuex'
 
 export default {
   components: {
@@ -66,6 +83,11 @@ export default {
   },
   directives: {
     Scrollable
+  },
+  computed: {
+    ...mapGetters('login', [
+      'getUsername'
+    ])
   },
   data() {
     return {
@@ -82,6 +104,7 @@ export default {
         solution: '',
         solutionDescription: ''
       },
+      resolveDate: '',
       error: false
     }
   },
@@ -120,7 +143,9 @@ export default {
   },
   mounted() {
     this.issueSolution.solution = ''
-    this.issueSolution.solutionDescription = ''
+    this.issueSolution.solutionDescription = '',
+    this.issueSolution.resolver = this.getUsername
+    this.resolveDate = moment().format('DD.MM.YYYY')
   },
   filters: {
     formatDate: (dateString) => {
