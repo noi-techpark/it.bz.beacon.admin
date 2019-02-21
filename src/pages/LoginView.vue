@@ -4,7 +4,7 @@
     <div class="col-sm-6 text-center p-0">
       <div class="row h-100 start-screen">
         <div class="col-sm-12 p-0">
-          <div class="row h-100 align-items-center">
+          <div class="row h-100 align-items-center beacon-login-left">
             <div class="col beacon-logo-container">
               <img src="../assets/beacon_logo.svg" alt="Beacon Südtirol - Alto Adige" style="width: 10em">
             </div>
@@ -49,54 +49,60 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+  import { mapGetters } from 'vuex'
 
-export default {
-  name: 'Login',
-  data() {
-    return {
-      username: '',
-      password: '',
-      passwordFieldType: 'password'
-    }
-  },
-  computed: {
-    ...mapGetters('login', [
-      'hasError',
-      'getError'
-    ])
-  },
-  methods: {
-    login() {
-      this.$store.dispatch('login/login', {
-        username: this.username,
-        password: this.password
-      })
+  export default {
+    name: 'Login',
+    data() {
+      return {
+        username: '',
+        password: '',
+        passwordFieldType: 'password'
+      }
     },
-    switchVisibility() {
-      this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password'
+    computed: {
+      ...mapGetters('login', [
+        'hasError',
+        'getError'
+      ])
+    },
+    methods: {
+      login() {
+        this.$store.dispatch('login/login', {
+          username: this.username,
+          password: this.password
+        })
+      },
+      switchVisibility() {
+        this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password'
+      }
     }
   }
-}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-input.form-control {
-  display: inline-block;
-}
+  .beacon-login-left {
+    background-image: url("../assets/bg_login.png");
+    background-repeat: repeat;
+    background-size: auto;
+  }
 
-input, button {
-  padding: 8px 10px;
-  border-radius: 5px;
-  max-width: 380px;
-  margin-bottom: 20px;
-  width: 100%;
-  color: #ffffff;
-}
+  input.form-control {
+    display: inline-block;
+  }
 
-.error-message {
-  max-width: 380px;
-  width: 100%;
-}
+  input, button {
+    padding: 8px 10px;
+    border-radius: 5px;
+    max-width: 380px;
+    margin-bottom: 20px;
+    width: 100%;
+    color: #ffffff;
+  }
+
+  .error-message {
+    max-width: 380px;
+    width: 100%;
+  }
 </style>
