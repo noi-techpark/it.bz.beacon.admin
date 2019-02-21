@@ -65,6 +65,11 @@
             key: 'problemDescription'
           },
           {
+            title: 'Date',
+            key: 'reportDate',
+            type: 'date'
+          },
+          {
             title: 'Battery',
             key: 'beacon.batteryLevel',
             type: 'battery-level'
@@ -78,8 +83,8 @@
         tableData: [],
         tableMeta: {
           sorting: {
-            col: 'name',
-            order: 'asc'
+            col: 'reportDate',
+            order: 'desc'
           },
           pagination: {
             offset: 0,

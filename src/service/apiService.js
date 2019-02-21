@@ -150,7 +150,7 @@ export function createImageForBeacon(beaconId, file) {
 
 // ISSUES
 export function getIssues() {
-  return callGet(PATH_ISSUES, true)
+  return callGet(PATH_ISSUES + '?onlyUnresolved=true', true)
 }
 
 export function getIssue(id) {
