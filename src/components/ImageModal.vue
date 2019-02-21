@@ -1,7 +1,7 @@
 <template>
   <!-- eslint-disable -->
   <modal ref="confirmModal" v-if="visible" @close="close" :small="false">
-    <div slot="header" class="image-header">Beacon location</div>
+    <div slot="header" class="image-header">Beacon location image</div>
     <div slot="body">
       <div class="image-wrapper d-flex justify-content-center">
         <img class="image" :src="imageSrc"/>

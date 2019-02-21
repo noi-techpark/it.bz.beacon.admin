@@ -183,17 +183,21 @@
                   </div>
                 </div>
                 <div id="location-images" :class="(locationTab === 'IMAGES' ? 'd-flex' : '') + ' location-images mt-4 flex-grow-1 flex-column position-relative'" v-show="locationTab === 'IMAGES'">
-                  <div class="location-images-wrapper">
-                    <div :class="'row ' + (key > 0 ? 'mt-3' : '')" v-bind:key="image.id" v-if="images.length" v-for="(image, key) in images">
-                      <div class="col-12 text-center p-0">
-                        <div class="location-image-wrapper">
-                          <button type="button" class="btn btn-delete" title="Delete image" @click.prevent.stop="removeImage(image)"></button>
-                          <img :src="image.content" class="location-image" @click="showImage(image.content)" />
+                  <div class="row position-relative flex-grow-1 flex-shrink-0 location-images-outer-wrapper">
+                    <div class="location-images-wrapper">
+                      <div :class="'row ' + (key > 0 ? 'mt-3' : '')" v-bind:key="image.id" v-if="images.length" v-for="(image, key) in images">
+                        <div class="col-12 text-center p-0">
+                          <div class="location-image-wrapper">
+                            <button type="button" class="btn btn-delete" title="Delete image" @click.prevent.stop="removeImage(image)" v-show="editing"></button>
+                            <img :src="image.content" class="location-image" @click="showImage(image.content)" />
+                          </div>
                         </div>
                       </div>
                     </div>
+                  </div>
+                  <div class="row flex-grow-0 flex-shrink-0 mt-4" v-show="editing">
                     <input id="imageUpload" type="file" class="image-upload-input" name="imageUpload" @change="newImage" accept="image/*">
-                    <label for="imageUpload" class="fab image-upload-fab">+</label>
+                    <label for="imageUpload" class="btn btn-block btn-image-upload">Upload image</label>
                   </div>
                   <confirm ref="deleteImageConfirm" titleText="Delete image" confirmText="Delete" cancelText="Cancel">
                     Are you sure to you want to delete the image?<br />
@@ -1033,9 +1037,10 @@ export default {
       }
     }
 
-    .location-images {
+    .location-images-outer-wrapper {
       overflow: auto;
       overflow-x: hidden;
+      min-height: 240px;
     }
 
     .location-images-wrapper {
@@ -1044,32 +1049,6 @@ export default {
       left: 0;
       right: 0;
       bottom: 0;
-
-
-      .image-upload-input {
-        width: 0.1px;
-        height: 0.1px;
-        opacity: 0;
-        overflow: hidden;
-        position: absolute;
-        z-index: -1;
-      }
-
-      .image-upload-fab {
-        color: white;
-        width: 40px;
-        height: 40px;
-        display: inline-block;
-        position: absolute;
-        bottom: 0.125rem;
-        right: 0.125rem;
-        border-radius: 50%;
-        line-height: 40px;
-        font-size: 30px;
-        margin-bottom: 0;
-        text-align: center;
-        cursor: pointer;
-      }
 
       .location-image-wrapper {
 
@@ -1087,6 +1066,27 @@ export default {
           top: 0.45rem;
           right: 0.125rem;
         }
+      }
+    }
+
+
+    .image-upload-input {
+      width: 0.1px;
+      height: 0.1px;
+      opacity: 0;
+      overflow: hidden;
+      position: absolute;
+      z-index: -1;
+    }
+
+    .btn-image-upload {
+      background: $light-blue;
+      color: white;
+      cursor: pointer;
+      font-size: 0.8rem;
+
+      &:hover {
+        background: $lighter-blue;
       }
     }
   }
@@ -1259,9 +1259,10 @@ export default {
     right: 1em;
     transform: translateY(50%);
     border-radius: 50%;
-    background-image: url("../assets/ic_add_issue.svg");
-    background-size: 50%;
     cursor: pointer;
+    background: $yellow-highlight url("../assets/ic_add_issue.svg") no-repeat center;
+    background-size: 50%;
+    color: $text-grey;
   }
 
 </style>
