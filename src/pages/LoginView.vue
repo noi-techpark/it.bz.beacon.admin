@@ -91,6 +91,10 @@
   input.form-control {
     display: inline-block;
     font-size: 0.8rem;
+
+    &.is-invalid {
+
+    }
   }
 
   input, button {

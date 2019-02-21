@@ -80,6 +80,8 @@ body {
 
     &.is-invalid {
       border-color: $red;
+      background-color: white;
+      color: $red;
     }
 
     &::placeholder {
