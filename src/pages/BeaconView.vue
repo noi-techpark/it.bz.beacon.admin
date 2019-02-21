@@ -396,8 +396,11 @@
             <div class="row beacon-detail-card mt-4 flex-grow-1">
               <div class="col-12 d-flex flex-column flex-grow-1 flex-shrink-0">
                 <h5>Reports</h5>
-                <div class="table-responsive mt-3">
-                  <table class="table table-issues">
+                <div class="table-responsive mt-3 table-issues-wrapper d-flex flex-column">
+                  <div :class="issues.length <= 0 ? 'no-issues flex-grow-1 d-flex justify-content-center align-content-center text-center flex-column' : ''" v-show="issues.length <= 0">
+                    <small class="text-muted">No issues reported.</small>
+                  </div>
+                  <table class="table table-issues" v-show="issues.length > 0">
                     <thead>
                     <tr class="col-header table-header pl-0 pr-0">
                       <th scope="col">Problem</th>
@@ -1226,26 +1229,38 @@ export default {
     }
   }
 
-  .table-issues {
+  .table-issues-wrapper {
+    position: relative;
+    height: 100%;
+    min-height: 180px;
 
-    thead {
-      border-bottom: none;
+    .table-issues {
 
-      .table-header {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+
+      thead {
         border-bottom: none;
 
-        th {
+        .table-header {
           border-bottom: none;
+
+          th {
+            border-bottom: none;
+          }
         }
       }
-    }
 
-    .issue-item {
+      .issue-item {
 
-      td {
-        border-bottom: 1px solid $background-grey;
-        font-size: 0.8rem;
-        color: $text-grey;
+        td {
+          border-bottom: 1px solid $background-grey;
+          font-size: 0.8rem;
+          color: $text-grey;
+        }
       }
     }
   }
