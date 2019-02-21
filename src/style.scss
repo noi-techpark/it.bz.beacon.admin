@@ -82,6 +82,11 @@ body {
       border-color: $red;
       background-color: white;
       color: $red;
+
+      &::placeholder {
+        color: $red;
+        opacity: 0.5;
+      }
     }
 
     &::placeholder {
