@@ -350,7 +350,7 @@
         this.map.controls[this.google.maps.ControlPosition.RIGHT_BOTTOM].push(myLocationButtonContainer);
         this.fetchBeacons()
       } catch (error) {
-        // console.error(error);
+        this.loaded = true
       }
     },
   }

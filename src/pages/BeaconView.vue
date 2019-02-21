@@ -442,7 +442,7 @@ import {MDCSlider} from '@material/slider'
 import {MDCTabBar} from '@material/tab-bar'
 import {MDCSwitch} from '@material/switch'
 import config from '../service/config'
-import { getIssuesForBeacon, getImagesForBeacon, deleteImageForBeacon, createImageForBeacon, createIssue, resolveIssue } from "../service/apiService"
+import { getIssuesForBeacon, getImagesForBeacon, deleteImageForBeacon, createImageForBeacon } from "../service/apiService"
 import store from '../store/store'
 import moment from 'moment'
 import { initMap, getMapStyles } from '../service/googlemaps'
@@ -506,7 +506,8 @@ export default {
         telemetrySwitch: null
       },
       map: {},
-      marker: {}
+      marker: {},
+      google: {}
     }
   },
   mounted() {
@@ -661,8 +662,8 @@ export default {
   methods: {
     async loadMap() {
       try {
-        const google = await initMap();
-        this.map = new google.maps.Map(document.getElementById('map'), {
+        this.google = await initMap();
+        this.map = new this.google.maps.Map(document.getElementById('map'), {
           center: {
             lat: this.beacon.lat,
             lng: this.beacon.lng
@@ -671,7 +672,7 @@ export default {
           styles: getMapStyles()
         })
 
-        this.marker = new google.maps.Marker({
+        this.marker = new this.google.maps.Marker({
           position: {
             lat: this.beacon.lat,
             lng: this.beacon.lng
@@ -680,9 +681,9 @@ export default {
           map: this.map,
           icon: {
             url: this.iconSvg(this.beacon),
-            size: new google.maps.Size(48, 48),
-            scaledSize: new google.maps.Size(24, 24),
-            anchor: new google.maps.Point(12, 12)
+            size: new this.google.maps.Size(48, 48),
+            scaledSize: new this.google.maps.Size(24, 24),
+            anchor: new this.google.maps.Point(12, 12)
           }
         })
         this.marker.addListener('dragend', event => {
@@ -693,7 +694,7 @@ export default {
         this.setMapControlsEnabled(this.editing)
 
       } catch (error) {
-        //console.error(error);
+        this.loaded = true
       }
     },
     reloadIssues() {
@@ -829,7 +830,7 @@ export default {
       })
     },
     updateMap() {
-      let latLng = new google.maps.LatLng(this.beacon.lat, this.beacon.lng)
+      let latLng = new this.google.maps.LatLng(this.beacon.lat, this.beacon.lng)
       this.marker.setPosition(latLng)
       this.map.panTo(latLng)
       this.map.setZoom(16)
@@ -941,9 +942,7 @@ export default {
             .then(() => {
               this.reloadImages()
             })
-            .catch((error) => {
-              console.log(error)
-            })
+            .catch(() => {})
           })
         .catch(() => {})
     }

@@ -8,38 +8,18 @@
       </div>
     </template>
     <template slot="body">
-      <div class="container p-0" v-show="loaded">
-        <div class="row user-display m-4 p-4 pb-5">
-          <div class="col-12 col-header table-header">
-            <div class="row">
-              <div class="col-1">Id</div>
-              <div class="col-2">Username</div>
-              <div class="col-2">Firstname</div>
-              <div class="col-2">Surname</div>
-              <div class="col-4">Email</div>
-              <div class="col-1"></div>
-            </div>
+      <div class="container mt-6 p-0" v-show="loaded">
+        <div class="row beacon-display m-4 p-4 position-relative">
+          <div class="col-12 p-0">
+            <simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta" @rowClicked="showDetail" />
           </div>
-          <router-link class="col-12 user-item" v-bind:key="user.id" v-if="users.length" v-for="user in listUsers" :to="{name: 'user-edit', params: { id: user.id }}">
-            <span class="row">
-              <span class="col-1">{{ user.id }}</span>
-              <span class="col-2">{{ user.username }}</span>
-              <span class="col-2">{{ user.name }}</span>
-              <span class="col-2">{{ user.surname }}</span>
-              <span class="col-4">{{ user.email }}</span>
-              <span class="col-1 d-flex justify-content-end"><button type="button" class="btn btn-delete" title="Delete user" @click.prevent.stop="removeUser(user)"></button></span>
-            </span>
-          </router-link>
-          <div class="col-12 alert alert-danger" v-else> {{ getError }} </div>
           <router-link class="fab add-fab" :to="{name: 'user-new'}"><i class="fab-icon-adduser"></i></router-link>
+          <confirm ref="deleteUserConfirm" titleText="Delete user" confirmText="Delete" cancelText="Cancel">
+            Are you sure to you want to delete the user?<br />
+            This cannot be undone.
+          </confirm>
         </div>
-        <confirm ref="deleteUserConfirm" titleText="Delete user" confirmText="Delete" cancelText="Cancel">
-          Are you sure to you want to delete the user?<br />
-          This cannot be undone.
-        </confirm>
       </div>
-
-      <!--<simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta" />-->
       <loader :visible="!loaded" :label="'Loading users...'"/>
     </template>
   </layout>
@@ -52,6 +32,8 @@ import SimpleTable from '../components/SimpleTable'
 import { deleteUser } from '../service/apiService'
 import Confirm from '../components/Confirm'
 import { mapActions, mapGetters } from 'vuex'
+import merge from 'lodash/merge'
+import router from '../router/index'
 
 export default {
   components: {
@@ -93,7 +75,10 @@ export default {
           order: 'asc'
         },
         pagination: {
-          records: 1
+          offset: 0,
+          page: 1,
+          records: 10,
+          recordsNumberList: [2, 5, 10, 20]
         }
       },
       search: '',
@@ -103,30 +88,14 @@ export default {
   computed: {
     ...mapGetters('users', [
       'users'
-    ]),
-    listUsers() {
-      if (this.users == null) {
-        return []
-      }
-
-      let users = this.users.slice(0).filter((user) => {
-        return user.username.toLowerCase().includes(this.search.toLowerCase())
-          || user.name.toLowerCase().includes(this.search.toLowerCase())
-          || user.surname.toLowerCase().includes(this.search.toLowerCase())
-          || user.email.toLowerCase().includes(this.search.toLowerCase())
-      })
-      users.sort((userA, userB) => {
-        if (userA.username < userB.username) {
-          return -1
-        }
-        if (userA.username > userB.username) {
-          return 1
-        }
-        return 0
-      })
-      this.$set(this, 'loaded', true)
-
-      return users
+    ])
+  },
+  watch: {
+    search() {
+      this.reloadTableData()
+    },
+    users() {
+      this.reloadTableData()
     }
   },
   methods: {
@@ -134,27 +103,47 @@ export default {
       'fetchUsers',
       'clear'
     ]),
-    reloadTableData(params) {
-      this.tableData = this.users.slice(0)
-      this.tableData
-        .filter((user) => {
+    showDetail(user) {
+      router.push({ name: 'user-edit', params: { id: user.id }})
+    },
+    reloadTableData(params = {}) {
+      params = merge({
+        pagination: this.tableMeta.pagination,
+        sorting: this.tableMeta.sorting,
+        filters: this.filters
+      }, params, {
+        filters: this.filters
+      })
+
+      if (this.users === null) {
+        this.tableData = []
+      } else {
+        this.tableData = this.users.slice(0).filter((user) => {
           return typeof user !== 'undefined'
+        }).filter((user) => {
+          return user.name.toLowerCase().includes(this.search.toLowerCase())
         })
+      }
+      this.tableData.sort((userA, userB) => {
+        if (userA[params.sorting.col] < userB[params.sorting.col]) {
+          return params.sorting.order === 'asc' ? -1 : 1
+        }
+        if (userA[params.sorting.col] > userB[params.sorting.col]) {
+          return params.sorting.order === 'asc' ? 1 : -1
+        }
+        return 0
+      })
+
       this.tableMeta.totalRecords = this.tableData.length
-      this.tableData
-        .sort((userA, userB) => {
-          if (userA[params.sorting.col] < userB[params.sorting.col]) {
-            return params.sorting.order === 'asc' ? -1 : 1
-          }
-          if (userA[params.sorting.col] > userB[params.sorting.col]) {
-            return params.sorting.order === 'asc' ? 1 : -1
-          }
-          return 0
-        })
-      this.tableData = this.tableData.slice(0, params.pagination.offset + params.pagination.records)
+      params.pagination.page = Math.min(Math.max(params.pagination.page, 1), Math.ceil(this.tableMeta.totalRecords / this.tableMeta.pagination.records))
+
+      let currentIndex = (params.pagination.page - 1) * params.pagination.records
+      let nextIndex = params.pagination.page * params.pagination.records
+      this.tableData = this.tableData.slice(currentIndex, nextIndex)
       this.tableMeta.sorting.col = params.sorting.col
       this.tableMeta.sorting.order = params.sorting.order
-      this.tableMeta.pagination.offset = 1
+
+      this.$set(this, 'loaded', true)
     },
     removeUser(user) {
       this.$refs.deleteUserConfirm.open()

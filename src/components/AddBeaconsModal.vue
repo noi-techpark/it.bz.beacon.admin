@@ -34,7 +34,6 @@
 
 <script>
 import Modal from './Modal'
-import moment from 'moment'
 import { Scrollable } from '../directive/Scrollable'
 import { createIssue } from '../service/apiService'
 import { mapGetters } from 'vuex'
