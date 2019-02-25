@@ -123,13 +123,17 @@
       },
       beacons() {
         this.setMapOnAll(null)
-        this.markers = []
         this.reloadTableData()
 
-        if (this.beacons === null) {
+        this.$set(this, 'loaded', true)
+      },
+      tableData() {
+        this.setMapOnAll(null);
+        this.markers = []
+        if (this.tableData === null) {
           return
         }
-        this.beacons.forEach((beacon) => {
+        this.tableData.forEach((beacon) => {
           let marker = new this.google.maps.Marker({
             position: {
               lat: beacon.lat,
@@ -147,10 +151,11 @@
           })
           this.markers.push(marker)
         })
+        console.log(this.markers.length)
         this.setMapOnAll(this.map);
 
         if (this.clusterer != null) {
-          this.clusterer.remove()
+          this.clusterer.removeMarkers()
         }
         this.clusterer = new MarkerClusterer(this.map, this.markers, {
           styles: [
@@ -162,8 +167,6 @@
             }
           ]
         })
-
-        this.$set(this, 'loaded', true)
       }
     },
     methods: {
