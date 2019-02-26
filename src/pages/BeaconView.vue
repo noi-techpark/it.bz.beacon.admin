@@ -438,6 +438,7 @@
       </div>
       <loader :visible="!loaded" :label="'Loading beacon data...'"/>
       <loader :visible="saving" :label="'Saving beacon data...'"/>
+      <loader :visible="uploadingImage" :label="'Uploading image...'"/>
       <image-modal ref="openImage"/>
       <issue-modal ref="issueModal" :beaconId="beacon.id"/>
       <issue-solution-modal ref="resolveIssueModal"/>
@@ -508,6 +509,7 @@ export default {
       loaded: false,
       editing: false,
       saving: false,
+      uploadingImage: false,
       configResetted: false,
       controls: {
         frequencySlider: null,
@@ -765,12 +767,15 @@ export default {
     },
     newImage(event) {
       if (event.target.files.length > 0) {
+        this.uploadingImage = true
         createImageForBeacon(this.beacon.id, event.target.files[0])
           .then(() => {
             this.reloadImages()
+            this.$set(this, 'uploadingImage', false)
           })
           .catch(() => {
             alert('Image upload failed. Please try again.')
+            this.$set(this, 'uploadingImage', false)
           })
       }
     },
