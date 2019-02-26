@@ -115,15 +115,19 @@
         this.reloadTableData()
       },
       issues() {
-        this.setMapOnAll(null)
-        this.markers = []
-        this.beaconIds = []
         this.reloadTableData()
+        this.$set(this, 'loaded', true)
+      },
+      tableData() {
+        this.beaconIds = []
+        let newMarkers = []
 
-        if (this.issues === null) {
+        if (this.tableData === null) {
+          this.updateMarkers(newMarkers)
           return
         }
-        this.issues.forEach((issue) => {
+
+        this.tableData.forEach((issue) => {
           if (!this.beaconIds.includes(issue.beacon.id)) {
             let marker = new this.google.maps.Marker({
               position: {
@@ -141,26 +145,11 @@
               router.push({name: 'issue-detail', params: {id: issue.beacon.id}})
             })
             this.beaconIds.push(issue.beacon.id)
-            this.markers.push(marker)
+            newMarkers.push(marker)
           }
         })
-        this.setMapOnAll(this.map);
 
-        if (this.clusterer != null) {
-          this.clusterer.remove()
-        }
-        this.clusterer = new MarkerClusterer(this.map, this.markers, {
-          styles: [
-            {
-              url: location.origin + require('../assets/img/map/cluster/map_icon_cluster.svg'),
-              height: 32,
-              width: 32,
-              textColor: '#4d4f5c'
-            }
-          ]
-        })
-
-        this.$set(this, 'loaded', true)
+        this.updateMarkers(newMarkers)
       }
     },
     methods: {
@@ -168,13 +157,40 @@
         'fetchIssues',
         'clear'
       ]),
+      updateMarkers(newMarkers) {
+        if (this.map != null) {
+          if (this.clusterer === null) {
+            this.clusterer = new MarkerClusterer(this.map, [], {
+              styles: [
+                {
+                  url: location.origin + require('../assets/img/map/cluster/map_icon_cluster.svg'),
+                  height: 32,
+                  width: 32,
+                  textColor: '#4d4f5c'
+                }
+              ]
+            })
+          }
+
+          let markersToKeep = this.markers.filter(marker => {
+            return newMarkers.some(newMarker => marker.position.lat() === newMarker.position.lat() && marker.position.lng() === newMarker.position.lng())
+          })
+
+          let markersToRemove = this.markers.filter(marker => !markersToKeep.includes(marker))
+          let markersToAdd = newMarkers.filter(newMarker => {
+            return !markersToKeep.some(marker => {
+              return marker.position.lat() === newMarker.position.lat() && marker.position.lng() === newMarker.position.lng()
+            })
+          })
+
+          this.clusterer.removeMarkers(markersToRemove)
+          this.clusterer.addMarkers(markersToAdd)
+
+          this.markers = markersToAdd.concat(markersToKeep)
+        }
+      },
       showDetail(issue) {
         router.push({name: 'issue-detail', params: {id: issue.beacon.id}})
-      },
-      setMapOnAll(map) {
-        for (let i = 0; i < this.markers.length; i++) {
-          this.markers[i].setMap(map);
-        }
       },
       showMyPosition(success, failure) {
         let myPositionButtonIcon = document.getElementById('myLocationButtonIcon')

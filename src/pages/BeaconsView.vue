@@ -122,17 +122,17 @@
         this.reloadTableData()
       },
       beacons() {
-        this.setMapOnAll(null)
         this.reloadTableData()
-
         this.$set(this, 'loaded', true)
       },
       tableData() {
-        this.setMapOnAll(null);
-        this.markers = []
+        let newMarkers = []
+
         if (this.tableData === null) {
+          this.updateMarkers(newMarkers)
           return
         }
+
         this.tableData.forEach((beacon) => {
           let marker = new this.google.maps.Marker({
             position: {
@@ -149,24 +149,10 @@
           marker.addListener('click', () => {
             router.push({name: 'beacon-detail', params: { id: beacon.id}})
           })
-          this.markers.push(marker)
+          newMarkers.push(marker)
         })
-        console.log(this.markers.length)
-        this.setMapOnAll(this.map);
 
-        if (this.clusterer != null) {
-          this.clusterer.removeMarkers()
-        }
-        this.clusterer = new MarkerClusterer(this.map, this.markers, {
-          styles: [
-            {
-              url: location.origin + require('../assets/img/map/cluster/map_icon_cluster.svg'),
-              height: 32,
-              width: 32,
-              textColor: '#4d4f5c'
-            }
-          ]
-        })
+        this.updateMarkers(newMarkers)
       }
     },
     methods: {
@@ -186,9 +172,36 @@
       showDetail(beacon) {
         router.push({ name: 'beacon-detail', params: { id: beacon.id }})
       },
-      setMapOnAll(map) {
-        for (let i = 0; i < this.markers.length; i++) {
-          this.markers[i].setMap(map);
+      updateMarkers(newMarkers) {
+        if (this.map != null) {
+          if (this.clusterer === null) {
+            this.clusterer = new MarkerClusterer(this.map, [], {
+              styles: [
+                {
+                  url: location.origin + require('../assets/img/map/cluster/map_icon_cluster.svg'),
+                  height: 32,
+                  width: 32,
+                  textColor: '#4d4f5c'
+                }
+              ]
+            })
+          }
+
+          let markersToKeep = this.markers.filter(marker => {
+            return newMarkers.some(newMarker => marker.position.lat() === newMarker.position.lat() && marker.position.lng() === newMarker.position.lng())
+          })
+
+          let markersToRemove = this.markers.filter(marker => !markersToKeep.includes(marker))
+          let markersToAdd = newMarkers.filter(newMarker => {
+            return !markersToKeep.some(marker => {
+              return marker.position.lat() === newMarker.position.lat() && marker.position.lng() === newMarker.position.lng()
+            })
+          })
+
+          this.clusterer.removeMarkers(markersToRemove)
+          this.clusterer.addMarkers(markersToAdd)
+
+          this.markers = markersToAdd.concat(markersToKeep)
         }
       },
       showMyPosition(success, failure) {
