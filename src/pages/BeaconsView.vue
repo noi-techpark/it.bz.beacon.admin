@@ -15,8 +15,11 @@
         </div>
         <div class="container mt-6 p-0" v-show="loaded && viewMode === LIST">
           <div class="row beacon-display m-4 p-4">
-            <div class="col-12 p-0">
+            <div class="col-12 p-0" v-show="tableData.length > 0">
               <simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta" @rowClicked="showDetail"/>
+            </div>
+            <div class="col-12 p-0 text-center" v-show="tableData.length <= 0">
+              <span class="text-muted">No beacons found...</span>
             </div>
             <button type="button" class="fab add-fab" :to="{name: 'beacon-new'}" @click="openAddBeaconsModal"></button>
           </div>
