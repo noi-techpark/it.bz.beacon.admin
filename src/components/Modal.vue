@@ -49,6 +49,10 @@ export default {
     fullHeight: {
       type: Boolean,
       default: false
+    },
+    closeAbleWithEsc: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -57,7 +61,9 @@ export default {
     }
   },
   mounted() {
-    window.addEventListener('keyup', this.closeModalOnEsc)
+    if (this.closeAbleWithEsc) {
+      window.addEventListener('keyup', this.closeModalOnEsc)
+    }
     freezeScrollable(true)
     this.prevfocusedElement = document.activeElement
     if (this.$refs.focusElement) {
@@ -68,7 +74,9 @@ export default {
     if (this.prevfocusedElement) {
       this.prevfocusedElement.focus()
     }
-    window.removeEventListener('keyup', this.closeModalOnEsc)
+    if (this.closeAbleWithEsc) {
+      window.removeEventListener('keyup', this.closeModalOnEsc)
+    }
     freezeScrollable(false)
   },
   methods: {

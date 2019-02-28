@@ -536,10 +536,6 @@ export default {
     ])
   },
   mounted() {
-    // store SETTING
-    // this.$store.dispatch('settings/setSetting', {key:'Banana', value:'Joe'}).then(() => {
-    //   alert(this.getSettingById('Banana'))
-    // })
     const modeTabBar = new MDCTabBar(document.querySelector('#mode-tab-bar'));
     modeTabBar.listen('MDCTabBar:activated', event =>  {
       switch(event.detail.index) {
