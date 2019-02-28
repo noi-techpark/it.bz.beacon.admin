@@ -443,6 +443,7 @@
       <issue-modal ref="issueModal" :beaconId="beacon.id"/>
       <issue-solution-modal ref="resolveIssueModal"/>
       <issue-detail-modal ref="issueDetailModal"/>
+      <alert ref="batteryAlert" alert-title="Battery consumption warning" alert-message="Turning this setting on may have a major impact on the beacons battery lifetime." hideable/>
     </template>
   </layout>
 </template>
@@ -463,7 +464,9 @@ import ImageModal from '../components/ImageModal'
 import IssueModal from '../components/IssueModal'
 import IssueSolutionModal from '../components/IssueSolutionModal'
 import IssueDetailModal from '../components/IssueDetailModal'
+import Alert from '../components/Alert'
 import Confirm from '../components/Confirm'
+import { mapGetters } from 'vuex'
 
 export default {
   components: {
@@ -473,7 +476,8 @@ export default {
     IssueModal,
     IssueSolutionModal,
     IssueDetailModal,
-    Confirm
+    Confirm,
+    Alert
   },
   name: 'Beacon',
   data() {
@@ -526,7 +530,16 @@ export default {
       google: {}
     }
   },
+  computed: {
+    ...mapGetters('settings', [
+      'getSettingById'
+    ])
+  },
   mounted() {
+    // store SETTING
+    // this.$store.dispatch('settings/setSetting', {key:'Banana', value:'Joe'}).then(() => {
+    //   alert(this.getSettingById('Banana'))
+    // })
     const modeTabBar = new MDCTabBar(document.querySelector('#mode-tab-bar'));
     modeTabBar.listen('MDCTabBar:activated', event =>  {
       switch(event.detail.index) {
@@ -566,6 +579,7 @@ export default {
 
     this.controls.frequencySlider.listen('MDCSlider:change', event => {
       this.beacon.txPower = event.detail.value
+      this.showBatteryAlert()
     })
     this.controls.iBeaconSwitch.nativeControl_.addEventListener('change', (event) => {
       this.beacon.iBeacon = event.target.checked
@@ -711,6 +725,15 @@ export default {
 
       } catch (error) {
         this.loaded = true
+      }
+    },
+    showBatteryAlert() {
+      if (!this.getSettingById('DO_NOT_SHOW_BATTERY_ALERT')) {
+        this.$refs.batteryAlert.open()
+          .then((dontShowAgain) => {
+            this.$store.dispatch('settings/setSetting', {key: 'DO_NOT_SHOW_BATTERY_ALERT', value: dontShowAgain})
+          })
+          .catch(() => {})
       }
     },
     reloadIssues() {

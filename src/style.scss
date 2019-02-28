@@ -7,6 +7,8 @@ $mdc-theme-secondary: $background-blue;
 $mdc-theme-text-primary-on-light: #fff;
 $mdc-theme-text-secondary-on-dark: #fff;
 
+@import "../node_modules/@material/form-field/mdc-form-field";
+@import "../node_modules/@material/checkbox/mdc-checkbox";
 @import "../node_modules/@material/slider/mdc-slider";
 @import "../node_modules/@material/tab-bar/mdc-tab-bar";
 @import "../node_modules/@material/tab-scroller/mdc-tab-scroller";
@@ -389,6 +391,7 @@ select.form-control {
   height: 1.6rem;
   font-weight: lighter;
   font-size: 0.8rem;
+  padding: 0 0.5em;
 }
 
 .map-control {
