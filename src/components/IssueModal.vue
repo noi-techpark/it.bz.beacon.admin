@@ -72,7 +72,7 @@ export default {
   },
   props: {
     beaconId: {
-      type: Number
+      type: String
     }
   },
   watch: {

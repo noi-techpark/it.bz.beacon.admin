@@ -121,6 +121,9 @@
       ])
     },
     watch: {
+      loaded() {
+        console.log("loaded: " + this.loaded)
+      },
       search() {
         this.reloadTableData()
       },
@@ -341,6 +344,10 @@
       }
     },
     async mounted() {
+      console.log(this.loaded)
+      this.loaded = false
+      console.log(this.loaded)
+      this.$nextTick()
       this.clear()
       try {
         this.google = await initMap();

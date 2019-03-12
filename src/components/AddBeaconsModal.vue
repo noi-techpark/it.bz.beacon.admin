@@ -35,7 +35,7 @@
 <script>
 import Modal from './Modal'
 import { Scrollable } from '../directive/Scrollable'
-import { createIssue } from '../service/apiService'
+import { createBeaconsByOrder } from '../service/apiService'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -52,12 +52,12 @@ export default {
   },
   props: {
     beaconId: {
-      type: Number
+      type: String
     }
   },
   watch: {
-    beaconId() {
-      this.issueCreation.beaconId = this.beaconId
+    orderId() {
+      this.order.id = this.orderId
     }
   },
   data() {
@@ -65,6 +65,9 @@ export default {
       visible: false,
       promise: null,
       orderId: '',
+      order: {
+        id: null
+      },
       error: false
     }
   },
@@ -91,7 +94,7 @@ export default {
     },
     resolve() {
       this.error = false
-      createIssue(this.issueCreation)
+      createBeaconsByOrder(this.order)
         .then(() => {
           this.close(true)
         })

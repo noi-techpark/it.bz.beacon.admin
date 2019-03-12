@@ -131,6 +131,10 @@ export function updateBeacon(beacon) {
   return callPatch(PATH_BEACONS + '/' + beacon.id, true, data)
 }
 
+export function createBeaconsByOrder(order) {
+  return callPost(PATH_BEACONS + '/createByOrder', true, order);
+}
+
 // BEACON IMAGES
 export function getImagesForBeacon(beaconId) {
   return callGet(PATH_BEACONS + '/' + beaconId + SUB_PATH_IMAGES, true)

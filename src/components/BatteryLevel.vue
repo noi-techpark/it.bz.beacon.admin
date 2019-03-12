@@ -1,7 +1,7 @@
 <template>
   <div class="text-right d-flex align-middle justify-content-end p-0">
-    <span class="battery-label">{{ level }} %</span>
-    <div :class="'battery ml-2 ' + (level <= 5 ? 'warning' : '')">
+    <span class="battery-label">{{ (unknown ? "?" : level) }} %</span>
+    <div class="battery ml-2" :class="(level <= 5 ? 'warning' : '') + ' ' + (unknown ? 'unknown' : '')">
       <div class="chargestatus" :style="'top:' + (100 - level) + '%;height:' + level + '%'"></div>
     </div>
   </div>
@@ -13,6 +13,16 @@
       level: {
         type: Number,
         default: 0
+      }
+    },
+    data() {
+      return {
+        unknown: false
+      }
+    },
+    watch: {
+      level() {
+        this.unknown = this.level == null
       }
     }
   }
@@ -64,6 +74,13 @@
       .chargestatus {
         background: red;
 
+      }
+    }
+
+    &.unknown {
+      background: $lighter-grey;
+      .chargestatus {
+        background: transparent;
       }
     }
   }
