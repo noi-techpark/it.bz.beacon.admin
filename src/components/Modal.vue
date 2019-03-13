@@ -3,22 +3,24 @@
   <transition name="modal">
     <div class="modal-mask fixed-top h-100">
       <div class="d-flex align-items-center justify-content-center h-100">
-        <div class="modal-container d-flex flex-column" :class="{'modal-small': small, 'full-height': fullHeight}">
-          <div class="modal-header d-flex align-items-center flex-shrink-0 flex-grow-0">
-            <slot name="header" />
-            <a href @click.prevent="close()" class="icon-link icon-link-right close-link">
-            </a>
-          </div>
-          <div v-scrollable="false" class="modal-body flex-grow-1 flex-shrink-1 d-flex flex-column">
-            <slot name="body" />
-          </div>
-          <div class="modal-footer flex-shrink-0 flex-grow-0">
-            <slot name="footer">
-              <button class="btn btn-outline-primary" @click.prevent="close()" ref="focusElement">
-                OK
-              </button>
-            </slot>
-          </div>
+        <div class="modal-container d-flex flex-column" :class="{'modal-small': small, 'modal-medium': medium, 'full-height': fullHeight}">
+          <slot name="modal">
+            <div class="modal-header d-flex align-items-center flex-shrink-0 flex-grow-0">
+              <slot name="header" />
+              <a href @click.prevent="close()" class="icon-link icon-link-right close-link">
+              </a>
+            </div>
+            <div v-scrollable="false" class="modal-body flex-grow-1 flex-shrink-1 d-flex flex-column">
+              <slot name="body" />
+            </div>
+            <div class="modal-footer flex-shrink-0 flex-grow-0">
+              <slot name="footer">
+                <button class="btn btn-outline-primary" @click.prevent="close()" ref="focusElement">
+                  OK
+                </button>
+              </slot>
+            </div>
+          </slot>
         </div>
       </div>
     </div>
@@ -27,7 +29,7 @@
 
 <script>
 import { Scrollable } from '../directive/Scrollable'
-import { fixScrollable } from '../service/scrollable'
+import { freezeScrollable } from '../service/scrollable'
 
 export default {
   components: {
@@ -40,9 +42,17 @@ export default {
       type: Boolean,
       default: false
     },
+    medium: {
+      type: Boolean,
+      default: false
+    },
     fullHeight: {
       type: Boolean,
       default: false
+    },
+    closeAbleWithEsc: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -51,8 +61,10 @@ export default {
     }
   },
   mounted() {
-    window.addEventListener('keyup', this.closeModalOnEsc)
-    fixScrollable(true)
+    if (this.closeAbleWithEsc) {
+      window.addEventListener('keyup', this.closeModalOnEsc)
+    }
+    freezeScrollable(true)
     this.prevfocusedElement = document.activeElement
     if (this.$refs.focusElement) {
       this.$refs.focusElement.focus()
@@ -62,8 +74,10 @@ export default {
     if (this.prevfocusedElement) {
       this.prevfocusedElement.focus()
     }
-    window.removeEventListener('keyup', this.closeModalOnEsc)
-    fixScrollable(false)
+    if (this.closeAbleWithEsc) {
+      window.removeEventListener('keyup', this.closeModalOnEsc)
+    }
+    freezeScrollable(false)
   },
   methods: {
     close() {
@@ -84,7 +98,7 @@ export default {
   @import '~bootstrap/scss/mixins';
 
   .modal-mask {
-    z-index: 9000;
+    z-index: 9000 !important;
     background-color: rgba(0, 0, 0, .5);
     transition: opacity .3s ease;
     transform:translateZ(1px);
@@ -92,7 +106,7 @@ export default {
 
   .modal-container {
     position: fixed;
-    z-index: 9001;
+    z-index: 9001 !important;
     top: 0;
     left: 0;
     height: 100%;
@@ -112,6 +126,14 @@ export default {
       @media only screen and (min-width: 300px) {
         position: static;
         width: 300px;
+        height: auto;
+      }
+    }
+
+    &.modal-medium {
+      @media only screen and (min-width: 500px) {
+        position: static;
+        width: 500px;
         height: auto;
       }
     }
@@ -164,6 +186,7 @@ export default {
           transform: scale(1.1);
         }
       }
+
       @include media-breakpoint-up(lg) {
         transform: scale(1.1);
       }

@@ -41,7 +41,7 @@
         </thead>
         <tbody>
         <template v-for="(record, index) in data">
-          <tr :key="index + '_1'" class="table-item">
+          <tr :key="index + '_1'" class="table-item" @click="rowClick(record)">
             <td v-if="hasSlot('nested')">
               <button class="btn btn-icon has-nested" :class="{'opened-nested': openedNested[index] === true}"
                       @click="toggleNested(index)">
@@ -59,10 +59,14 @@
                       {{ get(record, col.key) }}
                     </span>
                 </template>
-                <template v-if="col.type === 'beacon-status'">
-                    <span class="text-nowrap" :class="{'number-negative': get(record, col.key) < 0}">
-                      {{ get(record, col.key) }}
-                    </span>
+                <template v-else-if="col.type === 'delete-button'">
+                  <button type="button" class="btn btn-delete" title="Delete user" @click.prevent.stop="rowDeleteClick(record)"></button>
+                </template>
+                <template v-else-if="col.type === 'beacon-status'">
+                  <beacon-status :status="get(record, col.key)"/>
+                </template>
+                <template v-else-if="col.type === 'battery-level'">
+                  <battery-level :level="get(record, col.key)"/>
                 </template>
                 <template v-else-if="col.type === 'euro'">
                     <span class="text-nowrap" :class="{'number-negative': get(record, col.key) < 0}">
@@ -70,7 +74,7 @@
                     </span>
                 </template>
                 <template v-else-if="col.type === 'date'">
-                  <span class="text-nowrap">{{ get(record, col.key) }}</span>
+                  <span class="text-nowrap">{{ get(record, col.key) | formatDate }} </span>
                 </template>
                 <template v-else-if="col.type === 'month'">
                   {{ get(record, col.key) }}
@@ -100,125 +104,147 @@
 </template>
 
 <script>
-const ALIGN_RIGHT = 1
+  const ALIGN_RIGHT = 1
 
-import merge from 'lodash/merge'
-import get from 'lodash/get'
-import Pagination from './Pagination'
+  import merge from 'lodash/merge'
+  import get from 'lodash/get'
+  import Pagination from './Pagination'
+  import BeaconStatus from './BeaconStatus'
+  import BatteryLevel from './BatteryLevel'
+  import moment from 'moment'
 
-export default {
-  components: {
-    Pagination
-  },
-  data() {
-    return {
-      openedNested: {},
-      ALIGN_RIGHT: ALIGN_RIGHT
-    }
-  },
-  props: {
-    loading: {
-      type: Boolean,
-      default: false
+  export default {
+    components: {
+      Pagination,
+      BeaconStatus,
+      BatteryLevel
     },
-    cols: {
-      type: Array,
-      default: () => []
-    },
-    groupCols: {
-      type: Array,
-      default: () => []
-    },
-    data: {
-      type: Array,
-      default: () => []
-    },
-    meta: {
-      type: Object,
-      default: () => {
-        return {}
+    data() {
+      return {
+        openedNested: {},
+        ALIGN_RIGHT: ALIGN_RIGHT
       }
     },
-    responsive: {
-      type: Boolean,
-      default: false
-    }
-  },
-  computed: {
-    mRecords() {
-      return this.meta.pagination ? this.meta.pagination.records : null
-    },
-    offset() {
-      return ((this.meta.pagination.page - 1) * this.meta.pagination.records) + 1
-    },
-    hasSlot() {
-      return (name = 'default') => !!this.$slots[name] || !!this.$scopedSlots[name]
-    },
-    groupFirstCols() {
-      return this.groupCols.reduce((filtered, group) => {
-        filtered.push(group.colspan + (filtered.length ? filtered[filtered.length - 1] : 0))
-        return filtered
-      }, [])
-    }
-  },
-  watch: {
-    data: {
-      deep: true,
-      handler() {
-        this.openedNested = {}
+    props: {
+      loading: {
+        type: Boolean,
+        default: false
+      },
+      cols: {
+        type: Array,
+        default: () => []
+      },
+      groupCols: {
+        type: Array,
+        default: () => []
+      },
+      data: {
+        type: Array,
+        default: () => []
+      },
+      meta: {
+        type: Object,
+        default: () => {
+          return {}
+        }
+      },
+      responsive: {
+        type: Boolean,
+        default: false
       }
-    }
-  },
-  methods: {
-    setPage(page) {
-      this.emitChange({
-        pagination: {
-          page: page + 1
-        }
-      })
     },
-    setRecordsNumber(number) {
-      this.emitChange({
-        pagination: {
-          records: number
-        }
-      })
+    computed: {
+      mRecords() {
+        return this.meta.pagination ? this.meta.pagination.records : null
+      },
+      offset() {
+        return ((this.meta.pagination.page - 1) * this.meta.pagination.records) + 1
+      },
+      hasSlot() {
+        return (name = 'default') => !!this.$slots[name] || !!this.$scopedSlots[name]
+      },
+      groupFirstCols() {
+        return this.groupCols.reduce((filtered, group) => {
+          filtered.push(group.colspan + (filtered.length ? filtered[filtered.length - 1] : 0))
+          return filtered
+        }, [])
+      }
     },
-    changeSorting(col) {
-      if (this.meta.sorting && col.sorting !== false) {
+    watch: {
+      data: {
+        deep: true,
+        handler() {
+          this.openedNested = {}
+        }
+      }
+    },
+    methods: {
+      rowClick(record) {
+        this.$emit('rowClicked', record)
+      },
+      rowDeleteClick(record) {
+        this.$emit('rowDeleteClicked', record)
+      },
+      setPage(page) {
         this.emitChange({
-          sorting: {
-            col: col.key,
-            order: this.meta.sorting.col === col.key && this.meta.sorting.order === 'asc' ? 'desc' : 'asc'
+          pagination: {
+            page: page + 1
           }
         })
+      },
+      setRecordsNumber(number) {
+        this.emitChange({
+          pagination: {
+            records: number
+          }
+        })
+      },
+      changeSorting(col) {
+        if (this.meta.sorting && col.sorting !== false) {
+          this.emitChange({
+            sorting: {
+              col: col.key,
+              order: this.meta.sorting.col === col.key && this.meta.sorting.order === 'asc' ? 'desc' : 'asc'
+            }
+          })
+        }
+      },
+      emitChange(dataChanges = {}) {
+        this.$emit('change', merge(
+          {},
+          {
+            pagination: this.meta.pagination,
+            sorting: this.meta.sorting
+          },
+          dataChanges
+        ))
+      },
+      toggleNested(index) {
+        this.$set(this.openedNested, index, !this.openedNested[index])
+      },
+      getColAlign(col) {
+        return col.type === 'float' || col.type === 'euro' ? ALIGN_RIGHT : 0
+      },
+      isGroupFirstCol(colIndex) {
+        return this.groupCols.length && this.groupFirstCols.indexOf(colIndex) > -1
+      },
+      get: get
+    },
+    filters: {
+      formatDate: (dateString) => {
+        let date = moment(dateString)
+        if (!date.isValid()) {
+          return ''
+        }
+
+        return date.format('DD.MM.YYYY')
       }
-    },
-    emitChange(dataChanges = {}) {
-      this.$emit('change', merge(
-        {},
-        {
-          pagination: this.meta.pagination,
-          sorting: this.meta.sorting
-        },
-        dataChanges
-      ))
-    },
-    toggleNested(index) {
-      this.$set(this.openedNested, index, !this.openedNested[index])
-    },
-    getColAlign(col) {
-      return col.type === 'float' || col.type === 'euro' ? ALIGN_RIGHT : 0
-    },
-    isGroupFirstCol(colIndex) {
-      return this.groupCols.length && this.groupFirstCols.indexOf(colIndex) > -1
-    },
-    get: get
+    }
   }
-}
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+  @import '../variables';
 
   .simple-table {
     position: relative;
@@ -290,6 +316,16 @@ export default {
     }
     .fade-enter, .fade-leave-to {
       opacity: 0;
+    }
+  }
+
+  .btn-delete {
+    mask-image: url("../assets/delete.svg");
+    background-color: black;
+    height: 1.3rem;
+
+    &:hover {
+      background-color: red;
     }
   }
 </style>

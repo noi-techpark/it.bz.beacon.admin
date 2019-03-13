@@ -1,7 +1,7 @@
-import { getBeacons, getBeacon } from '../service/apiService'
+import { getIssues, getIssue } from '../service/apiService'
 
-const SET_BEACONS = 'SET_BEACONS'
-const SET_BEACON = 'SET_BEACON'
+const SET_ISSUES = 'SET_ISSUES'
+const SET_ISSUE = 'SET_ISSUE'
 const CLEAR = 'CLEAR'
 const SET_MODE = 'SET_MODE'
 export const LIST = 'LIST'
@@ -10,40 +10,40 @@ export const MAP = 'MAP'
 export default {
   namespaced: true,
   state: {
-    beacons: null,
+    issues: null,
     error: '',
-    beacon: null,
+    issue: null,
     viewMode: LIST
   },
   mutations: {
-    [SET_BEACONS](state, beacons) {
-      state.beacons = beacons
+    [SET_ISSUES](state, issues) {
+      state.issues = issues
     },
-    [SET_BEACON](state, beacon) {
-      state.beacon = beacon
+    [SET_ISSUE](state, issue) {
+      state.issue = issue
     },
     [CLEAR](state) {
-      state.beacons = null
-      state.beacon = null
+      state.issues = null
+      state.issue = null
     },
     [SET_MODE](state, viewMode) {
       state.viewMode = viewMode
     }
   },
   actions: {
-    fetchBeacons({ commit }) {
-      return getBeacons()
-        .then((beacons) => {
-          commit(SET_BEACONS, beacons)
+    fetchIssues({ commit }) {
+      return getIssues()
+        .then((issues) => {
+          commit(SET_ISSUES, issues)
         })
         .catch(() => {
           commit(CLEAR)
         })
     },
-    fetchBeacon({ commit }, beaconId) {
-      return getBeacon(beaconId)
-        .then((beacon) => {
-          commit(SET_BEACON, beacon)
+    fetchIssue({ commit }, issueId) {
+      return getIssue(issueId)
+        .then((issue) => {
+          commit(SET_ISSUE, issue)
         })
         .catch(() => {
           commit(CLEAR)
@@ -58,14 +58,14 @@ export default {
     }
   },
   getters: {
-    beacons(state) {
-      return state.beacons
+    issues(state) {
+      return state.issues
     },
     getError(state) {
       return state.error
     },
-    beacon(state) {
-      return state.beacon
+    issue(state) {
+      return state.issue
     },
     viewMode(state) {
       return state.viewMode

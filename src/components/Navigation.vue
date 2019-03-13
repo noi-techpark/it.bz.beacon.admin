@@ -9,7 +9,7 @@
           </div>
         </div>
         <router-link v-for="item in navigationItems" :key="item.id" :class="'row navigation-link pl-3' + ( $route.meta.nav === item.nav ? ' highlight' : '' )" :to="{name: item.name}">
-          <span class="navigation-symbol col"><div :class="'nav-logo logo-' + item.name"></div></span>
+          <span class="navigation-symbol col"><img :src="iconSvg(item)"/></span>
           <span class="pl1 navigation-text col">{{ item.title }}</span>
         </router-link>
       </div>
@@ -43,6 +43,11 @@ export default {
         }
       ]
     }
+  },
+  methods: {
+    iconSvg(navigationItem) {
+      return location.origin + require('../assets/ic_' + navigationItem.nav + '.svg');
+    }
   }
 }
 </script>
@@ -53,7 +58,7 @@ export default {
 
 .main-navigation {
   position: relative;
-  z-index: 100;
+  z-index: 99;
   font-size: 14px;
 }
 

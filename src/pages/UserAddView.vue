@@ -3,7 +3,7 @@
   <layout :source="title">
     <template slot="body">
       <div class="container p-0" v-show="!saving">
-        <div class="row user-display m-4 p-4 pb-5">
+        <div class="row user-display m-4 p-4">
           <div class="col-12 p-0">
             <form @submit.prevent="create">
               <div class="form-group row">
@@ -38,7 +38,7 @@
               </div>
               <div class="row">
                 <div class="col-12 pl-0 pr-0">
-                  <div class="alert alert-danger" role="alert" v-if="!error">
+                  <div class="alert alert-danger" role="alert" v-if="error">
                     Unable to create new user. Please verify that the username does not already exist.
                   </div>
                 </div>
@@ -61,8 +61,8 @@
 </template>
 
 <script>
-import Layout from './Layout'
-import Loader from './Loader'
+import Layout from '../components/Layout'
+import Loader from '../components/Loader'
 import router from '../router/index'
 import { createUser } from '../service/apiService'
 
@@ -108,5 +108,13 @@ export default {
 <style lang="scss" scoped>
   div.form-group {
     margin-bottom: 1rem;
+  }
+
+  input {
+    font-size: 1em;
+  }
+
+  .btn {
+    font-size: 1em;
   }
 </style>

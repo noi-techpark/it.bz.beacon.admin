@@ -3,7 +3,7 @@
   <layout :source="title">
     <template slot="body">
       <div class="container p-0" v-show="loaded">
-        <div class="row user-display m-4 p-4 pb-5">
+        <div class="row user-display m-4 p-4">
           <div class="col-12 p-0">
             <form @submit.prevent="update">
               <div class="form-group row">
@@ -61,8 +61,8 @@
 </template>
 
 <script>
-import Layout from './Layout'
-import Loader from './Loader'
+import Layout from '../components/Layout'
+import Loader from '../components/Loader'
 import router from '../router/index'
 import { updateUser, getUser } from '../service/apiService'
 
@@ -113,5 +113,13 @@ export default {
 <style lang="scss" scoped>
   div.form-group {
     margin-bottom: 1rem;
+  }
+
+  input {
+    font-size: 1em;
+  }
+
+  .btn {
+    font-size: 1em;
   }
 </style>

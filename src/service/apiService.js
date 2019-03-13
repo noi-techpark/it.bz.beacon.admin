@@ -5,12 +5,12 @@ import store from '../store/store'
 const PATH_SIGNIN = '/v1/signin'
 const PATH_CHECK_TOKEN = '/v1/checkToken'
 const PATH_BEACONS = '/v1/admin/beacons'
+const PATH_ISSUES = '/v1/admin/issues'
 const PATH_USERS = '/v1/admin/users'
 const SUB_PATH_ISSUES = '/issues'
 const SUB_PATH_IMAGES = '/images'
 
-function call(method, path, auth, data) {
-  var headers = {}
+function call(method, path, auth, data, headers = {}) {
   if (auth) {
     headers = {
       'Authorization': 'Bearer ' + store.getters['login/token']
@@ -34,8 +34,8 @@ function callGet(path, auth) {
   return call('get', path, auth)
 }
 
-function callPost(path, auth, data) {
-  return call('post', path, auth, data)
+function callPost(path, auth, data, headers = {}) {
+  return call('post', path, auth, data, headers)
 }
 
 function callPatch(path, auth, data) {
@@ -43,7 +43,7 @@ function callPatch(path, auth, data) {
 }
 
 function callDelete(path, auth) {
-  return call('delete', auth, path)
+  return call('delete', path, auth)
 }
 
 // AUTHENTICATION
@@ -104,12 +104,71 @@ export function getBeacon(id) {
   return callGet(PATH_BEACONS + '/' + id, true);
 }
 
+export function updateBeacon(beacon) {
+  let data =  {
+    description: beacon.description,
+    eddystoneEid: beacon.eddystoneEid,
+    eddystoneEtlm: beacon.eddystoneEtlm,
+    eddystoneTlm: beacon.eddystoneTlm,
+    eddystoneUid: beacon.eddystoneUid,
+    eddystoneUrl: beacon.eddystoneUrl,
+    iBeacon: beacon.iBeacon,
+    instanceId: beacon.instanceId,
+    interval: beacon.interval,
+    lat: beacon.lat,
+    lng: beacon.lng,
+    locationDescription: beacon.locationDescription,
+    locationType: beacon.locationType,
+    major: beacon.major,
+    minor: beacon.minor,
+    name: beacon.name,
+    namespace: beacon.namespace,
+    telemetry: beacon.telemetry,
+    txPower: beacon.txPower,
+    url: beacon.url,
+    uuid: beacon.uuid
+  }
+  return callPatch(PATH_BEACONS + '/' + beacon.id, true, data)
+}
+
+export function createBeaconsByOrder(order) {
+  return callPost(PATH_BEACONS + '/createByOrder', true, order);
+}
+
 // BEACON IMAGES
-export function getImagesForBeacon(id) {
-  return callGet(PATH_BEACONS + '/' + id + SUB_PATH_IMAGES, true)
+export function getImagesForBeacon(beaconId) {
+  return callGet(PATH_BEACONS + '/' + beaconId + SUB_PATH_IMAGES, true)
+}
+
+export function deleteImageForBeacon(beaconId, id) {
+  return callDelete(PATH_BEACONS + '/' + beaconId + SUB_PATH_IMAGES + '/' + id, true)
+}
+
+export function createImageForBeacon(beaconId, file) {
+  let formData = new FormData();
+  formData.append('file', file);
+
+  return callPost(PATH_BEACONS + '/' + beaconId + SUB_PATH_IMAGES, true, formData, {'Content-Type': 'multipart/form-data'})
 }
 
 // ISSUES
-export function getIssuesForBeacon(id) {
-  return callGet(PATH_BEACONS + '/' + id + SUB_PATH_ISSUES, true)
+export function getIssues() {
+  return callGet(PATH_ISSUES + '?onlyUnresolved=true', true)
 }
+
+export function getIssue(id) {
+  return callGet(PATH_ISSUES + '/' + id, true)
+}
+
+export function getIssuesForBeacon(beaconId) {
+  return callGet(PATH_BEACONS + '/' + beaconId + SUB_PATH_ISSUES, true)
+}
+
+export function createIssue(issueCreation) {
+  return callPost(PATH_ISSUES, true, issueCreation)
+}
+
+export function resolveIssue(id, issueSolution) {
+  return callPost(PATH_ISSUES + '/' + id + '/resolve', true, issueSolution)
+}
+

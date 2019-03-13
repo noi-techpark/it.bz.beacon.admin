@@ -46,7 +46,7 @@ export default {
   data() {
     return {
       visible: false,
-      promise: null
+      promise: null,
     }
   },
   methods: {

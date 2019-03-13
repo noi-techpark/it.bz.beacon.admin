@@ -32,3 +32,12 @@ export function fixScrollable(scrollable, freezable = true) {
     }
   })
 }
+
+export function freezeScrollable(freeze = true) {
+  if (freeze) {
+    document.body.classList.add('freeze-scrollable')
+  } else {
+    document.body.classList.remove('freeze-scrollable')
+  }
+}
+
