@@ -344,9 +344,7 @@
       }
     },
     async mounted() {
-      console.log(this.loaded)
       this.loaded = false
-      console.log(this.loaded)
       this.$nextTick()
       this.clear()
       try {
