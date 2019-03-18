@@ -107,6 +107,7 @@
         search: '',
         loaded: false,
         map: null,
+        mapBeacons: [],
         markers: [],
         addedOnMap: false,
         myPosition: null,
@@ -121,9 +122,6 @@
       ])
     },
     watch: {
-      loaded() {
-        console.log("loaded: " + this.loaded)
-      },
       search() {
         this.reloadTableData()
       },
@@ -131,15 +129,14 @@
         this.reloadTableData()
         this.$set(this, 'loaded', true)
       },
-      tableData() {
+      mapBeacons() {
         let newMarkers = []
 
-        if (this.tableData === null) {
+        if (this.mapBeacons === null) {
           this.updateMarkers(newMarkers)
           return
         }
-
-        this.tableData.forEach((beacon) => {
+        this.mapBeacons.forEach((beacon) => {
           let marker = new this.google.maps.Marker({
             position: {
               lat: beacon.lat,
@@ -303,6 +300,8 @@
             return beacon.name.toLowerCase().includes(this.search.toLowerCase())
           })
         }
+        this.$set(this, 'mapBeacons', this.tableData.slice(0))
+
         this.tableData.sort((beaconA, beaconB) => {
           if (beaconA[params.sorting.col] < beaconB[params.sorting.col]) {
             return params.sorting.order === 'asc' ? -1 : 1
@@ -344,9 +343,7 @@
       }
     },
     async mounted() {
-      console.log(this.loaded)
       this.loaded = false
-      console.log(this.loaded)
       this.$nextTick()
       this.clear()
       try {
