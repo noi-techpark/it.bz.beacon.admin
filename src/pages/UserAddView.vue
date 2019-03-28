@@ -52,7 +52,7 @@
               <div class="row">
                 <div class="col-12 pl-0 pr-0">
                   <div class="d-flex flex-row-reverse">
-                    <button class="btn btn-primary" type='submit'>Create user</button>
+                    <button class="btn btn-primary" type='submit'>Create</button>
                     <router-link :to="{name: 'users'}" class="btn btn-secondary mr-3">Cancel</router-link>
                   </div>
                 </div>
@@ -105,9 +105,9 @@ export default {
       this.error = false
       if (this.user.password !== this.passwordConfirm) {
         this.saving = false
-        this.user.password = ''
-        this.passwordConfirm = ''
-        alert("Inserted passwords are not the same")
+        this.user.password = null
+        this.passwordConfirm = null
+        alert("Inserted passwords must be the same")
       } else {
         createUser(this.user)
           .then(() => {

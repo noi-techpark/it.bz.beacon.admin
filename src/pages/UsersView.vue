@@ -99,6 +99,9 @@ export default {
   computed: {
     ...mapGetters('users', [
       'users'
+    ]),
+    ...mapGetters('login', [
+      'isAdmin'
     ])
   },
   watch: {

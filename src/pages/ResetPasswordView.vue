@@ -5,7 +5,7 @@
       <div class="container p-0" v-show="loaded">
         <div class="row user-display m-4 p-4">
           <div class="col-12 p-0">
-            <form @submit.prevent="update">
+            <form @submit.prevent="reset">
               <div class="form-group row">
                 <label for="id" class="col-sm-2 col-form-label">Id</label>
                 <div class="col-sm-10">
@@ -19,30 +19,22 @@
                 </div>
               </div>
               <div class="form-group row">
-                <label for="name" class="col-sm-2 col-form-label">Name</label>
-                <div class="col-sm-10">
-                  <input type="text" :disabled="!canChange()" required class="form-control" id="name" v-model="user.name" placeholder="Name">
+                <label for="password"  class="col-sm-2 pl-0 col-form-label">New password</label>
+                <div class="col-sm-10 pr-0">
+                  <input type="password" required class="form-control" id="password" v-model="passwordReset.newPassword" placeholder="New password">
                 </div>
               </div>
               <div class="form-group row">
-                <label for="surname" class="col-sm-2 col-form-label">Surname</label>
-                <div class="col-sm-10">
-                  <input type="text" :disabled="!canChange()" required class="form-control" id="surname" v-model="user.surname" placeholder="Surname">
+                <label for="password"  class="col-sm-2 pl-0 col-form-label">New password confirmation</label>
+                <div class="col-sm-10 pr-0">
+                  <input type="password" required class="form-control" id="passwordVerification" v-model="passwordConfirm" placeholder="New password confirmation">
                 </div>
               </div>
-              <div class="form-group row">
-                <label for="email" class="col-sm-2 col-form-label">Email</label>
-                <div class="col-sm-10">
-                  <input type="email" :disabled="!canChange()" required class="form-control" id="email" v-model="user.email" placeholder="Email">
-                </div>
-              </div>
-              <div class="row" v-if="canChange()">
+              <div class="row" v-if="isAdmin">
                 <div class="col-12 ">
                   <div class="d-flex flex-row-reverse">
-                    <button class="btn btn-primary" type='submit'>Save</button>
-                    <router-link :to="{name: 'users'}" class="btn btn-secondary mr-3">Cancel</router-link>
-                    <router-link v-if="isSelf()" :to="{name: 'user-change-password', params: {id: user.id}}" class="btn btn-dark mr-3">Change password</router-link>
-                    <router-link v-if="!isSelf() && isAdmin" :to="{name: 'user-reset-password', params: {id: user.id}}" class="btn btn-danger mr-3">Reset password</router-link>
+                    <button class="btn btn-danger" type='submit'>Reset</button>
+                    <router-link :to="{name: 'user-edit', params: {id: user.id}}" class="btn btn-secondary mr-3">Cancel</router-link>
                   </div>
                 </div>
               </div>
@@ -51,7 +43,7 @@
         </div>
       </div>
       <loader :visible="!loaded" :label="'Loading user data...'"/>
-      <loader :visible="saving" :label="'Saving users...'"/>
+      <loader :visible="saving" :label="'Resetting password...'"/>
     </template>
   </layout>
 </template>
@@ -60,7 +52,7 @@
 import Layout from '../components/Layout'
 import Loader from '../components/Loader'
 import router from '../router/index'
-import { updateUser, getUser } from '../service/apiService'
+import { resetPassword, getUser } from '../service/apiService'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -77,6 +69,10 @@ export default {
         name: '',
         surname: '',
         email: ''
+      },
+      passwordConfirm: null,
+      passwordReset: {
+        newPassword: null
       },
       loaded: false,
       saving: false
@@ -95,17 +91,23 @@ export default {
     })
   },
   methods: {
-    update() {
+    reset() {
       this.saving = true
-      updateUser(this.user)
-        .then(() => {
-          router.push({ name: 'users' })
-          this.saving = false
-        })
-        .catch(() => {
-          this.saving = false
-          //  handle error
-        })
+      if (this.passwordReset.newPassword !== this.passwordConfirm) {
+        this.saving = false
+        this.passwordReset.newPassword = null
+        this.passwordConfirm = null
+        alert("Inserted passwords are not the same")
+      } else {
+        resetPassword(this.user, this.passwordReset)
+                .then(() => {
+                  router.push({ name: 'user-edit', params: { id: this.user.id }})
+                  this.saving = false
+                })
+                .catch(() => {
+                  this.saving = false
+                })
+      }
     },
     canChange() {
       return this.isAdmin || this.isSelf()

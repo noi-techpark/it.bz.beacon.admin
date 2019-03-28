@@ -9,6 +9,8 @@ const PATH_ISSUES = '/v1/admin/issues'
 const PATH_USERS = '/v1/admin/users'
 const SUB_PATH_ISSUES = '/issues'
 const SUB_PATH_IMAGES = '/images'
+const SUB_PATH_RESET_PASSWORD = '/reset-password'
+const SUB_PATH_CHANGE_PASSWORD = '/change-password'
 
 function call(method, path, auth, data, headers = {}) {
   if (auth) {
@@ -75,8 +77,7 @@ export function updateUser(user) {
   return callPatch(PATH_USERS + '/' + user.id, true, {
     'email': user.email,
     'name': user.name,
-    'surname': user.surname,
-    'password': user.password
+    'surname': user.surname
   })
 }
 
@@ -92,6 +93,14 @@ export function createUser(user) {
 
 export function deleteUser(user) {
   return callDelete(PATH_USERS + '/' + user.id, true)
+}
+
+export function changePassword(user, passwordChange) {
+  return callPatch(PATH_USERS + '/' + user.id + SUB_PATH_CHANGE_PASSWORD, true, passwordChange)
+}
+
+export function resetPassword(user, passwordReset) {
+  return callPatch(PATH_USERS + '/' + user.id + SUB_PATH_RESET_PASSWORD, true, passwordReset)
 }
 
 // BEACONS
