@@ -60,7 +60,7 @@
                     </span>
                 </template>
                 <template v-else-if="col.type === 'delete-button'">
-                  <button type="button" class="btn btn-delete" title="Delete user" @click.prevent.stop="rowDeleteClick(record)"></button>
+                  <button type="button" class="btn btn-delete" title="Delete user" @click.prevent.stop="rowDeleteClick(record)" v-if="get(record, col.identifier) !== getUsername"></button>
                 </template>
                 <template v-else-if="col.type === 'beacon-status'">
                   <beacon-status :status="get(record, col.key)"/>
@@ -112,6 +112,7 @@
   import BeaconStatus from './BeaconStatus'
   import BatteryLevel from './BatteryLevel'
   import moment from 'moment'
+  import { mapGetters } from 'vuex'
 
   export default {
     components: {
@@ -154,6 +155,9 @@
       }
     },
     computed: {
+      ...mapGetters('login', [
+        'getUsername'
+      ]),
       mRecords() {
         return this.meta.pagination ? this.meta.pagination.records : null
       },

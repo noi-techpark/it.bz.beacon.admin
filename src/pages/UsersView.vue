@@ -13,7 +13,7 @@
           <div class="col-12 p-0">
             <simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta" @rowClicked="showDetail" @rowDeleteClicked="removeUser" />
           </div>
-          <router-link class="fab add-fab" :to="{name: 'user-new'}"><i class="fab-icon-adduser"></i></router-link>
+          <router-link class="fab add-fab" :to="{name: 'user-new'}" v-if="isAdmin"><i class="fab-icon-adduser"></i></router-link>
           <confirm ref="deleteUserConfirm" titleText="Delete user" confirmText="Delete" cancelText="Cancel">
             Are you sure to you want to delete the user?<br />
             This cannot be undone.
@@ -44,7 +44,7 @@ export default {
   },
   name: 'Users',
   data() {
-    return {
+    let data = {
       title: 'Users',
       tableCols: [
         {
@@ -66,11 +66,6 @@ export default {
         {
           title: 'Email',
           key: 'email'
-        },
-        {
-          title: '',
-          key: 'id',
-          type: 'delete-button'
         }
       ],
       tableData: [],
@@ -89,6 +84,17 @@ export default {
       search: '',
       loaded: false
     }
+
+    if (this.$store.getters['login/isAdmin']) {
+      data.tableCols.push({
+        title: '',
+        key: 'id',
+        type: 'delete-button',
+        identifier: 'username'
+      })
+    }
+
+    return data
   },
   computed: {
     ...mapGetters('users', [
@@ -107,6 +113,9 @@ export default {
     ...mapActions('users', [
       'fetchUsers',
       'clear'
+    ]),
+    ...mapActions('login', [
+      'isAdmin'
     ]),
     showDetail(user) {
       router.push({ name: 'user-edit', params: { id: user.id }})

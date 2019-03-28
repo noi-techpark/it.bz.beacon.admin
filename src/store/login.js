@@ -1,10 +1,11 @@
 import router from '../router/index'
-import { signIn, checkToken } from '../service/apiService'
+import {signIn, checkToken, getUsers} from '../service/apiService'
 
 const SET_ERROR = 'SET_ERROR'
 const SET_ERROR_TEXT = 'SET_ERROR_TEXT'
 const SET_USERNAME = 'SET_USERNAME'
 const SET_TOKEN = 'SET_TOKEN'
+const SET_ADMIN = 'SET_ADMIN'
 
 export default {
   namespaced: true,
@@ -12,7 +13,8 @@ export default {
     error: false,
     errorText: '',
     username: null,
-    token: null
+    token: null,
+    admin: false
   },
   mutations: {
     [SET_ERROR](state, value) {
@@ -26,6 +28,9 @@ export default {
     },
     [SET_TOKEN](state, value) {
       state.token = value
+    },
+    [SET_ADMIN](state, value) {
+      state.admin = value
     }
   },
   actions: {
@@ -40,7 +45,18 @@ export default {
             username,
             token: loginResponse.token
           })
-          router.push({ name: 'home' })
+          getUsers().then(usersResponse => {
+            let admin = usersResponse.some(user => {
+              return user.username === username && user.admin === true
+            })
+
+            dispatch('storeAdmin', {
+              admin
+            })
+            router.push({ name: 'home' })
+          }).catch(error => {
+            dispatch('clearAuth', error)
+          })
         })
         .catch((error) => {
           dispatch('clearAuth', error)
@@ -53,6 +69,9 @@ export default {
             dispatch('storeAuth', {
               username: localStorage.getItem('username'),
               token: localStorage.getItem('loginToken')
+            })
+            dispatch('storeAdmin', {
+              admin: localStorage.getItem('admin') === "true"
             })
             return true
           }
@@ -72,11 +91,17 @@ export default {
       commit(SET_ERROR, false)
       commit(SET_ERROR_TEXT, null)
     },
+    storeAdmin({ commit }, { admin }) {
+      localStorage.setItem('admin', admin)
+      commit(SET_ADMIN, admin)
+    },
     clearAuth({ commit }, error = null) {
       localStorage.setItem('loginToken', null)
       localStorage.setItem('username', null)
+      localStorage.setItem('admin', false)
       commit(SET_USERNAME, null)
       commit(SET_TOKEN, null)
+      commit(SET_ADMIN, false)
       if (error !== null) {
         commit(SET_ERROR, true)
         commit(SET_ERROR_TEXT, error.message)
@@ -84,9 +109,6 @@ export default {
         commit(SET_ERROR, false)
         commit(SET_ERROR_TEXT, null)
       }
-    },
-    reloadStore({ state }) {
-      state.username = localStorage.getItem('username')
     }
   },
   getters: {
@@ -95,6 +117,9 @@ export default {
     },
     getUsername(state) {
       return state.username
+    },
+    isAdmin(state) {
+      return state.admin
     },
     getError(state) {
       return state.errorText
