@@ -36,13 +36,14 @@
                   <input type="email" :disabled="!canChange()" required class="form-control" id="email" v-model="user.email" placeholder="Email">
                 </div>
               </div>
-              <div class="row" v-if="canChange()">
+              <div class="row">
                 <div class="col-12 ">
                   <div class="d-flex flex-row-reverse">
-                    <button class="btn btn-primary" type='submit'>Save</button>
-                    <router-link :to="{name: 'users'}" class="btn btn-secondary mr-3">Cancel</router-link>
-                    <router-link v-if="isSelf()" :to="{name: 'user-change-password', params: {id: user.id}}" class="btn btn-dark mr-3">Change password</router-link>
-                    <router-link v-if="!isSelf() && isAdmin" :to="{name: 'user-reset-password', params: {id: user.id}}" class="btn btn-danger mr-3">Reset password</router-link>
+                    <router-link v-if="!canChange()" :to="{name: 'users'}" class="btn btn-secondary mr-3">Back</router-link>
+                    <button v-if="canChange()" class="btn btn-primary" type='submit'>Save</button>
+                    <router-link v-if="canChange()" :to="{name: 'users'}" class="btn btn-secondary mr-3">Cancel</router-link>
+                    <router-link v-if="canChange() && isSelf()" :to="{name: 'user-change-password', params: {id: user.id}}" class="btn btn-dark mr-3">Change password</router-link>
+                    <router-link v-if="canChange() && !isSelf() && isAdmin" :to="{name: 'user-reset-password', params: {id: user.id}}" class="btn btn-danger mr-3">Reset password</router-link>
                   </div>
                 </div>
               </div>
