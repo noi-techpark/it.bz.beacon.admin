@@ -39,7 +39,7 @@
               <div class="row">
                 <div class="col-12 ">
                   <div class="d-flex flex-row-reverse">
-                    <router-link v-if="!canChange()" :to="{name: 'users'}" class="btn btn-secondary mr-3">Back</router-link>
+                    <router-link v-if="!canChange()" :to="{name: 'users'}" class="btn btn-secondary">Back</router-link>
                     <button v-if="canChange()" class="btn btn-primary" type='submit'>Save</button>
                     <router-link v-if="canChange()" :to="{name: 'users'}" class="btn btn-secondary mr-3">Cancel</router-link>
                     <router-link v-if="canChange() && isSelf()" :to="{name: 'user-change-password', params: {id: user.id}}" class="btn btn-dark mr-3">Change password</router-link>
