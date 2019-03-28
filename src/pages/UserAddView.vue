@@ -36,6 +36,12 @@
                   <input type="password" required class="form-control" id="password" v-model="user.password" placeholder="Password">
                 </div>
               </div>
+              <div class="form-group row">
+                <label for="password"  class="col-sm-2 pl-0 col-form-label">Password confirmation</label>
+                <div class="col-sm-10 pr-0">
+                  <input type="password" required class="form-control" id="passwordVerification" v-model="passwordConfirm" placeholder="Password confirmation">
+                </div>
+              </div>
               <div class="row">
                 <div class="col-12 pl-0 pr-0">
                   <div class="alert alert-danger" role="alert" v-if="error">
@@ -82,6 +88,7 @@ export default {
         email: '',
         password: ''
       },
+      passwordConfirm: '',
       saving: false,
       error: false
     }
@@ -90,15 +97,22 @@ export default {
     create() {
       this.saving = true
       this.error = false
-      createUser(this.user)
-        .then(() => {
-          router.push({ name: 'users' })
-          this.saving = false
-        })
-        .catch(() => {
-          this.saving = false
-          this.error = true
-        })
+      if (this.user.password !== this.passwordConfirm) {
+        this.saving = false
+        this.user.password = ''
+        this.passwordConfirm = ''
+        alert("Inserted passwords are not the same")
+      } else {
+        createUser(this.user)
+          .then(() => {
+            router.push({name: 'users'})
+            this.saving = false
+          })
+          .catch(() => {
+            this.saving = false
+            this.error = true
+          })
+      }
     }
   }
 }
