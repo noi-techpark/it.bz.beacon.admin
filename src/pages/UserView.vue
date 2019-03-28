@@ -21,29 +21,29 @@
               <div class="form-group row">
                 <label for="name" class="col-sm-2 col-form-label">Name</label>
                 <div class="col-sm-10">
-                  <input type="text" required class="form-control" id="name" v-model="user.name" placeholder="Name">
+                  <input type="text" :disabled="!canChange()" required class="form-control" id="name" v-model="user.name" placeholder="Name">
                 </div>
               </div>
               <div class="form-group row">
                 <label for="surname" class="col-sm-2 col-form-label">Surname</label>
                 <div class="col-sm-10">
-                  <input type="text" required class="form-control" id="surname" v-model="user.surname" placeholder="Surname">
+                  <input type="text" :disabled="!canChange()" required class="form-control" id="surname" v-model="user.surname" placeholder="Surname">
                 </div>
               </div>
               <div class="form-group row">
                 <label for="email" class="col-sm-2 col-form-label">Email</label>
                 <div class="col-sm-10">
-                  <input type="email" required class="form-control" id="email" v-model="user.email" placeholder="Email">
+                  <input type="email" :disabled="!canChange()" required class="form-control" id="email" v-model="user.email" placeholder="Email">
                 </div>
               </div>
-                <div class="row">
-                  <div class="col-12 ">
-                    <div class="d-flex flex-row-reverse">
-                      <button class="btn btn-primary" type='submit'>Save user</button>
-                      <router-link :to="{name: 'users'}" class="btn btn-secondary mr-3">Cancel</router-link>
-                    </div>
+              <div class="row" v-if="canChange()">
+                <div class="col-12 ">
+                  <div class="d-flex flex-row-reverse">
+                    <button class="btn btn-primary" type='submit'>Save user</button>
+                    <router-link :to="{name: 'users'}" class="btn btn-secondary mr-3">Cancel</router-link>
                   </div>
                 </div>
+              </div>
             </form>
           </div>
         </div>
@@ -59,6 +59,7 @@ import Layout from '../components/Layout'
 import Loader from '../components/Loader'
 import router from '../router/index'
 import { updateUser, getUser } from '../service/apiService'
+import { mapGetters } from 'vuex'
 
 export default {
   components: {
@@ -80,6 +81,12 @@ export default {
       saving: false
     }
   },
+  computed: {
+    ...mapGetters('login', [
+      'getUsername',
+      'isAdmin'
+    ])
+  },
   mounted() {
     getUser(this.$route.params.id).then((user) => {
       Object.assign(this.user, user)
@@ -98,6 +105,9 @@ export default {
           this.saving = false
           //  handle error
         })
+    },
+    canChange() {
+      return this.isAdmin || this.getUsername === this.user.username
     }
   }
 }

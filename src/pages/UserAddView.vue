@@ -2,7 +2,7 @@
   <!-- eslint-disable -->
   <layout :source="title">
     <template slot="body">
-      <div class="container p-0" v-show="!saving">
+      <div class="container p-0" v-if="isAdmin" v-show="!saving">
         <div class="row user-display m-4 p-4">
           <div class="col-12 p-0">
             <form @submit.prevent="create">
@@ -60,7 +60,7 @@
             </form>
           </div>
         </div>
-        <loader :visible="saving" :label="'Creating users...'"/>
+        <loader :visible="saving" :label="'Creating user...'"/>
       </div>
     </template>
   </layout>
@@ -71,6 +71,7 @@ import Layout from '../components/Layout'
 import Loader from '../components/Loader'
 import router from '../router/index'
 import { createUser } from '../service/apiService'
+import { mapGetters } from 'vuex'
 
 export default {
   components: {
@@ -92,6 +93,11 @@ export default {
       saving: false,
       error: false
     }
+  },
+  computed: {
+    ...mapGetters('login', [
+      'isAdmin'
+    ])
   },
   methods: {
     create() {
