@@ -2,7 +2,7 @@
   <!-- eslint-disable -->
   <layout :source="title">
     <template slot="body">
-      <div class="container p-0" v-show="!saving">
+      <div class="container p-0" v-if="isAdmin" v-show="!saving">
         <div class="row user-display m-4 p-4">
           <div class="col-12 p-0">
             <form @submit.prevent="create">
@@ -36,6 +36,12 @@
                   <input type="password" required class="form-control" id="password" v-model="user.password" placeholder="Password">
                 </div>
               </div>
+              <div class="form-group row">
+                <label for="password"  class="col-sm-2 pl-0 col-form-label">Password confirmation</label>
+                <div class="col-sm-10 pr-0">
+                  <input type="password" required class="form-control" id="passwordVerification" v-model="passwordConfirm" placeholder="Password confirmation">
+                </div>
+              </div>
               <div class="row">
                 <div class="col-12 pl-0 pr-0">
                   <div class="alert alert-danger" role="alert" v-if="error">
@@ -46,7 +52,7 @@
               <div class="row">
                 <div class="col-12 pl-0 pr-0">
                   <div class="d-flex flex-row-reverse">
-                    <button class="btn btn-primary" type='submit'>Create user</button>
+                    <button class="btn btn-primary" type='submit'>Create</button>
                     <router-link :to="{name: 'users'}" class="btn btn-secondary mr-3">Cancel</router-link>
                   </div>
                 </div>
@@ -54,7 +60,7 @@
             </form>
           </div>
         </div>
-        <loader :visible="saving" :label="'Creating users...'"/>
+        <loader :visible="saving" :label="'Creating user...'"/>
       </div>
     </template>
   </layout>
@@ -65,6 +71,7 @@ import Layout from '../components/Layout'
 import Loader from '../components/Loader'
 import router from '../router/index'
 import { createUser } from '../service/apiService'
+import { mapGetters } from 'vuex'
 
 export default {
   components: {
@@ -82,23 +89,36 @@ export default {
         email: '',
         password: ''
       },
+      passwordConfirm: '',
       saving: false,
       error: false
     }
+  },
+  computed: {
+    ...mapGetters('login', [
+      'isAdmin'
+    ])
   },
   methods: {
     create() {
       this.saving = true
       this.error = false
-      createUser(this.user)
-        .then(() => {
-          router.push({ name: 'users' })
-          this.saving = false
-        })
-        .catch(() => {
-          this.saving = false
-          this.error = true
-        })
+      if (this.user.password !== this.passwordConfirm) {
+        this.saving = false
+        this.user.password = null
+        this.passwordConfirm = null
+        alert("Inserted passwords must be the same")
+      } else {
+        createUser(this.user)
+          .then(() => {
+            router.push({name: 'users'})
+            this.saving = false
+          })
+          .catch(() => {
+            this.saving = false
+            this.error = true
+          })
+      }
     }
   }
 }

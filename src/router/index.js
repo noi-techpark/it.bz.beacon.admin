@@ -7,6 +7,8 @@ import UserAddView from '../pages/UserAddView'
 import BeaconsView from '../pages/BeaconsView'
 import BeaconView from '../pages/BeaconView'
 import IssuesView from '../pages/IssuesView'
+import ChangePasswordView from '../pages/ChangePasswordView'
+import ResetPasswordView from '../pages/ResetPasswordView'
 import store from '../store/store'
 
 Vue.use(Router)
@@ -100,6 +102,22 @@ const router = new Router({
       path: '/users/:id',
       name: 'user-edit',
       component: UserView,
+      meta: {
+        nav: 'users'
+      }
+    },
+    {
+      path: '/users/:id/change-password',
+      name: 'user-change-password',
+      component: ChangePasswordView,
+      meta: {
+        nav: 'users'
+      }
+    },
+    {
+      path: '/users/:id/reset-password',
+      name: 'user-reset-password',
+      component: ResetPasswordView,
       meta: {
         nav: 'users'
       }
