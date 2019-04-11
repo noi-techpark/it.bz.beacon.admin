@@ -37,6 +37,13 @@
                 </div>
               </div>
               <div class="row">
+                <div class="col-12 pl-0 pr-0">
+                  <div class="alert alert-danger" role="alert" v-if="error">
+                    Unable to change user. Please verify the data and retry.
+                  </div>
+                </div>
+              </div>
+              <div class="row">
                 <div class="col-12 ">
                   <div class="d-flex flex-row-reverse">
                     <router-link v-if="!canChange()" :to="{name: 'users'}" class="btn btn-secondary">Back</router-link>
@@ -80,7 +87,8 @@ export default {
         email: ''
       },
       loaded: false,
-      saving: false
+      saving: false,
+      error: false
     }
   },
   computed: {
@@ -98,6 +106,7 @@ export default {
   methods: {
     update() {
       this.saving = true
+      this.error = false
       updateUser(this.user)
         .then(() => {
           router.push({ name: 'users' })
@@ -105,7 +114,7 @@ export default {
         })
         .catch(() => {
           this.saving = false
-          //  handle error
+          this.error = true
         })
     },
     canChange() {
