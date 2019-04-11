@@ -466,7 +466,7 @@ import IssueSolutionModal from '../components/IssueSolutionModal'
 import IssueDetailModal from '../components/IssueDetailModal'
 import Alert from '../components/Alert'
 import Confirm from '../components/Confirm'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   components: {
@@ -533,6 +533,9 @@ export default {
   computed: {
     ...mapGetters('settings', [
       'getSettingById'
+    ]),
+    ...mapGetters('infos', [
+      'infos'
     ])
   },
   mounted() {
@@ -635,13 +638,15 @@ export default {
     this.controls.eddystoneTlmSwitch.disabled = true
     this.controls.telemetrySwitch.disabled = true
 
-    getBeacon(this.$route.params.id).then((beacon) => {
-      Object.assign(this.beaconBackup, beacon)
-      Object.assign(this.beacon, beacon)
-      this.updateControls()
-      this.loadMap()
-      this.$set(this, 'loaded', true)
-    })
+    this.fetchInfos().then(() =>
+      getBeacon(this.$route.params.id).then((beacon) => {
+        Object.assign(this.beaconBackup, beacon)
+        Object.assign(this.beacon, beacon)
+        this.updateControls()
+        this.loadMap()
+        this.$set(this, 'loaded', true)
+      })
+    )
 
     this.reloadIssues();
     this.reloadImages();
@@ -686,23 +691,23 @@ export default {
     }
   },
   methods: {
+    ...mapActions('infos', [
+      'fetchInfos'
+    ]),
     async loadMap() {
       try {
         this.google = await initMap();
+        this.beacon.info = this.getInfo(this.beacon)
+        let position = this.getPosition(this.beacon)
+
         this.map = new this.google.maps.Map(document.getElementById('map'), {
-          center: {
-            lat: this.beacon.lat,
-            lng: this.beacon.lng
-          },
+          center: position,
           zoom: 16,
           styles: getMapStyles()
         })
 
         this.marker = new this.google.maps.Marker({
-          position: {
-            lat: this.beacon.lat,
-            lng: this.beacon.lng
-          },
+          position: position,
           draggable: this.editing,
           map: this.map,
           icon: {
@@ -899,22 +904,47 @@ export default {
        this.beacon.locationType = type
       }
     },
+    getInfo(beacon) {
+      return this.infos.find((info => info.id === beacon.id))
+    },
+    getPosition(beacon) {
+      if (beacon.lat !== 0 || beacon.lng !== 0) {
+        return {
+          lat: beacon.lat,
+          lng: beacon.lng
+        }
+      } else if (beacon.info != null) {
+        return {
+          lat: beacon.info.latitude,
+          lng: beacon.info.longitude
+        }
+      }
+
+      return {
+        lat: 0,
+        lng: 0
+      }
+    },
     iconSvg(beacon) {
       let uri = location.origin;
-      switch(beacon.status) {
-        case 'BATTERY_LOW':
-        case 'ISSUE':
-          uri += require('../assets/img/map/map_icon_issue.svg')
-          break
-        case 'CONFIGURATION_PENDING':
-          uri += require('../assets/img/map/map_icon_pending.svg')
-          break
-        case 'NO_SIGNAL':
-          uri += require('../assets/img/map/map_icon_nosignal.svg')
-          break
-        default:
-          uri += require('../assets/img/map/map_icon_ok.svg')
-          break
+      if (beacon.lat === 0 && beacon.lng === 0) {
+        uri += require('../assets/img/map/map_icon_provisoric.svg')
+      } else {
+        switch (beacon.status) {
+          case 'BATTERY_LOW':
+          case 'ISSUE':
+            uri += require('../assets/img/map/map_icon_issue.svg')
+            break
+          case 'CONFIGURATION_PENDING':
+            uri += require('../assets/img/map/map_icon_pending.svg')
+            break
+          case 'NO_SIGNAL':
+            uri += require('../assets/img/map/map_icon_nosignal.svg')
+            break
+          default:
+            uri += require('../assets/img/map/map_icon_ok.svg')
+            break
+        }
       }
 
       return encodeURI(uri);

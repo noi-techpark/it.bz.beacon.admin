@@ -119,6 +119,9 @@
       ...mapGetters('beacons', [
         'beacons',
         'viewMode'
+      ]),
+      ...mapGetters('infos', [
+        'infos'
       ])
     },
     watch: {
@@ -137,22 +140,24 @@
           return
         }
         this.mapBeacons.forEach((beacon) => {
-          let marker = new this.google.maps.Marker({
-            position: {
-              lat: beacon.lat,
-              lng: beacon.lng
-            },
-            icon: {
-              url: this.iconSvg(beacon),
-              size: new this.google.maps.Size(48, 48),
-              scaledSize: new this.google.maps.Size(24, 24),
-              anchor: new this.google.maps.Point(12, 12)
-            }
-          })
-          marker.addListener('click', () => {
-            router.push({name: 'beacon-detail', params: { id: beacon.id}})
-          })
-          newMarkers.push(marker)
+          beacon.info = this.getInfo(beacon)
+          let position = this.getPosition(beacon)
+
+          if (position.lat !== 0 || position.lng !== 0) {
+            let marker = new this.google.maps.Marker({
+              position: this.getPosition(beacon),
+              icon: {
+                url: this.iconSvg(beacon),
+                size: new this.google.maps.Size(48, 48),
+                scaledSize: new this.google.maps.Size(24, 24),
+                anchor: new this.google.maps.Point(12, 12)
+              }
+            })
+            marker.addListener('click', () => {
+              router.push({name: 'beacon-detail', params: {id: beacon.id}})
+            })
+            newMarkers.push(marker)
+          }
         })
 
         this.updateMarkers(newMarkers)
@@ -163,6 +168,12 @@
         'fetchBeacons',
         'clear'
       ]),
+      ...mapActions('infos', [
+        'fetchInfos'
+      ]),
+      getInfo(beacon) {
+        return this.infos.find((info => info.id === beacon.id))
+      },
       openAddBeaconsModal() {
         this.$refs.addBeaconsModal.open()
           .then(() => {
@@ -171,6 +182,24 @@
             this.fetchBeacons()
           })
           .catch(() => {})
+      },
+      getPosition(beacon) {
+        if (beacon.lat !== 0 || beacon.lng !== 0) {
+          return {
+            lat: beacon.lat,
+            lng: beacon.lng
+          }
+        } else if (beacon.info != null) {
+          return {
+            lat: beacon.info.latitude,
+            lng: beacon.info.longitude
+          }
+        }
+
+        return {
+          lat: 0,
+          lng: 0
+        }
       },
       showDetail(beacon) {
         router.push({ name: 'beacon-detail', params: { id: beacon.id }})
@@ -323,20 +352,24 @@
       },
       iconSvg(beacon) {
         let uri = location.origin;
-        switch(beacon.status) {
-          case 'BATTERY_LOW':
-          case 'ISSUE':
-            uri += require('../assets/img/map/map_icon_issue.svg')
-            break
-          case 'CONFIGURATION_PENDING':
-            uri += require('../assets/img/map/map_icon_pending.svg')
-            break
-          case 'NO_SIGNAL':
-            uri += require('../assets/img/map/map_icon_nosignal.svg')
-            break
-          default:
-            uri += require('../assets/img/map/map_icon_ok.svg')
-            break
+        if (beacon.lat === 0 && beacon.lng === 0) {
+          uri += require('../assets/img/map/map_icon_provisoric.svg')
+        } else {
+          switch (beacon.status) {
+            case 'BATTERY_LOW':
+            case 'ISSUE':
+              uri += require('../assets/img/map/map_icon_issue.svg')
+              break
+            case 'CONFIGURATION_PENDING':
+              uri += require('../assets/img/map/map_icon_pending.svg')
+              break
+            case 'NO_SIGNAL':
+              uri += require('../assets/img/map/map_icon_nosignal.svg')
+              break
+            default:
+              uri += require('../assets/img/map/map_icon_ok.svg')
+              break
+          }
         }
 
         return encodeURI(uri);
@@ -371,7 +404,9 @@
         });
         myLocationButtonContainer.index = 1;
         this.map.controls[this.google.maps.ControlPosition.RIGHT_BOTTOM].push(myLocationButtonContainer);
-        this.fetchBeacons()
+        this.fetchInfos().then(
+          this.fetchBeacons()
+        )
       } catch (error) {
         this.loaded = true
       }

@@ -1,5 +1,5 @@
 # Beacon Südtirol Administration Web Application
-
+ 
 The web application to administrate the beacons of the Beacon Südtirol project.
 
 ## Table of contents

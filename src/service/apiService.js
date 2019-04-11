@@ -7,6 +7,7 @@ const PATH_CHECK_TOKEN = '/v1/checkToken'
 const PATH_BEACONS = '/v1/admin/beacons'
 const PATH_ISSUES = '/v1/admin/issues'
 const PATH_USERS = '/v1/admin/users'
+const PATH_INFO = '/v1/infos'
 const SUB_PATH_ISSUES = '/issues'
 const SUB_PATH_IMAGES = '/images'
 const SUB_PATH_RESET_PASSWORD = '/reset-password'
@@ -181,3 +182,6 @@ export function resolveIssue(id, issueSolution) {
   return callPost(PATH_ISSUES + '/' + id + '/resolve', true, issueSolution)
 }
 
+export function getInfos() {
+  return callGet(PATH_INFO, false)
+}
