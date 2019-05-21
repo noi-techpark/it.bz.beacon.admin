@@ -94,6 +94,5 @@ ToDo: More documentation can be found at [URL](URL).
 
 ### License
 
-ToDo: The code in this project is licensed under the [LICENSE].
-See the LICENSE.md file for more information.
+The code in this project is licensed under the GNU AFFERO GENERAL PUBLIC LICENSE 3.0 or later license. See the LICENSE.md file for more information.
 
