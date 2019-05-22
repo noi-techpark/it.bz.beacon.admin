@@ -37,6 +37,12 @@
                 </div>
               </div>
               <div class="form-group row">
+                <div class="col-sm-2 pl-0 col-form-label"></div>
+                <div class="col-sm-10 pr-0">
+                  Min. 8 characters, max. 32 characters, must contain one of $&+,:;=\?@#|/'<>.^*()%!
+                </div>
+              </div>
+              <div class="form-group row">
                 <label for="password"  class="col-sm-2 pl-0 col-form-label">Password confirmation</label>
                 <div class="col-sm-10 pr-0">
                   <input type="password" required class="form-control" id="passwordVerification" v-model="passwordConfirm" placeholder="Password confirmation">
@@ -45,7 +51,7 @@
               <div class="row">
                 <div class="col-12 pl-0 pr-0">
                   <div class="alert alert-danger" role="alert" v-if="error">
-                    Unable to create new user. Please verify that the username does not already exist.
+                    Unable to create new user. Please verify that the username does not already exist and the password corresponds to the password rules.
                   </div>
                 </div>
               </div>
@@ -67,61 +73,61 @@
 </template>
 
 <script>
-import Layout from '../components/Layout'
-import Loader from '../components/Loader'
-import router from '../router/index'
-import { createUser } from '../service/apiService'
-import { mapGetters } from 'vuex'
+  import Layout from '../components/Layout'
+  import Loader from '../components/Loader'
+  import router from '../router/index'
+  import { createUser } from '../service/apiService'
+  import { mapGetters } from 'vuex'
 
-export default {
-  components: {
-    Layout,
-    Loader
-  },
-  name: 'AddUser',
-  data() {
-    return {
-      title: 'AddUser',
-      user: {
-        username: '',
-        name: '',
-        surname: '',
-        email: '',
-        password: ''
-      },
-      passwordConfirm: '',
-      saving: false,
-      error: false
-    }
-  },
-  computed: {
-    ...mapGetters('login', [
-      'isAdmin'
-    ])
-  },
-  methods: {
-    create() {
-      this.saving = true
-      this.error = false
-      if (this.user.password !== this.passwordConfirm) {
-        this.saving = false
-        this.user.password = null
-        this.passwordConfirm = null
-        alert("Inserted passwords must be the same")
-      } else {
-        createUser(this.user)
-          .then(() => {
-            router.push({name: 'users'})
-            this.saving = false
-          })
-          .catch(() => {
-            this.saving = false
-            this.error = true
-          })
+  export default {
+    components: {
+      Layout,
+      Loader
+    },
+    name: 'AddUser',
+    data() {
+      return {
+        title: 'AddUser',
+        user: {
+          username: '',
+          name: '',
+          surname: '',
+          email: '',
+          password: ''
+        },
+        passwordConfirm: '',
+        saving: false,
+        error: false
+      }
+    },
+    computed: {
+      ...mapGetters('login', [
+        'isAdmin'
+      ])
+    },
+    methods: {
+      create() {
+        this.saving = true
+        this.error = false
+        if (this.user.password !== this.passwordConfirm) {
+          this.saving = false
+          this.user.password = null
+          this.passwordConfirm = null
+          alert("Inserted passwords must be the same")
+        } else {
+          createUser(this.user)
+                  .then(() => {
+                    router.push({name: 'users'})
+                    this.saving = false
+                  })
+                  .catch(() => {
+                    this.saving = false
+                    this.error = true
+                  })
+        }
       }
     }
   }
-}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
