@@ -47,13 +47,13 @@
                   <div :class="'small ' + (beacon.batteryLevel > 5 ? 'label-yellow' : '')">critical < 5%</div>
                 </div>
               </div>
-                <div :class="'col-6 d-flex flex-column justify-content-between flex-grow-1 flex-shrink-0 border-start ' + getStatusCardClass(beacon)">
-                  <h5>Device status</h5>
-                  <div class="mt-2">
-                    <h4 class="mb-0"><strong>{{ getStatusText(beacon) }}</strong></h4>
-                    <div :class="'small status-label-' + getStatusClassPostfix(beacon)">{{ getStatusDescription(beacon) }}</div>
-                  </div>
+              <div :class="'col-6 d-flex flex-column justify-content-between flex-grow-1 flex-shrink-0 border-start ' + getStatusCardClass(beacon)">
+                <h5>Device status</h5>
+                <div class="mt-2">
+                  <h4 class="mb-0"><strong>{{ getStatusText(beacon) }}</strong></h4>
+                  <div :class="'small status-label-' + getStatusClassPostfix(beacon)">{{ getStatusDescription(beacon) }}</div>
                 </div>
+              </div>
             </div>
           </div>
           <div class="col-md-12 col-lg-6 col-xl-8 d-flex mt-4 ">
@@ -449,590 +449,600 @@
 </template>
 
 <script>
-import Layout from '../components/Layout'
-import Loader from '../components/Loader'
-import { getBeacon, updateBeacon } from '../service/apiService'
-import {MDCSlider} from '@material/slider'
-import {MDCTabBar} from '@material/tab-bar'
-import {MDCSwitch} from '@material/switch'
-import config from '../service/config'
-import { getIssuesForBeacon, getImagesForBeacon, deleteImageForBeacon, createImageForBeacon } from "../service/apiService"
-import store from '../store/store'
-import moment from 'moment'
-import { initMap, getMapStyles } from '../service/googlemaps'
-import ImageModal from '../components/ImageModal'
-import IssueModal from '../components/IssueModal'
-import IssueSolutionModal from '../components/IssueSolutionModal'
-import IssueDetailModal from '../components/IssueDetailModal'
-import Alert from '../components/Alert'
-import Confirm from '../components/Confirm'
-import { mapGetters, mapActions } from 'vuex'
+  import Layout from '../components/Layout'
+  import Loader from '../components/Loader'
+  import { getBeacon, updateBeacon } from '../service/apiService'
+  import {MDCSlider} from '@material/slider'
+  import {MDCTabBar} from '@material/tab-bar'
+  import {MDCSwitch} from '@material/switch'
+  import config from '../service/config'
+  import { getIssuesForBeacon, getImagesForBeacon, deleteImageForBeacon, createImageForBeacon } from "../service/apiService"
+  import store from '../store/store'
+  import moment from 'moment'
+  import { initMap, getMapStyles } from '../service/googlemaps'
+  import ImageModal from '../components/ImageModal'
+  import IssueModal from '../components/IssueModal'
+  import IssueSolutionModal from '../components/IssueSolutionModal'
+  import IssueDetailModal from '../components/IssueDetailModal'
+  import Alert from '../components/Alert'
+  import Confirm from '../components/Confirm'
+  import { mapGetters, mapActions } from 'vuex'
 
-export default {
-  components: {
-    Layout,
-    Loader,
-    ImageModal,
-    IssueModal,
-    IssueSolutionModal,
-    IssueDetailModal,
-    Confirm,
-    Alert
-  },
-  name: 'Beacon',
-  data() {
-    return {
-      title: 'Beacon',
-      beacon: {
-        ibeacon: false,
-        major: 0,
-        minor: 0,
-        namespace: '',
-        instanceId: '',
-        url: '',
-        eddystoneUid: false,
-        eddystoneUrl: false,
-        eddystoneTlm: false,
-        eddystoneEid: false,
-        eddystoneEtlm: false,
-        telemetry: false,
-        txPower: 1,
-        interval: 100,
-        locationType: 'OUTDOOR',
-        description: '',
-        locationDescription: '',
-        lat: 0,
-        lng: 0,
-        pendingConfiguration: {}
-      },
-      beaconBackup: {},
-      issues: [],
-      modeTab: 'IBEACON',
-      locationTab: 'GPS',
-      images: [],
-      loaded: false,
-      editing: false,
-      saving: false,
-      uploadingImage: false,
-      configResetted: false,
-      controls: {
-        frequencySlider: null,
-        iBeaconSwitch: null,
-        eddystoneUidSwitch: null,
-        eddystoneUrlSwitch: null,
-        eddystoneEidSwitch: null,
-        eddystoneEtlmSwitch: null,
-        eddystoneTlmSwitch: null,
-        telemetrySwitch: null
-      },
-      map: {},
-      marker: {},
-      google: {}
-    }
-  },
-  computed: {
-    ...mapGetters('settings', [
-      'getSettingById'
-    ]),
-    ...mapGetters('infos', [
-      'infos'
-    ])
-  },
-  mounted() {
-    const modeTabBar = new MDCTabBar(document.querySelector('#mode-tab-bar'));
-    modeTabBar.listen('MDCTabBar:activated', event =>  {
-      switch(event.detail.index) {
-        case 1:
-          this.$set(this, 'modeTab', 'EDDYSTONE')
-          break;
-        case 2:
-          this.$set(this, 'modeTab', 'GENERAL')
-          break;
-        default:
-          this.$set(this, 'modeTab', 'IBEACON')
-          break;
+  export default {
+    components: {
+      Layout,
+      Loader,
+      ImageModal,
+      IssueModal,
+      IssueSolutionModal,
+      IssueDetailModal,
+      Confirm,
+      Alert
+    },
+    name: 'Beacon',
+    data() {
+      return {
+        title: 'Beacon',
+        beacon: {
+          ibeacon: false,
+          major: 0,
+          minor: 0,
+          namespace: '',
+          instanceId: '',
+          url: '',
+          eddystoneUid: false,
+          eddystoneUrl: false,
+          eddystoneTlm: false,
+          eddystoneEid: false,
+          eddystoneEtlm: false,
+          telemetry: false,
+          txPower: 1,
+          interval: 100,
+          locationType: 'OUTDOOR',
+          description: '',
+          locationDescription: '',
+          lat: 0,
+          lng: 0,
+          pendingConfiguration: {}
+        },
+        beaconBackup: {},
+        issues: [],
+        modeTab: 'IBEACON',
+        locationTab: 'GPS',
+        images: [],
+        loaded: false,
+        editing: false,
+        saving: false,
+        uploadingImage: false,
+        configResetted: false,
+        controls: {
+          frequencySlider: null,
+          iBeaconSwitch: null,
+          eddystoneUidSwitch: null,
+          eddystoneUrlSwitch: null,
+          eddystoneEidSwitch: null,
+          eddystoneEtlmSwitch: null,
+          eddystoneTlmSwitch: null,
+          telemetrySwitch: null
+        },
+        map: {},
+        marker: {},
+        google: {}
       }
-    });
-    const locationTabBar = new MDCTabBar(document.querySelector('#location-tab-bar'));
-    locationTabBar.listen('MDCTabBar:activated', event =>  {
-      switch(event.detail.index) {
-        case 1:
-          this.$set(this, 'locationTab', 'DESCRIPTION')
-          break;
-        case 2:
-          this.$set(this, 'locationTab', 'IMAGES')
-          break;
-        default:
-          this.$set(this, 'locationTab', 'GPS')
-          break;
-      }
-    });
-    this.controls.frequencySlider = new MDCSlider(document.querySelector('#frequency-slider'));
-    this.controls.iBeaconSwitch = new MDCSwitch(document.querySelector('#ibeacon-switch'));
-    this.controls.eddystoneUidSwitch = new MDCSwitch(document.querySelector('#eddystone-uid-switch'));
-    this.controls.eddystoneUrlSwitch = new MDCSwitch(document.querySelector('#eddystone-url-switch'));
-    this.controls.eddystoneEidSwitch = new MDCSwitch(document.querySelector('#eddystone-eid-switch'));
-    this.controls.eddystoneEtlmSwitch = new MDCSwitch(document.querySelector('#eddystone-etlm-switch'));
-    this.controls.eddystoneTlmSwitch = new MDCSwitch(document.querySelector('#eddystone-tlm-switch'));
-    this.controls.telemetrySwitch = new MDCSwitch(document.querySelector('#telemetry-switch'));
+    },
+    computed: {
+      ...mapGetters('settings', [
+        'getSettingById'
+      ]),
+      ...mapGetters('infos', [
+        'infos'
+      ])
+    },
+    mounted() {
+      const modeTabBar = new MDCTabBar(document.querySelector('#mode-tab-bar'));
+      modeTabBar.listen('MDCTabBar:activated', event =>  {
+        switch(event.detail.index) {
+          case 1:
+            this.$set(this, 'modeTab', 'EDDYSTONE')
+            break;
+          case 2:
+            this.$set(this, 'modeTab', 'GENERAL')
+            break;
+          default:
+            this.$set(this, 'modeTab', 'IBEACON')
+            break;
+        }
+      });
+      const locationTabBar = new MDCTabBar(document.querySelector('#location-tab-bar'));
+      locationTabBar.listen('MDCTabBar:activated', event =>  {
+        switch(event.detail.index) {
+          case 1:
+            this.$set(this, 'locationTab', 'DESCRIPTION')
+            break;
+          case 2:
+            this.$set(this, 'locationTab', 'IMAGES')
+            break;
+          default:
+            this.$set(this, 'locationTab', 'GPS')
+            break;
+        }
+      });
+      this.controls.frequencySlider = new MDCSlider(document.querySelector('#frequency-slider'));
+      this.controls.iBeaconSwitch = new MDCSwitch(document.querySelector('#ibeacon-switch'));
+      this.controls.eddystoneUidSwitch = new MDCSwitch(document.querySelector('#eddystone-uid-switch'));
+      this.controls.eddystoneUrlSwitch = new MDCSwitch(document.querySelector('#eddystone-url-switch'));
+      this.controls.eddystoneEidSwitch = new MDCSwitch(document.querySelector('#eddystone-eid-switch'));
+      this.controls.eddystoneEtlmSwitch = new MDCSwitch(document.querySelector('#eddystone-etlm-switch'));
+      this.controls.eddystoneTlmSwitch = new MDCSwitch(document.querySelector('#eddystone-tlm-switch'));
+      this.controls.telemetrySwitch = new MDCSwitch(document.querySelector('#telemetry-switch'));
 
-    this.controls.frequencySlider.listen('MDCSlider:change', event => {
-      this.beacon.txPower = event.detail.value
-      this.showBatteryAlert()
-    })
-    this.controls.iBeaconSwitch.nativeControl_.addEventListener('change', (event) => {
-      this.beacon.iBeacon = event.target.checked
-    })
-    this.controls.eddystoneUidSwitch.nativeControl_.addEventListener('change', (event) => {
-      this.beacon.eddystoneUid = event.target.checked
-      if (!event.target.checked) {
-        this.beacon.eddystoneUrl = false
-        this.beacon.eddystoneEid = false
-        this.beacon.eddystoneEtlm = false
-        this.beacon.eddystoneTlm = false
-
-        this.updateControls()
-      }
-    })
-    this.controls.eddystoneUrlSwitch.nativeControl_.addEventListener('change', (event) => {
-      this.beacon.eddystoneUrl = event.target.checked
-      if (event.target.checked) {
-        this.beacon.eddystoneUid = true
-
-        this.updateControls()
-      }
-    })
-    this.controls.eddystoneEidSwitch.nativeControl_.addEventListener('change', (event) => {
-      this.beacon.eddystoneEid = event.target.checked
-      if (event.target.checked) {
-        this.beacon.eddystoneUid = true
-
-        this.updateControls()
-      }
-    })
-    this.controls.eddystoneEtlmSwitch.nativeControl_.addEventListener('change', (event) => {
-      this.beacon.eddystoneEtlm = event.target.checked
-      if (event.target.checked) {
-        this.beacon.eddystoneUid = true
-
-        this.updateControls()
-      }
-    })
-    this.controls.eddystoneTlmSwitch.nativeControl_.addEventListener('change', (event) => {
-      this.beacon.eddystoneTlm = event.target.checked
-      if (event.target.checked) {
-        this.beacon.eddystoneUid = true
-
-        this.updateControls()
-      }
-    })
-    this.controls.telemetrySwitch.nativeControl_.addEventListener('change', (event) => {
-      this.beacon.telemetry = event.target.checked
-    })
-
-    this.controls.iBeaconSwitch.disabled = true
-    this.controls.eddystoneUidSwitch.disabled = true
-    this.controls.eddystoneUrlSwitch.disabled = true
-    this.controls.eddystoneEidSwitch.disabled = true
-    this.controls.eddystoneEtlmSwitch.disabled = true
-    this.controls.eddystoneTlmSwitch.disabled = true
-    this.controls.telemetrySwitch.disabled = true
-
-    this.fetchInfos().then(() =>
-      getBeacon(this.$route.params.id).then((beacon) => {
-        Object.assign(this.beaconBackup, beacon)
-        Object.assign(this.beacon, beacon)
-        this.updateControls()
-        this.loadMap()
-        this.$set(this, 'loaded', true)
+      this.controls.frequencySlider.listen('MDCSlider:change', event => {
+        this.beacon.txPower = event.detail.value
+        this.showBatteryAlert()
       })
-    )
+      this.controls.iBeaconSwitch.nativeControl_.addEventListener('change', (event) => {
+        this.beacon.iBeacon = event.target.checked
+      })
+      this.controls.eddystoneUidSwitch.nativeControl_.addEventListener('change', (event) => {
+        this.beacon.eddystoneUid = event.target.checked
+        if (!event.target.checked) {
+          this.beacon.eddystoneUrl = false
+          this.beacon.eddystoneEid = false
+          this.beacon.eddystoneEtlm = false
+          this.beacon.eddystoneTlm = false
 
-    this.reloadIssues();
-    this.reloadImages();
-  },
-  watch: {
-    editing() {
-      this.configResetted = false
-      this.controls.frequencySlider.disabled = !this.editing
-      this.controls.iBeaconSwitch.disabled = !this.editing
-      this.controls.eddystoneUidSwitch.disabled = !this.editing
-      this.controls.eddystoneUrlSwitch.disabled = !this.editing
-      this.controls.eddystoneEidSwitch.disabled = !this.editing
-      this.controls.eddystoneEtlmSwitch.disabled = !this.editing
-      this.controls.eddystoneTlmSwitch.disabled = !this.editing
-      this.controls.telemetrySwitch.disabled = !this.editing
-      this.setMapControlsEnabled(this.editing)
+          this.updateControls()
+        }
+      })
+      this.controls.eddystoneUrlSwitch.nativeControl_.addEventListener('change', (event) => {
+        this.beacon.eddystoneUrl = event.target.checked
+        if (event.target.checked) {
+          this.beacon.eddystoneUid = true
 
-      if (this.editing && this.beacon.pendingConfiguration != null) {
-        this.beacon.interval = this.beacon.pendingConfiguration.interval
-        this.beacon.txPower = this.beacon.pendingConfiguration.txPower
+          this.updateControls()
+        }
+      })
+      this.controls.eddystoneEidSwitch.nativeControl_.addEventListener('change', (event) => {
+        this.beacon.eddystoneEid = event.target.checked
+        if (event.target.checked) {
+          this.beacon.eddystoneUid = true
 
-        this.beacon.iBeacon = this.beacon.pendingConfiguration.iBeacon
-        this.beacon.uuid = this.beacon.pendingConfiguration.uuid
-        this.beacon.major = this.beacon.pendingConfiguration.major
-        this.beacon.minor = this.beacon.pendingConfiguration.minor
+          this.updateControls()
+        }
+      })
+      this.controls.eddystoneEtlmSwitch.nativeControl_.addEventListener('change', (event) => {
+        this.beacon.eddystoneEtlm = event.target.checked
+        if (event.target.checked) {
+          this.beacon.eddystoneUid = true
 
-        this.beacon.eddystoneUid = this.beacon.pendingConfiguration.eddystoneUid
-        this.beacon.namespace = this.beacon.pendingConfiguration.namespace
-        this.beacon.instanceId = this.beacon.pendingConfiguration.instanceId
+          this.updateControls()
+        }
+      })
+      this.controls.eddystoneTlmSwitch.nativeControl_.addEventListener('change', (event) => {
+        this.beacon.eddystoneTlm = event.target.checked
+        if (event.target.checked) {
+          this.beacon.eddystoneUid = true
 
-        this.beacon.eddystoneUrl = this.beacon.pendingConfiguration.eddystoneUrl
-        this.beacon.url = this.beacon.pendingConfiguration.url
+          this.updateControls()
+        }
+      })
+      this.controls.telemetrySwitch.nativeControl_.addEventListener('change', (event) => {
+        this.beacon.telemetry = event.target.checked
+      })
 
-        this.beacon.eddystoneEid = this.beacon.pendingConfiguration.eddystoneEid
-        this.beacon.eddystoneEtlm = this.beacon.pendingConfiguration.eddystoneEtlm
-        this.beacon.eddystoneTlm = this.beacon.pendingConfiguration.eddystoneTlm
+      this.controls.iBeaconSwitch.disabled = true
+      this.controls.eddystoneUidSwitch.disabled = true
+      this.controls.eddystoneUrlSwitch.disabled = true
+      this.controls.eddystoneEidSwitch.disabled = true
+      this.controls.eddystoneEtlmSwitch.disabled = true
+      this.controls.eddystoneTlmSwitch.disabled = true
+      this.controls.telemetrySwitch.disabled = true
 
-        this.beacon.telemetry = this.beacon.pendingConfiguration.telemetry
+      this.fetchInfos().then(() =>
+              getBeacon(this.$route.params.id).then((beacon) => {
+                Object.assign(this.beaconBackup, beacon)
+                Object.assign(this.beacon, beacon)
+                this.updateControls()
+                this.loadMap()
+                this.$set(this, 'loaded', true)
+              })
+      )
 
-        this.updateControls()
-      }
-    }
-  },
-  methods: {
-    ...mapActions('infos', [
-      'fetchInfos'
-    ]),
-    async loadMap() {
-      try {
-        this.google = await initMap();
-        this.beacon.info = this.getInfo(this.beacon)
-        let position = this.getPosition(this.beacon)
-
-        this.map = new this.google.maps.Map(document.getElementById('map'), {
-          center: position,
-          zoom: 16,
-          styles: getMapStyles()
-        })
-
-        this.marker = new this.google.maps.Marker({
-          position: position,
-          draggable: this.editing,
-          map: this.map,
-          icon: {
-            url: this.iconSvg(this.beacon),
-            size: new this.google.maps.Size(48, 48),
-            scaledSize: new this.google.maps.Size(24, 24),
-            anchor: new this.google.maps.Point(12, 12)
-          }
-        })
-        this.marker.addListener('dragend', event => {
-          this.beacon.lat = event.latLng.lat()
-          this.beacon.lng = event.latLng.lng()
-        });
-
+      this.reloadIssues();
+      this.reloadImages();
+    },
+    watch: {
+      editing() {
+        this.configResetted = false
+        this.controls.frequencySlider.disabled = !this.editing
+        this.controls.iBeaconSwitch.disabled = !this.editing
+        this.controls.eddystoneUidSwitch.disabled = !this.editing
+        this.controls.eddystoneUrlSwitch.disabled = !this.editing
+        this.controls.eddystoneEidSwitch.disabled = !this.editing
+        this.controls.eddystoneEtlmSwitch.disabled = !this.editing
+        this.controls.eddystoneTlmSwitch.disabled = !this.editing
+        this.controls.telemetrySwitch.disabled = !this.editing
         this.setMapControlsEnabled(this.editing)
 
-      } catch (error) {
-        this.loaded = true
-      }
-    },
-    showBatteryAlert() {
-      if (!this.getSettingById('DO_NOT_SHOW_BATTERY_ALERT')) {
-        this.$refs.batteryAlert.open()
-          .then((dontShowAgain) => {
-            this.$store.dispatch('settings/setSetting', {key: 'DO_NOT_SHOW_BATTERY_ALERT', value: dontShowAgain})
-          })
-          .catch(() => {})
-      }
-    },
-    reloadIssues() {
-      getIssuesForBeacon(this.$route.params.id).then(issues => {
-        issues.sort((issueA, issueB) => {
-          if (issueA.resolveDate == null && issueB.resolveDate == null) {
-            if(issueA.reportDate > issueB.reportDate) {
-              return -1
-            } else if (issueA.reportDate < issueB.reportDate) {
-              return 1
-            } else {
-              return 0
-            }
-          } else if (issueA.resolveDate != null && issueB.resolveDate != null) {
-            if (issueA.resolveDate > issueB.resolveDate) {
-              return -1
-            } else if (issueA.resolveDate < issueB.resolveDate) {
-              return 1
-            } else {
-              return 0
-            }
-          } else {
-            if (issueA.resolveDate == null) {
-              return -1
-            } else {
-              return 1
-            }
-          }
-        })
-        this.issues = issues
-      })
-    },
-    reloadImages() {
-      getImagesForBeacon(this.$route.params.id).then(beaconImages => {
-        this.images = []
+        if (this.editing && this.beacon.pendingConfiguration != null) {
+          this.beacon.interval = this.beacon.pendingConfiguration.interval
+          this.beacon.txPower = this.beacon.pendingConfiguration.txPower
 
-        beaconImages.forEach(beaconImage => {
-          let xhr = new XMLHttpRequest();
-          xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-              let url = window.URL || window.webkitURL;
-              this.images.push({
-                id: beaconImage.id,
-                content: url.createObjectURL(xhr.response)
-              })
+          this.beacon.iBeacon = this.beacon.pendingConfiguration.iBeacon
+          this.beacon.uuid = this.beacon.pendingConfiguration.uuid
+          this.beacon.major = this.beacon.pendingConfiguration.major
+          this.beacon.minor = this.beacon.pendingConfiguration.minor
+
+          this.beacon.eddystoneUid = this.beacon.pendingConfiguration.eddystoneUid
+          this.beacon.namespace = this.beacon.pendingConfiguration.namespace
+          this.beacon.instanceId = this.beacon.pendingConfiguration.instanceId
+
+          this.beacon.eddystoneUrl = this.beacon.pendingConfiguration.eddystoneUrl
+          this.beacon.url = this.beacon.pendingConfiguration.url
+
+          this.beacon.eddystoneEid = this.beacon.pendingConfiguration.eddystoneEid
+          this.beacon.eddystoneEtlm = this.beacon.pendingConfiguration.eddystoneEtlm
+          this.beacon.eddystoneTlm = this.beacon.pendingConfiguration.eddystoneTlm
+
+          this.beacon.telemetry = this.beacon.pendingConfiguration.telemetry
+
+          this.updateControls()
+        }
+      }
+    },
+    methods: {
+      ...mapActions('infos', [
+        'fetchInfos'
+      ]),
+      async loadMap() {
+        try {
+          this.google = await initMap();
+          this.beacon.info = this.getInfo(this.beacon)
+          let position = this.getPosition(this.beacon)
+
+          this.map = new this.google.maps.Map(document.getElementById('map'), {
+            center: position,
+            zoom: 16,
+            styles: getMapStyles()
+          })
+
+          this.marker = new this.google.maps.Marker({
+            position: position,
+            draggable: this.editing,
+            map: this.map,
+            icon: {
+              url: this.iconSvg(this.beacon),
+              size: new this.google.maps.Size(48, 48),
+              scaledSize: new this.google.maps.Size(24, 24),
+              anchor: new this.google.maps.Point(12, 12)
             }
-          }
-          xhr.open('GET', config.API_BASE_URL + '/v1/admin/beacons/' + this.$route.params.id + '/images/' + beaconImage.id);
-          xhr.setRequestHeader("Authorization", "Bearer " + store.getters['login/token'])
-          xhr.responseType = 'blob';
-          xhr.send();
-        })
-      })
-    },
-    newImage(event) {
-      if (event.target.files.length > 0) {
-        this.uploadingImage = true
-        createImageForBeacon(this.beacon.id, event.target.files[0])
-          .then(() => {
-            this.reloadImages()
-            this.$set(this, 'uploadingImage', false)
           })
-          .catch(() => {
-            alert('Image upload failed. Please try again.')
-            this.$set(this, 'uploadingImage', false)
+          this.marker.addListener('dragend', event => {
+            this.beacon.lat = event.latLng.lat()
+            this.beacon.lng = event.latLng.lng()
+          });
+
+          this.setMapControlsEnabled(this.editing)
+
+        } catch (error) {
+          this.loaded = true
+        }
+      },
+      showBatteryAlert() {
+        if (!this.getSettingById('DO_NOT_SHOW_BATTERY_ALERT')) {
+          this.$refs.batteryAlert.open()
+                  .then((dontShowAgain) => {
+                    this.$store.dispatch('settings/setSetting', {key: 'DO_NOT_SHOW_BATTERY_ALERT', value: dontShowAgain})
+                  })
+                  .catch(() => {})
+        }
+      },
+      reloadIssues() {
+        getIssuesForBeacon(this.$route.params.id).then(issues => {
+          issues.sort((issueA, issueB) => {
+            if (issueA.resolveDate == null && issueB.resolveDate == null) {
+              if(issueA.reportDate > issueB.reportDate) {
+                return -1
+              } else if (issueA.reportDate < issueB.reportDate) {
+                return 1
+              } else {
+                return 0
+              }
+            } else if (issueA.resolveDate != null && issueB.resolveDate != null) {
+              if (issueA.resolveDate > issueB.resolveDate) {
+                return -1
+              } else if (issueA.resolveDate < issueB.resolveDate) {
+                return 1
+              } else {
+                return 0
+              }
+            } else {
+              if (issueA.resolveDate == null) {
+                return -1
+              } else {
+                return 1
+              }
+            }
           })
-      }
-    },
-    showImage(image) {
-      this.$refs.openImage.open(image)
-    },
-    showIssueDetail(issue) {
-      if (issue.resolved) {
-        this.$refs.issueDetailModal.open(issue)
-          .then(() => {})
-          .catch(() => {})
-      }
-    },
-    createIssue() {
-      this.$refs.issueModal.open()
-        .then(() => {
-          this.reloadIssues()
+          this.issues = issues
         })
-        .catch(() => {})
-    },
-    resolveIssue(issue) {
-      this.$refs.resolveIssueModal.open(issue)
-        .then(() => {
-          this.reloadIssues()
+      },
+      reloadImages() {
+        getImagesForBeacon(this.$route.params.id).then(beaconImages => {
+          this.images = []
+
+          beaconImages.forEach(beaconImage => {
+            let xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = () => {
+              if (xhr.readyState === 4 && xhr.status === 200) {
+                let url = window.URL || window.webkitURL;
+                this.images.push({
+                  id: beaconImage.id,
+                  content: url.createObjectURL(xhr.response)
+                })
+              }
+            }
+            xhr.open('GET', config.API_BASE_URL + '/v1/admin/beacons/' + this.$route.params.id + '/images/' + beaconImage.id);
+            xhr.setRequestHeader("Authorization", "Bearer " + store.getters['login/token'])
+            xhr.responseType = 'blob';
+            xhr.send();
+          })
         })
-        .catch(() => {})
-    },
-    updateControls() {
-      this.controls.frequencySlider.value = this.beacon.txPower
-      document.querySelector('#frequency-slider .mdc-slider__pin-value-marker').innerHTML = this.beacon.txPower
-      this.controls.iBeaconSwitch.checked = this.beacon.iBeacon
-      this.controls.eddystoneUidSwitch.checked = this.beacon.eddystoneUid
-      this.controls.eddystoneUrlSwitch.checked = this.beacon.eddystoneUrl
-      this.controls.eddystoneEidSwitch.checked = this.beacon.eddystoneEid
-      this.controls.eddystoneEtlmSwitch.checked = this.beacon.eddystoneEtlm
-      this.controls.eddystoneTlmSwitch.checked = this.beacon.eddystoneTlm
-      this.controls.telemetrySwitch.checked = this.beacon.telemetry
-      setTimeout(() => {
-        this.controls.frequencySlider.layout()
-      })
-    },
-    resetConfiguration() {
-      this.resetBeacon()
-      this.configResetted = true
-    },
-    save() {
-      this.saving = true
-      updateBeacon(this.beacon).then(beacon => {
-        Object.assign(this.beaconBackup, beacon)
-        Object.assign(this.beacon, beacon)
-        this.updateControls()
+      },
+      newImage(event) {
+        if (event.target.files.length > 0) {
+          this.uploadingImage = true
+          createImageForBeacon(this.beacon.id, event.target.files[0])
+                  .then(() => {
+                    this.reloadImages()
+                    this.$set(this, 'uploadingImage', false)
+                  })
+                  .catch(() => {
+                    alert('Image upload failed. Please try again.')
+                    this.$set(this, 'uploadingImage', false)
+                  })
+        }
+      },
+      showImage(image) {
+        this.$refs.openImage.open(image)
+      },
+      showIssueDetail(issue) {
+        if (issue.resolved) {
+          this.$refs.issueDetailModal.open(issue)
+                  .then(() => {})
+                  .catch(() => {})
+        }
+      },
+      createIssue() {
+        this.$refs.issueModal.open()
+                .then(() => {
+                  this.reload()
+                  this.reloadIssues()
+                })
+                .catch(() => {})
+      },
+      resolveIssue(issue) {
+        this.$refs.resolveIssueModal.open(issue)
+                .then(() => {
+                  this.reload()
+                  this.reloadIssues()
+                })
+                .catch(() => {})
+      },
+      updateControls() {
+        this.controls.frequencySlider.value = this.beacon.txPower
+        document.querySelector('#frequency-slider .mdc-slider__pin-value-marker').innerHTML = this.beacon.txPower
+        this.controls.iBeaconSwitch.checked = this.beacon.iBeacon
+        this.controls.eddystoneUidSwitch.checked = this.beacon.eddystoneUid
+        this.controls.eddystoneUrlSwitch.checked = this.beacon.eddystoneUrl
+        this.controls.eddystoneEidSwitch.checked = this.beacon.eddystoneEid
+        this.controls.eddystoneEtlmSwitch.checked = this.beacon.eddystoneEtlm
+        this.controls.eddystoneTlmSwitch.checked = this.beacon.eddystoneTlm
+        this.controls.telemetrySwitch.checked = this.beacon.telemetry
+        setTimeout(() => {
+          this.controls.frequencySlider.layout()
+        })
+      },
+      resetConfiguration() {
+        this.resetBeacon()
+        this.configResetted = true
+      },
+      save() {
+        this.saving = true
+        updateBeacon(this.beacon).then(beacon => {
+          Object.assign(this.beaconBackup, beacon)
+          Object.assign(this.beacon, beacon)
+          this.updateControls()
+          this.updateMap()
+          this.$set(this, 'editing', false)
+          this.$set(this, 'saving', false)
+        }).catch(() => {
+          alert('An error occured during saving. Please check your input values.')
+          this.$set(this, 'saving', false)
+        })
+      },
+      reload() {
+        getBeacon(this.beacon.id).then(beacon => {
+          Object.assign(this.beaconBackup, beacon)
+          Object.assign(this.beacon, beacon)
+          this.updateControls()
+          this.updateMap()
+        })
+      },
+      cancelEdit() {
+        this.resetBeacon()
         this.updateMap()
         this.$set(this, 'editing', false)
-        this.$set(this, 'saving', false)
-      }).catch(() => {
-        alert('An error occured during saving. Please check your input values.')
-        this.$set(this, 'saving', false)
-      })
-    },
-    cancelEdit() {
-      this.resetBeacon()
-      this.updateMap()
-      this.$set(this, 'editing', false)
-    },
-    setMapControlsEnabled(enabled) {
-      this.marker.setDraggable(enabled)
-      this.map.setOptions({
-        disableDefaultUI: false,
-        zoomControl: enabled,
-        mapTypeControl: false,
-        scaleControl: false,
-        streetViewControl: false,
-        rotateControl: enabled,
-        fullscreenControl: false,
-        draggable: enabled,
-        scrollwheel: enabled,
-        panControl: enabled
-      })
-    },
-    updateMap() {
-      let latLng = new this.google.maps.LatLng(this.beacon.lat, this.beacon.lng)
-      this.marker.setPosition(latLng)
-      this.map.panTo(latLng)
-      this.map.setZoom(16)
-    },
-    resetBeacon() {
-      if (this.beaconBackup != null) {
-        Object.assign(this.beacon, this.beaconBackup)
-        this.updateControls()
-      }
-    },
-    executeAction(event) {
-      switch(event.target.value) {
-        case 'edit':
-          this.$set(this, 'editing', true)
-          event.target.selectedIndex = 0
-          break;
-      }
-    },
-    changeLocationType(type) {
-      if (this.editing) {
-       this.beacon.locationType = type
-      }
-    },
-    getInfo(beacon) {
-      return this.infos.find((info => info.id === beacon.id))
-    },
-    getPosition(beacon) {
-      if (beacon.lat !== 0 || beacon.lng !== 0) {
-        return {
-          lat: beacon.lat,
-          lng: beacon.lng
+      },
+      setMapControlsEnabled(enabled) {
+        this.marker.setDraggable(enabled)
+        this.map.setOptions({
+          disableDefaultUI: false,
+          zoomControl: enabled,
+          mapTypeControl: false,
+          scaleControl: false,
+          streetViewControl: false,
+          rotateControl: enabled,
+          fullscreenControl: false,
+          draggable: enabled,
+          scrollwheel: enabled,
+          panControl: enabled
+        })
+      },
+      updateMap() {
+        let latLng = new this.google.maps.LatLng(this.beacon.lat, this.beacon.lng)
+        this.marker.setPosition(latLng)
+        this.map.panTo(latLng)
+        this.map.setZoom(16)
+      },
+      resetBeacon() {
+        if (this.beaconBackup != null) {
+          Object.assign(this.beacon, this.beaconBackup)
+          this.updateControls()
         }
-      } else if (beacon.info != null) {
-        return {
-          lat: beacon.info.latitude,
-          lng: beacon.info.longitude
+      },
+      executeAction(event) {
+        switch(event.target.value) {
+          case 'edit':
+            this.$set(this, 'editing', true)
+            event.target.selectedIndex = 0
+            break;
         }
-      }
+      },
+      changeLocationType(type) {
+        if (this.editing) {
+          this.beacon.locationType = type
+        }
+      },
+      getInfo(beacon) {
+        return this.infos.find((info => info.id === beacon.id))
+      },
+      getPosition(beacon) {
+        if (beacon.lat !== 0 || beacon.lng !== 0) {
+          return {
+            lat: beacon.lat,
+            lng: beacon.lng
+          }
+        } else if (beacon.info != null) {
+          return {
+            lat: beacon.info.latitude,
+            lng: beacon.info.longitude
+          }
+        }
 
-      return {
-        lat: 0,
-        lng: 0
-      }
-    },
-    iconSvg(beacon) {
-      let uri = location.origin;
-      if (beacon.lat === 0 && beacon.lng === 0) {
-        uri += require('../assets/img/map/map_icon_provisoric.svg')
-      } else {
+        return {
+          lat: 0,
+          lng: 0
+        }
+      },
+      iconSvg(beacon) {
+        let uri = location.origin;
+        if (beacon.lat === 0 && beacon.lng === 0) {
+          uri += require('../assets/img/map/map_icon_provisoric.svg')
+        } else {
+          switch (beacon.status) {
+            case 'BATTERY_LOW':
+            case 'ISSUE':
+              uri += require('../assets/img/map/map_icon_issue.svg')
+              break
+            case 'CONFIGURATION_PENDING':
+              uri += require('../assets/img/map/map_icon_pending.svg')
+              break
+            case 'NO_SIGNAL':
+              uri += require('../assets/img/map/map_icon_nosignal.svg')
+              break
+            default:
+              uri += require('../assets/img/map/map_icon_ok.svg')
+              break
+          }
+        }
+
+        return encodeURI(uri);
+      },
+      getStatusClassPostfix(beacon) {
         switch (beacon.status) {
+          case 'OK':
+            return 'ok'
+          case 'BATTERY':
+          case 'ISSUE':
+            return 'issue'
+          case 'CONFIGURATION_PENDING':
+            return 'pending'
+          case 'NO_SIGNAL':
+            return 'nosignal'
+          default:
+            return 'default'
+        }
+      },
+      getStatusCardClass(beacon) {
+        switch (beacon.status) {
+          case 'OK':
+            return 'status-ok'
           case 'BATTERY_LOW':
           case 'ISSUE':
-            uri += require('../assets/img/map/map_icon_issue.svg')
-            break
+            return 'status-issue'
           case 'CONFIGURATION_PENDING':
-            uri += require('../assets/img/map/map_icon_pending.svg')
-            break
+            return 'status-pending'
           case 'NO_SIGNAL':
-            uri += require('../assets/img/map/map_icon_nosignal.svg')
-            break
+            return 'status-nosignal'
           default:
-            uri += require('../assets/img/map/map_icon_ok.svg')
-            break
+            return ''
         }
+      },
+      getStatusText(beacon) {
+        switch (beacon.status) {
+          case 'OK':
+            return 'OK';
+          case 'ISSUE':
+          case 'BATTERY_LOW':
+            return 'ISSUE';
+          case 'CONFIGURATION_PENDING':
+            return 'PENDING';
+          case 'NO_SIGNAL':
+            return 'NO SIGNAL';
+          default:
+            return beacon.status;
+        }
+      },
+      getStatusDescription(beacon) {
+        switch (beacon.status) {
+          case 'OK':
+            return 'No problems found';
+          case 'ISSUE':
+            return 'Issue';
+          case 'BATTERY_LOW':
+            return 'Battery level low';
+          case 'CONFIGURATION_PENDING':
+            return 'Configuration pending';
+          case 'NO_SIGNAL':
+            return 'Device status unknown';
+          default:
+            return '';
+        }
+      },
+      removeImage(image) {
+        this.$refs.deleteImageConfirm.open()
+                .then(() => {
+                  deleteImageForBeacon(this.beacon.id, image.id)
+                          .then(() => {
+                            this.reloadImages()
+                          })
+                          .catch(() => {})
+                })
+                .catch(() => {})
       }
-
-      return encodeURI(uri);
     },
-    getStatusClassPostfix(beacon) {
-      switch (beacon.status) {
-        case 'OK':
-          return 'ok'
-        case 'BATTERY':
-        case 'ISSUE':
-          return 'issue'
-        case 'CONFIGURATION_PENDING':
-          return 'pending'
-        case 'NO_SIGNAL':
-          return 'nosignal'
-        default:
-          return 'default'
-      }
-    },
-    getStatusCardClass(beacon) {
-      switch (beacon.status) {
-        case 'OK':
-          return 'status-ok'
-        case 'BATTERY_LOW':
-        case 'ISSUE':
-          return 'status-issue'
-        case 'CONFIGURATION_PENDING':
-          return 'status-pending'
-        case 'NO_SIGNAL':
-          return 'status-nosignal'
-        default:
+    filters: {
+      formatDate(dateString) {
+        let date = moment(dateString)
+        if (!date.isValid()) {
           return ''
-      }
-    },
-    getStatusText(beacon) {
-      switch (beacon.status) {
-        case 'OK':
-          return 'OK';
-        case 'ISSUE':
-        case 'BATTERY_LOW':
-          return 'ISSUE';
-        case 'CONFIGURATION_PENDING':
-          return 'PENDING';
-        case 'NO_SIGNAL':
-          return 'NO SIGNAL';
-        default:
-          return beacon.status;
-      }
-    },
-    getStatusDescription(beacon) {
-      switch (beacon.status) {
-        case 'OK':
-          return 'No problems found';
-        case 'ISSUE':
-          return 'Issue';
-        case 'BATTERY_LOW':
-          return 'Battery level low';
-        case 'CONFIGURATION_PENDING':
-          return 'Configuration pending';
-        case 'NO_SIGNAL':
-          return 'Device status unknown';
-        default:
-          return '';
-      }
-    },
-    removeImage(image) {
-      this.$refs.deleteImageConfirm.open()
-        .then(() => {
-          deleteImageForBeacon(this.beacon.id, image.id)
-            .then(() => {
-              this.reloadImages()
-            })
-            .catch(() => {})
-          })
-        .catch(() => {})
-    }
-  },
-  filters: {
-    formatDate(dateString) {
-      let date = moment(dateString)
-      if (!date.isValid()) {
-        return ''
-      }
+        }
 
-      return date.format('DD.MM.YYYY')
+        return date.format('DD.MM.YYYY')
+      }
     }
   }
-}
 
 </script>
 
