@@ -1,4 +1,4 @@
-<template>
+ <template>
   <!-- eslint-disable -->
   <layout :source="title">
     <template slot="search-input">
@@ -378,7 +378,9 @@
     async mounted() {
       this.loaded = false
       this.$nextTick()
-      this.clear()
+      this.clear().then(() => {
+        this.$set(this, 'loaded', false)
+      })
       try {
         this.google = await initMap();
         this.map = new this.google.maps.Map(document.getElementById('map'), {
@@ -404,9 +406,9 @@
         });
         myLocationButtonContainer.index = 1;
         this.map.controls[this.google.maps.ControlPosition.RIGHT_BOTTOM].push(myLocationButtonContainer);
-        this.fetchInfos().then(
+        this.fetchInfos().then(() => {
           this.fetchBeacons()
-        )
+        })
       } catch (error) {
         this.loaded = true
       }

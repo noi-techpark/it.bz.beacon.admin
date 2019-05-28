@@ -1,5 +1,5 @@
 <template>
-  <div class="loader" v-if="visible">
+  <div class="loader" v-show="visible">
     <div class="spinner">
     </div>
     <small class="text-muted">{{ label }}</small>
