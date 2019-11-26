@@ -172,6 +172,9 @@
             // L.marker([51.5, -0.09], {icon: customIcon}).addTo(map);
 
             let marker = this.L.marker([position.lat, position.lng], {icon: customIcon}) //.addTo(this.map);
+            marker.on('click', () => {
+               router.push({name: 'beacon-detail', params: {id: beacon.id}})
+            })
             markers.addLayer(marker);
 
             //            .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
