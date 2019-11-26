@@ -16,6 +16,31 @@ const initPromise = new Promise((resolve, reject) => {
 
 let initPromise = null;
 
+
+function loadScriptStylePromise(tagName, params_array)
+{
+  return new Promise((resolve, reject) => {
+    const tag = document.createElement(tagName);
+
+    for (let i = 0; i < params_array.length; i++) {
+      let obj = params_array[i]
+      for (let name in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, name)) {
+          tag[name] = obj[name];
+        }
+      }
+    }
+
+    tag.onload  = () => { window.console.log('tag loaded'); resolve() };
+    tag.onerror = () => { window.console.log('tag error');  reject() };
+    window.console.log('setup new head tag')
+    window.console.log(tag)
+
+    document.head.appendChild(tag);
+    window.console.log('aggiunto al head')
+  });
+}
+
 export function initMap() {
 
   if (initPromise) {
@@ -23,24 +48,23 @@ export function initMap() {
     return initPromise;
   }
 
-  initPromise = new Promise((resolve, reject) => {
+  initPromise = new Promise(async (resolve, reject) => {
 
-    // window[CALLBACK_NAME] = () => resolve(window.google);
+    try {
+      // leaflet
+      /*await*/ loadScriptStylePromise('link',[{'href':'https://unpkg.com/leaflet@1.6.0/dist/leaflet.css'},{'rel':'stylesheet'}])
+      await loadScriptStylePromise('script',[{'src':'https://unpkg.com/leaflet@1.6.0/dist/leaflet.js'}])
 
-    const link = document.createElement('link');
-    link.rel = 'stylesheet'
-    link.href = 'https://unpkg.com/leaflet@1.6.0/dist/leaflet.css'
-    document.head.appendChild(link);
+      // clustering plugin
+      /*await*/ loadScriptStylePromise('link',[{'href':'https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css'},{'rel':'stylesheet'}])
+      /*await*/ loadScriptStylePromise('link',[{'href':'https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css'},{'rel':'stylesheet'}])
+      await loadScriptStylePromise('script',[{'src':'https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js'}])
 
-    // css does require a load event too?
-
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/leaflet@1.6.0/dist/leaflet.js';
-    script.onerror = reject;
-    window.console.log('map onoad setup!')
-    script.onload = () => { window.console.log('map js loaded!') ;resolve(window.L) };
-
-    document.head.appendChild(script);
+      resolve(window.L);
+    }
+    catch (e) {
+      reject(e)
+    }
   });
 
    return initPromise;

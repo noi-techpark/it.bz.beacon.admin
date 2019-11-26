@@ -147,13 +147,17 @@
           this.updateMarkers(newMarkers)
           return
         }
+
+        let markers = this.L.markerClusterGroup();
+        this.map.addLayer(markers);
+
         this.mapBeacons.forEach((beacon) => {
 //          beacon.info = this.getInfo(beacon)
           let position = this.getPosition(beacon)
 
           if (position.lat !== 0 || position.lng !== 0) {
 
-            var customIcon = L.icon({
+            var customIcon = this.L.icon({
                 iconUrl: this.iconSvg(beacon),
 
                 // shadowUrl: 'leaf-shadow.png',
@@ -167,7 +171,8 @@
 
             // L.marker([51.5, -0.09], {icon: customIcon}).addTo(map);
 
-            this.L.marker([position.lat, position.lng], {icon: customIcon}).addTo(this.map);
+            let marker = this.L.marker([position.lat, position.lng], {icon: customIcon}) //.addTo(this.map);
+            markers.addLayer(marker);
 
             //            .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
             //            .openPopup();
