@@ -1,8 +1,10 @@
-import config from './config'
+// import config from './config'
 
-const CALLBACK_NAME = 'gmapsCallback';
+// const CALLBACK_NAME = 'gmapsCallback';
 
-let initialized = !!window.google;
+// let initialized = !!window.L;
+
+/*
 let resolveInitPromise;
 let rejectInitPromise;
 
@@ -10,13 +12,40 @@ const initPromise = new Promise((resolve, reject) => {
   resolveInitPromise = resolve;
   rejectInitPromise = reject;
 });
+ */
+
+let initPromise = null;
 
 export function initMap() {
-  if (initialized) {
+
+  if (initPromise) {
+    // alert('map already initialized?')
     return initPromise;
   }
 
-  initialized = true;
+  initPromise = new Promise((resolve, reject) => {
+
+    // window[CALLBACK_NAME] = () => resolve(window.google);
+
+    const link = document.createElement('link');
+    link.rel = 'stylesheet'
+    link.href = 'https://unpkg.com/leaflet@1.6.0/dist/leaflet.css'
+    document.head.appendChild(link);
+
+    // css does require a load event too?
+
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/leaflet@1.6.0/dist/leaflet.js';
+    script.onerror = reject;
+    window.console.log('map onoad setup!')
+    script.onload = () => { window.console.log('map js loaded!') ;resolve(window.L) };
+
+    document.head.appendChild(script);
+  });
+
+   return initPromise;
+
+  /*
   window[CALLBACK_NAME] = () => resolveInitPromise(window.google);
 
   const script = document.createElement('script');
@@ -27,6 +56,7 @@ export function initMap() {
   document.querySelector('head').appendChild(script);
 
   return initPromise;
+  */
 }
 
 export function getMapStyles() {

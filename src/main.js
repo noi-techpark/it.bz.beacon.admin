@@ -8,6 +8,13 @@ import './style.scss'
 
 Vue.config.productionTip = false
 
+Vue.config.errorHandler = (a,b,c) => {
+   window.console.log(a);
+   window.console.log(b);
+   window.console.log(c);
+   alert('vue error')
+}
+
 /* eslint-disable no-new */
 new Vue({
   render: (h) => h(App),

@@ -8,7 +8,7 @@
       </div>
     </template>
     <template slot="body">
-      <div class="row flex-grow-1">
+      <div class="row flex-grow-1" style="overflow: hidden">
         <div id="view-switch" class="position-absolute mt-4 ml-4 btn-group" role="group" aria-label="Switch view">
           <button type="button" :class="'btn btn-view-switch ' + (viewMode === LIST ? 'btn-view-switch-active' : '')" @click="changeMode(LIST)"><img src="../assets/ic_list.svg"/></button>
           <button type="button" :class="'btn btn-view-switch ' + (viewMode === MAP ? 'btn-view-switch-active' : '')" @click="changeMode(MAP)"><img src="../assets/ic_map.svg"/></button>
@@ -25,7 +25,7 @@
                     :to="{name: 'beacon-new'}" @click="openAddBeaconsModal"></button>
           </div>
         </div>
-        <div id="map" class="beacon-map" v-show="loaded && viewMode === MAP">
+        <div id="map" class="beacon-map" xv-show="loaded && viewMode === MAP" :style="{visibility: loaded && viewMode === MAP ? 'visible' : 'hidden'}">
         </div>
         <loader :visible="!loaded" :label="'Loading beacons...'"/>
         <add-beacons-modal ref="addBeaconsModal" />
@@ -152,6 +152,9 @@
           let position = this.getPosition(beacon)
 
           if (position.lat !== 0 || position.lng !== 0) {
+          /*
+            d@vide.bz
+
             let marker = new this.google.maps.Marker({
               position: this.getPosition(beacon),
               icon: {
@@ -165,6 +168,7 @@
               router.push({name: 'beacon-detail', params: {id: beacon.id}})
             })
             newMarkers.push(marker)
+            */
           }
         })
 
@@ -220,6 +224,10 @@
         router.push({ name: 'beacon-detail', params: { id: beacon.id }})
       },
       updateMarkers(newMarkers) {
+      /*
+
+        d@vide.bz
+
         if (this.map != null) {
           if (this.clusterer === null) {
             this.clusterer = new MarkerClusterer(this.map, [], {
@@ -250,6 +258,7 @@
 
           this.markers = markersToAdd.concat(markersToKeep)
         }
+        */
       },
       showMyPosition(success, failure) {
         let myPositionButtonIcon = document.getElementById('myLocationButtonIcon')
@@ -398,7 +407,24 @@
         this.$set(this, 'loaded', false)
       })
       try {
-        this.google = await initMap();
+        this.L = await initMap();
+        this.map = this.L.map('map').setView([46.6568142, 11.423318], 9);
+
+        // here the map is added to an empty container. This means that when the container is show,
+        // is required to notify leaflet!
+
+        this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(this.map);
+
+
+
+        /*
+        this.L.marker([51.5, -0.09]).addTo(map)
+            .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+            .openPopup();
+        */
+        /*
         this.map = new this.google.maps.Map(document.getElementById('map'), {
           center: {
             lat: 46.6568142,
@@ -422,11 +448,15 @@
         });
         myLocationButtonContainer.index = 1;
         this.map.controls[this.google.maps.ControlPosition.RIGHT_BOTTOM].push(myLocationButtonContainer);
+        */
         this.fetchInfos().then(() => {
           this.fetchBeacons()
         })
+
       } catch (error) {
-        this.loaded = true
+        window.console.log(error);
+        throw error;
+        // this.loaded = true
       }
     },
   }
