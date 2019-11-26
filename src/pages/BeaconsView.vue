@@ -152,7 +152,29 @@
           let position = this.getPosition(beacon)
 
           if (position.lat !== 0 || position.lng !== 0) {
-          /*
+
+            var customIcon = L.icon({
+                iconUrl: this.iconSvg(beacon),
+
+                // shadowUrl: 'leaf-shadow.png',
+
+                iconSize:     [24, 24], // size of the icon
+                // shadowSize:   [50, 64], // size of the shadow
+                iconAnchor:   [12, 12], // point of the icon which will correspond to marker's location
+                // shadowAnchor: [4, 62],  // the same for the shadow
+                // popupAnchor:  [12, 12] // point from which the popup should open relative to the iconAnchor
+            });
+
+            // L.marker([51.5, -0.09], {icon: customIcon}).addTo(map);
+
+            this.L.marker([position.lat, position.lng], {icon: customIcon}).addTo(this.map);
+
+            //            .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+            //            .openPopup();
+
+            window.console.log(this.iconSvg(beacon));
+
+            /*
             d@vide.bz
 
             let marker = new this.google.maps.Marker({
