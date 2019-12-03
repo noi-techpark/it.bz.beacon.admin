@@ -186,7 +186,8 @@ export function updateBeacon(beacon) {
     telemetry: beacon.telemetry,
     txPower: beacon.txPower,
     url: beacon.url,
-    uuid: beacon.uuid
+    uuid: beacon.uuid,
+    group: beacon.group.id
   }
   return callPatch(PATH_BEACONS + '/' + beacon.id, true, data)
 }

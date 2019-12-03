@@ -17,6 +17,15 @@
             </div>
           </div>
           <div class="row mt-2">
+            <div class="col-12 p-0 pl-2">
+              <select class="form-control form-select-group-control" id="role" v-model="groupId" :required="!isAdmin">
+                <option disabled value="">Select group</option>
+                <option v-bind:key="group.id" v-if="groups.length" v-for="group in groups" :value="group.id">{{ group.name }}</option>
+              </select>
+              <small class="form-issue-solution-label">Group</small>
+            </div>
+          </div>
+          <div class="row mt-2">
             <div class="col-12 pl-0 pr-0">
               <div class="alert alert-danger" role="alert" v-if="error">
                 Unable to process the given order ID.
@@ -36,7 +45,7 @@
 import Modal from './Modal'
 import { Scrollable } from '../directive/Scrollable'
 import { createBeaconsByOrder } from '../service/apiService'
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 
 export default {
   components: {
@@ -46,6 +55,9 @@ export default {
     Scrollable
   },
   computed: {
+    ...mapGetters('groups', [
+      'groups'
+    ]),
     ...mapGetters('login', [
       'getUsername'
     ])
@@ -58,6 +70,9 @@ export default {
   watch: {
     orderId() {
       this.order.id = this.orderId
+    },
+    groupId() {
+      this.order.groupId = this.groupId
     }
   },
   data() {
@@ -65,14 +80,25 @@ export default {
       visible: false,
       promise: null,
       orderId: '',
+      groupId: '',
       order: {
-        id: null
+        id: null,
+        groupId: null
       },
       error: false
     }
   },
   methods: {
+    ...mapActions('groups', [
+      'fetchGroups',
+      'clear'
+    ]),
+    ...mapActions('login', [
+      'isAdmin'
+    ]),
     open() {
+      this.groupId = ''
+      this.orderId = ''
       this.visible = true
       return new Promise((resolve, reject) => {
         this.promise = {
@@ -102,6 +128,9 @@ export default {
           this.$set(this, 'error', true)
         })
     }
+  },
+  mounted() {
+    this.fetchGroups()
   }
 }
 </script>
@@ -236,6 +265,11 @@ export default {
       outline: 0;
       box-shadow: none;
     }
+  }
+
+  select.form-select-group-control {
+    height: calc(1.5em + 0.75rem + 2px);
+    line-height: 1.5;
   }
 
 </style>

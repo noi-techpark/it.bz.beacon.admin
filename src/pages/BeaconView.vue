@@ -4,20 +4,28 @@
     <template slot="body">
       <div class="container pb-4" v-show="loaded">
         <div class="row mt-4">
-          <div class="col-12">
+          <div class="col-8">
             <h2 class="beacon-title mb-3" v-if="!editing">{{ beacon.name }}</h2>
             <div v-if="editing">
               <input type="text" class="form-control" v-model="beacon.name" :readonly="!editing" />
               <small class="text-muted">Name</small>
             </div>
           </div>
+          <div class="col-4">
+            <select class="form-control form-select-group-control" id="role" v-if="isAdmin" v-model="group.id" :disabled="!editing">
+              <option disabled value="">Select group</option>
+              <option v-bind:key="mGroup.id" v-if="groups.length" v-for="mGroup in groups" :value="mGroup.id">{{ mGroup.name }}</option>
+            </select>
+            <input type="text" class="form-control" v-if="!isAdmin" v-model="group.name" :readonly="true" />
+            <small class="text-muted">Group</small>
+          </div>
         </div>
-        <div class="row">
+        <div class="row mt-2">
           <div class="col">
             <span class="text-muted">last seen:</span> {{ beacon.lastSeen | formatDate }}
           </div>
           <div class="col-xs-12 col-sm-6 col-md-3 col-lg-2" v-show="!editing">
-            <select class="form-control" @change="executeAction">
+            <select class="form-control" @change="executeAction" v-if="canEdit()">
               <option value="">Action</option>
               <option value="edit">Edit</option>
             </select>
@@ -506,6 +514,14 @@
           pendingConfiguration: {}
         },
         beaconBackup: {},
+        group: {
+          id: null,
+          name: null
+        },
+        groupBackup: {
+          id: null,
+          name: null
+        },
         issues: [],
         modeTab: 'IBEACON',
         locationTab: 'GPS',
@@ -536,7 +552,14 @@
       ]),
       ...mapGetters('infos', [
         'infos'
-      ])
+      ]),
+      ...mapGetters('groups', [
+        'groups'
+      ]),
+      ...mapGetters('login', [
+        'isAdmin',
+        'groupsRole'
+      ]),
     },
     mounted() {
       const modeTabBar = new MDCTabBar(document.querySelector('#mode-tab-bar'));
@@ -642,6 +665,10 @@
               getBeacon(this.$route.params.id).then((beacon) => {
                 Object.assign(this.beaconBackup, beacon)
                 Object.assign(this.beacon, beacon)
+                if(beacon.group != null) {
+                  Object.assign(this.groupBackup, beacon.group)
+                  Object.assign(this.group, beacon.group)
+                }
                 this.updateControls()
                 this.loadMap()
                 this.$set(this, 'loaded', true)
@@ -650,6 +677,8 @@
 
       this.reloadIssues();
       this.reloadImages();
+
+      this.fetchGroups()
     },
     watch: {
       editing() {
@@ -694,6 +723,19 @@
       ...mapActions('infos', [
         'fetchInfos'
       ]),
+      ...mapActions('groups', [
+        'fetchGroups',
+        'clear'
+      ]),
+      ...mapActions('login', [
+        'isAdmin',
+        'groupsRole'
+      ]),
+      canEdit() {
+        return this.isAdmin || this.groupsRole != null &&
+            this.groupsRole.some((groupRole => groupRole.group.id === this.group.id &&
+              (groupRole.role == 'MANAGER' || groupRole.role == 'BEACON_EDITOR')))
+      },
       async loadMap() {
         try {
           this.google = await initMap();
@@ -849,9 +891,26 @@
       },
       save() {
         this.saving = true
+        if(this.group.id)
+          this.beacon.group = this.group
+        else
+          this.beacon.group = null
         updateBeacon(this.beacon).then(beacon => {
           Object.assign(this.beaconBackup, beacon)
           Object.assign(this.beacon, beacon)
+          if(beacon.group != null) {
+            Object.assign(this.groupBackup, beacon.group)
+            Object.assign(this.group, beacon.group)
+          } else {
+            Object.assign(this.groupBackup, {
+              id: null,
+              name: null
+            })
+            Object.assign(this.group, {
+              id: null,
+              name: null
+            })
+          }
           this.updateControls()
           this.updateMap()
           this.$set(this, 'editing', false)
@@ -865,6 +924,10 @@
         getBeacon(this.beacon.id).then(beacon => {
           Object.assign(this.beaconBackup, beacon)
           Object.assign(this.beacon, beacon)
+          if(beacon.group != null) {
+            Object.assign(this.groupBackup, beacon.group)
+            Object.assign(this.group, beacon.group)
+          }
           this.updateControls()
           this.updateMap()
         })
@@ -898,6 +961,8 @@
       resetBeacon() {
         if (this.beaconBackup != null) {
           Object.assign(this.beacon, this.beaconBackup)
+          if(this.groupBackup != null)
+            Object.assign(this.group, this.groupBackup)
           this.updateControls()
         }
       },
@@ -1368,6 +1433,12 @@
         }
       }
     }
+  }
+
+  select.form-select-group-control {
+    height: calc(1.5em + 0.75rem + 2px);
+    font-size: 1rem;
+    line-height: 1.5;
   }
 
 </style>
