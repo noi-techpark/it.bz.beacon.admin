@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import login from './login'
 import users from './users'
+import groups from './groups'
 import beacons from './beacons'
 import issues from './issues'
 import settings from './settings'
@@ -14,6 +15,7 @@ export default new Vuex.Store({
   modules: {
     login,
     users,
+    groups,
     beacons,
     issues,
     settings,

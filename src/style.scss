@@ -218,7 +218,7 @@ body {
 
 /* USERS */
 
-.user-display, .beacon-display, .issue-display {
+.user-display, .group-display, .beacon-display, .issue-display {
   background-color: #ffffff;
   border-radius: 7px;
   font-size: 0.8em;
@@ -245,7 +245,7 @@ body {
 }
 
 @include media-breakpoint-down(md) {
-  .user-display {
+  .user-display, .group-display {
     font-size: 12px;
   }
 }

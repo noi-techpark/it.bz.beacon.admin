@@ -4,6 +4,9 @@ import LoginView from '../pages/LoginView'
 import UsersView from '../pages/UsersView'
 import UserView from '../pages/UserView'
 import UserAddView from '../pages/UserAddView'
+import GroupsView from '../pages/GroupsView'
+import GroupView from '../pages/GroupView'
+import GroupAddView from '../pages/GroupAddView'
 import BeaconsView from '../pages/BeaconsView'
 import BeaconView from '../pages/BeaconView'
 import IssuesView from '../pages/IssuesView'
@@ -120,6 +123,30 @@ const router = new Router({
       component: ResetPasswordView,
       meta: {
         nav: 'users'
+      }
+    },
+    {
+      path: '/groups',
+      name: 'groups',
+      component: GroupsView,
+      meta: {
+        nav: 'groups'
+      }
+    },
+    {
+      path: '/groups/new',
+      name: 'group-new',
+      component: GroupAddView,
+      meta: {
+        nav: 'groups'
+      }
+    },
+    {
+      path: '/groups/:id',
+      name: 'group-edit',
+      component: GroupView,
+      meta: {
+        nav: 'groups'
       }
     }
   ]
