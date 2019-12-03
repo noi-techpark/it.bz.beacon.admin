@@ -91,6 +91,7 @@
             type: 'beacon-status'
           }
         ],
+        mapData: [],
         tableData: [],
         tableMeta: {
           sorting: {
@@ -127,10 +128,12 @@
     watch: {
       search() {
         this.reloadTableData()
+        this.$set(this, 'mapBeacons', this.mapData.slice(0))
       },
       beacons() {
         this.reloadTableData()
         this.$set(this, 'loaded', true)
+        this.$set(this, 'mapBeacons', this.mapData.slice(0))
       },
       mapBeacons() {
         let newMarkers = []
@@ -140,7 +143,7 @@
           return
         }
         this.mapBeacons.forEach((beacon) => {
-          beacon.info = this.getInfo(beacon)
+//          beacon.info = this.getInfo(beacon)
           let position = this.getPosition(beacon)
 
           if (position.lat !== 0 || position.lng !== 0) {
@@ -329,7 +332,8 @@
             return beacon.name.toLowerCase().includes(this.search.toLowerCase())
           })
         }
-        this.$set(this, 'mapBeacons', this.tableData.slice(0))
+
+        this.$set(this, 'mapData', this.tableData.slice(0))
 
         this.tableData.sort((beaconA, beaconB) => {
           if (beaconA[params.sorting.col] < beaconB[params.sorting.col]) {
