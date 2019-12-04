@@ -64,7 +64,7 @@
                 </template>
                 <template v-else-if="col.type === 'modify-buttons'">
                   <button type="button" :title="'Change ' + col.name" class="btn btn-edit" @click.prevent.stop="rowChangeClick(record)"></button>
-                  <button type="button" :title="'Delete ' + col.name" class="btn btn-delete" @click.prevent.stop="rowDeleteClick(user)"></button>
+                  <button type="button" :title="'Delete ' + col.name" class="btn btn-delete" @click.prevent.stop="rowDeleteClick(record)"></button>
                 </template>
                 <template v-else-if="col.type === 'beacon-status'">
                   <beacon-status :status="get(record, col.key)"/>

@@ -42,7 +42,7 @@
                 <h5>Assigned users</h5>
               </div>
               <div class="col-9 pr-0">
-                <assign-user-to-group-form ref="assignUserToGroupForm" :groupId="group.id"/>
+                <assign-user-to-group-form ref="assignUserToGroupForm" :groupId="$route.params.id" />
               </div>
             </div>
 
@@ -51,7 +51,7 @@
                 <simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta"
                               @rowClicked="showUserDetail" @rowDeleteClicked="removeUserRole" @rowChangeClicked="changeUserRole" />
               </div>
-              <div class="col-12 p-0 text-center" v-show="tableData.length <= 0">
+              <div class="col-12 p-0 mt-4 text-center" v-show="tableData.length <= 0">
                 <span class="text-muted">No users assigned to this group...</span>
               </div>
             </div>
@@ -62,7 +62,7 @@
       <loader :visible="!loaded" :label="'Loading group data...'"/>
       <loader :visible="saving" :label="'Saving groups...'"/>
       <loader :visible="loaded && !usersLoaded" :label="'Loading assigned users...'"/>
-      <change-user-role-modal ref="changeUserRoleModal" :groupId="group.id" :userRole="userRole"/>
+      <change-user-role-modal ref="changeUserRoleModal" :groupId="$route.params.id" :userRole="userRole"/>
       <confirm ref="removeUserFromGroupConfirm" titleText="Delete group" confirmText="Delete" cancelText="Cancel">
         Are you sure to you want to remove the user <b>{{ userRole.user.username }}</b> from the group?<br />
         This cannot be undone.
@@ -167,7 +167,7 @@ export default {
       Object.assign(this.group, group)
       this.$set(this, 'loaded', true)
     }),
-    this.fetchUsersForGroup(this.$route.params.id);
+    this.fetchUsersForGroup(this.$route.params.id)
   },
   methods: {
     update() {

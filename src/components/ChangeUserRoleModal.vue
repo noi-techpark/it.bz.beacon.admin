@@ -91,7 +91,7 @@ export default {
   },
   props: {
     userRole: Object,
-    groupId: Number
+    groupId: String
   },
   watch: {
     userRole() {

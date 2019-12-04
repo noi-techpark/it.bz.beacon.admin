@@ -7,8 +7,23 @@
               <div class="form-group row">
                   <label for="username" class="pl-0 col-form-label form-assign-user-label">Username</label>
                   <div class="col flex-grow-1 pr-0">
-                    <input type="text" class="form-control form-assign-user-control" id="username" required="required"
-                           v-model="userRole.username" placeholder="Username">
+                    <div>
+
+                      <div class="dropdown">
+                        <input autocomplete="off" type="text" class="form-control form-assign-user-control" id="username" required="required"
+                               v-model="searchUserField" placeholder="Username"
+                               @focus="usernameFocused = true"
+                               @blur="usernameFocused = false">
+                        <div v-if="(usernameFocused || dropdownHover) && searchedUsers.length > 0 && !userSelected"
+                             class="dropdown-menu" aria-labelledby="dropdownMenuButton"
+                             @mouseover="dropdownHover = true" @mouseleave="dropdownHover = false">
+                          <a class="dropdown-item" v-bind:key="user.id" v-on:click.stop.prevent="selectUser(user)"
+                             v-for="user in searchedUsers">
+                            {{ user.username }}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -17,7 +32,7 @@
                 <label for="role" class="pl-4 col-form-label form-assign-user-label">Role</label>
                 <div class="col flex-grow-1 pr-0">
                   <select class="form-control form-assign-user-control" id="role" required="required"
-                          v-model="userRole.role">
+                          v-model="userRole">
                     <option disabled value="">Select role</option>
                     <option>MANAGER</option>
                     <option>BEACON_EDITOR</option>
@@ -27,7 +42,7 @@
               </div>
             </div>
             <div class="col-3 p-0 d-flex justify-content-end">
-              <button type="submit" class="flex-grow-1 btn btn-assign-user-resolve ml-4">Assign user</button>
+              <button type="submit" class="flex-grow-1 btn btn-assign-user-resolve ml-4" :disabled="!userSelected || userRole === ''">Assign user</button>
             </div>
         </div>
         <div class="row mt-4" v-if="error">
@@ -49,20 +64,38 @@ export default {
   computed: {
     ...mapGetters('login', [
       'getUsername'
+    ]),
+    ...mapGetters('users', [
+      'users'
+    ]),
+    ...mapGetters('groups', [
+      'usersForGroup'
     ])
   },
   props: {
-    groupId: {
-      type: Number
-    }
+    groupId: String
   },
   data() {
     return {
-      userRole: {
-        username: '',
-        role: ''
-      },
-      error: false
+      userRole: '',
+      searchUserField: '',
+      error: false,
+      userSelected: false,
+      usernameFocused: false,
+      dropdownHover: false,
+      searchedUsers: []
+    }
+  },
+  watch: {
+    users() {
+      this.setupDropDown()
+    },
+    usersForGroup() {
+      this.setupDropDown()
+    },
+    searchUserField() {
+      this.setupDropDown()
+      this.userSelected = this.searchedUsers !== null && this.searchedUsers.some((user) => user.username === this.searchUserField)
     }
   },
   methods: {
@@ -70,16 +103,23 @@ export default {
       'fetchUsersForGroup',
       'clear'
     ]),
+    ...mapActions('users', [
+      'fetchUsers',
+      'clear'
+    ]),
     resolve() {
       this.error = false
       getUsers()
         .then((users) => {
-          let mUser = users.find((user => user.username === this.userRole.username))
-          assignUserToGroup(this.groupId, mUser, this.userRole)
+          let mUser = users.find((user => user.username === this.searchUserField))
+          assignUserToGroup(this.groupId, mUser, {
+            username: this.searchUserField,
+            role: this.userRole
+          })
             .then(() => {
               this.fetchUsersForGroup(this.groupId);
-          Object.assign(this.$data, this.$options.data.call(this));
-          this.$refs.form.reset();
+              Object.assign(this.$data, this.$options.data.call(this));
+              this.$refs.form.reset();
             })
             .catch(() => {
               this.$set(this, 'error', true)
@@ -89,11 +129,27 @@ export default {
           this.$set(this, 'error', true)
         })
     },
-    validate: function () {
-      this.$validator.validateAll();
+    setupDropDown() {
+      if (this.users === null || this.usersForGroup === null || this.searchUserField === null || this.searchUserField === '') {
+        this.searchedUsers = []
+      } else {
+
+        this.searchedUsers = this.users.slice(0).filter((user) => {
+          return typeof user !== 'undefined'
+        }).filter((user) => {
+          return user.username.toLowerCase().includes(this.searchUserField.toLowerCase())
+        }).filter((user) => {
+          return !user.admin && !this.usersForGroup.some((userForGroup => userForGroup.user.id === user.id))
+        })
+      }
     },
-    reset() {
+    selectUser(user) {
+      this.searchUserField = user.username
     }
+  },
+  mounted() {
+    this.fetchUsers()
+    this.fetchUsersForGroup()
   }
 }
 </script>
@@ -160,6 +216,10 @@ export default {
 
   .alert-danger {
     font-size: 0.8rem;
+  }
+
+  .dropdown-menu {
+    display: block;
   }
 
 </style>
