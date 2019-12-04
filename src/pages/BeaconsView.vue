@@ -21,7 +21,8 @@
             <div class="col-12 p-0 text-center" v-show="tableData.length <= 0">
               <span class="text-muted">No beacons found...</span>
             </div>
-            <button type="button" class="fab add-fab" :to="{name: 'beacon-new'}" @click="openAddBeaconsModal"></button>
+            <button type="button" class="fab add-fab" v-if="canAddBeacon()"
+                    :to="{name: 'beacon-new'}" @click="openAddBeaconsModal"></button>
           </div>
         </div>
         <div id="map" class="beacon-map" v-show="loaded && viewMode === MAP">
@@ -123,7 +124,11 @@
       ]),
       ...mapGetters('infos', [
         'infos'
-      ])
+      ]),
+      ...mapGetters('login', [
+        'isAdmin',
+        'groupsRole'
+      ]),
     },
     watch: {
       search() {
@@ -174,6 +179,13 @@
       ...mapActions('infos', [
         'fetchInfos'
       ]),
+      ...mapActions('login', [
+        'isAdmin',
+        'groupsRole'
+      ]),
+      canAddBeacon() {
+        return this.isAdmin || this.groupsRole.some((groupRole => groupRole.role == 'MANAGER'))
+      },
       getInfo(beacon) {
         return this.infos.find((info => info.id === beacon.id))
       },

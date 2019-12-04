@@ -20,7 +20,8 @@
             <div class="col-12 p-0 pl-2">
               <select class="form-control form-select-group-control" id="role" v-model="groupId" :required="!isAdmin">
                 <option disabled value="">Select group</option>
-                <option v-bind:key="group.id" v-if="groups.length" v-for="group in groups" :value="group.id">{{ group.name }}</option>
+                <option v-bind:key="group.id" v-if="isAdmin || isManager(group)"
+                        v-for="group in groups" :value="group.id">{{ group.name }}</option>
               </select>
               <small class="form-issue-solution-label">Group</small>
             </div>
@@ -59,8 +60,10 @@ export default {
       'groups'
     ]),
     ...mapGetters('login', [
-      'getUsername'
-    ])
+      'getUsername',
+      'isAdmin',
+      'groupsRole'
+    ]),
   },
   props: {
     beaconId: {
@@ -94,8 +97,12 @@ export default {
       'clear'
     ]),
     ...mapActions('login', [
-      'isAdmin'
+      'isAdmin',
+      'groupsRole'
     ]),
+    isManager(group) {
+      return this.groupsRole.some((groupRole => groupRole.group.id === group.id && groupRole.role == 'MANAGER'))
+    },
     open() {
       this.groupId = ''
       this.orderId = ''
