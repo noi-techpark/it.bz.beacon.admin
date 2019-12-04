@@ -53,46 +53,12 @@
             </div>
 
             <div class="row">
-              <div class="table-responsive mt-3 table-users-wrapper d-flex flex-column">
-                <div :class="usersForGroup.length <= 0 ? 'no-users flex-grow-1 d-flex justify-content-center align-content-center text-center flex-column' : ''" v-show="users.length <= 0">
-                  <small class="text-muted">No users are assigned to this group.</small>
-                </div>
-                <table class="table table-users" v-show="usersForGroup.length > 0">
-                  <thead>
-                  <tr class="col-header table-header pl-0 pr-0">
-                    <th scope="col">Id</th>
-                    <th scope="col">Username</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Surname</th>
-                    <th scope="col">Role</th>
-                    <th v-if="isAdmin || isManager()" scope="col"></th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr class="user-item" v-bind:key="user.user.id" v-if="usersForGroup.length" v-for="user in usersForGroup" @click.prevent.stop="showUserDetail(user.user)">
-                    <td class="align-middle" scope="row">{{ user.user.id }}</td>
-                    <td class="align-middle">{{ user.user.username }}</td>
-                    <td class="align-middle">{{ user.user.name }}</td>
-                    <td class="align-middle">{{ user.user.surname }}</td>
-                    <td class="align-middle">{{ user.role }}</td>
-                    <th v-if="isAdmin || isManager()" scope="align-middle">
-                      <button type="button" title="Change role" class="btn btn-edit" @click.prevent.stop="changeUserRole(user)"></button>
-                      <button type="button" title="Delete user" class="btn btn-delete" @click.prevent.stop="removeUserRole(user)"></button>
-                    </th>
-                  </tr>
-                  <tr class="user-item" v-bind:key="user.user.id" v-if="usersForGroup.length" v-for="user in usersForGroup" @click.prevent.stop="showUserDetail(user.user)">
-                    <td class="align-middle" scope="row">{{ user.user.id }}</td>
-                    <td class="align-middle">{{ user.user.username }}</td>
-                    <td class="align-middle">{{ user.user.name }}</td>
-                    <td class="align-middle">{{ user.user.surname }}</td>
-                    <td class="align-middle">{{ user.role }}</td>
-                    <th v-if="isAdmin || isManager()" scope="align-middle">
-                      <button type="button" title="Change role" class="btn btn-edit" @click.prevent.stop="changeUserRole(user)"></button>
-                      <button type="button" title="Delete user" class="btn btn-delete" @click.prevent.stop="removeUserRole(user)"></button>
-                    </th>
-                  </tr>
-                  </tbody>
-                </table>
+              <div class="col-12 p-0 mt-4" v-show="tableData.length > 0">
+                <simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta"
+                              @rowClicked="showUserDetail" @rowDeleteClicked="removeUserRole" @rowChangeClicked="changeUserRole" />
+              </div>
+              <div class="col-12 p-0 text-center" v-show="tableData.length <= 0">
+                <span class="text-muted">No users assigned to this group...</span>
               </div>
             </div>
           </div>
@@ -119,7 +85,9 @@ import { updateGroup, getGroup, removeUserFromGroup } from '../service/apiServic
 import { mapActions, mapGetters } from 'vuex'
 import Confirm from '../components/Confirm'
 import AssignUserToGroupForm from '../components/AssignUserToGroupForm'
-import ChangeUserRoleModal from "../components/ChangeUserRoleModal";
+import ChangeUserRoleModal from "../components/ChangeUserRoleModal"
+import merge from 'lodash/merge'
+import SimpleTable from '../components/SimpleTable'
 
 
 export default {
@@ -128,11 +96,12 @@ export default {
     Layout,
     Confirm,
     Loader,
-    AssignUserToGroupForm
+    AssignUserToGroupForm,
+    SimpleTable
   },
   name: 'Group',
   data() {
-    return {
+    let data = {
       title: 'Group',
       group: {
         id: '',
@@ -141,12 +110,49 @@ export default {
       userRole: {
         user: ''
       },
+      tableCols: [
+        {
+          title: 'Id',
+          key: 'user.id'
+        },
+        {
+          title: 'Username',
+          key: 'user.username'
+        },
+        {
+          title: 'Name',
+          key: 'user.name'
+        },
+        {
+          title: 'Surname',
+          key: 'user.name'
+        },
+        {
+          title: 'Role',
+          key: 'role'
+        }
+      ],
+      tableData: [],
+      tableMeta: {
+        sorting: {
+          col: 'user.username',
+          order: 'asc'
+        },
+        pagination: {
+          offset: 0,
+          page: 1,
+          records: 10,
+          recordsNumberList: [2, 5, 10, 20]
+        }
+      },
       users: [],
       loaded: false,
       usersLoaded: false,
       saving: false,
       error: false
     }
+
+    return data
   },
   computed: {
     ...mapGetters('login', [
@@ -163,7 +169,7 @@ export default {
       this.reloadTableData()
     },
     usersForGroup() {
-      this.$set(this, 'usersLoaded', true)
+      this.reloadTableData()
     }
   },
   mounted() {
@@ -202,12 +208,65 @@ export default {
     showUserDetail(user) {
       router.push({ name: 'user-edit', params: { id: user.id }})
     },
-    assignNewUser() {
-      this.$refs.assignUserModal.open()
-        .then(() => {
-          this.fetchUsersForGroup(this.$route.params.id);
+    reloadTableData(params = {}) {
+      if (this.isAdmin || this.isManager()) {
+        if(!this.tableCols.some((tableCol => tableCol.type === 'modify-buttons'))) {
+          this.tableCols.push({
+            title: '',
+            key: 'id',
+            type: 'modify-buttons',
+            name: 'role'
+          })
+        }
+      } else {
+        if(this.tableCols.some((tableCol => tableCol.type === 'modify-buttons'))) {
+          this.tableCols = this.tableCols.filter(((tableCol) => tableCol.type !== 'modify-buttons'))
+        }
+      }
+
+      params = merge({
+        pagination: this.tableMeta.pagination,
+        sorting: this.tableMeta.sorting,
+        filters: this.filters
+      }, params, {
+        filters: this.filters
+      })
+
+      if (this.usersForGroup === null) {
+        this.tableData = []
+      } else {
+        this.tableData = this.usersForGroup.slice(0).filter((userForGroup) => {
+          return typeof userForGroup !== 'undefined'
         })
-        .catch(() => {})
+      }
+      this.tableData.sort((groupA, groupB) => {
+        let valA = groupA
+        let valB = groupB
+        let sortingCols = params.sorting.col.split('.')
+        for(let i = 0; i < sortingCols.length; i++) {
+          valA = valA[sortingCols[i]]
+          valB = valB[sortingCols[i]]
+        }
+
+        if (valA < valB) {
+          return params.sorting.order === 'asc' ? -1 : 1
+        }
+        if (valA > valB) {
+          return params.sorting.order === 'asc' ? 1 : -1
+        }
+        return 0
+      })
+
+      this.tableMeta.totalRecords = this.tableData.length
+      params.pagination.page = Math.min(Math.max(params.pagination.page, 1), Math.ceil(this.tableMeta.totalRecords / this.tableMeta.pagination.records))
+
+      let currentIndex = (params.pagination.page - 1) * params.pagination.records
+      let nextIndex = params.pagination.page * params.pagination.records
+      this.tableData = this.tableData.slice(currentIndex, nextIndex)
+      this.tableMeta.sorting.col = params.sorting.col
+      this.tableMeta.sorting.order = params.sorting.order
+
+      this.$set(this, 'usersLoaded', true)
     },
     changeUserRole(userRole) {
       this.userRole = userRole
