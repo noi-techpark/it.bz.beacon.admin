@@ -48,10 +48,6 @@ export default {
       title: 'Users',
       tableCols: [
         {
-          title: 'Id',
-          key: 'id'
-        },
-        {
           title: 'Username',
           key: 'username'
         },

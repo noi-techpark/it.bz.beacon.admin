@@ -52,10 +52,6 @@
         title: 'Groups',
         tableCols: [
           {
-            title: 'Id',
-            key: 'id'
-          },
-          {
             title: 'Name',
             key: 'name'
           }

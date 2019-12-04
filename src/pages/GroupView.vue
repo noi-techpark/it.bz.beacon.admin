@@ -7,12 +7,6 @@
           <div class="col-12 p-0">
             <form @submit.prevent="update">
               <div class="form-group row">
-                <label for="id" class="col-sm-2 col-form-label">Id</label>
-                <div class="col-sm-10">
-                  <input type="text" disabled class="form-control" id="id" v-model="group.id" placeholder="Id">
-                </div>
-              </div>
-              <div class="form-group row">
                 <label for="name" class="col-sm-2 col-form-label">Name</label>
                 <div class="col-sm-10">
                   <input type="text" :disabled="!isAdmin" required class="form-control" id="name" v-model="group.name" placeholder="Name">
@@ -112,10 +106,6 @@ export default {
       },
       tableCols: [
         {
-          title: 'Id',
-          key: 'user.id'
-        },
-        {
           title: 'Username',
           key: 'user.username'
         },
@@ -206,7 +196,7 @@ export default {
       'groupsRole'
     ]),
     showUserDetail(user) {
-      router.push({ name: 'user-edit', params: { id: user.id }})
+      router.push({ name: 'user-edit', params: { id: user.user.id }})
     },
     reloadTableData(params = {}) {
       if (this.isAdmin || this.isManager()) {

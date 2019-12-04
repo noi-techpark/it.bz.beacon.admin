@@ -7,12 +7,6 @@
           <div class="col-12 p-0">
             <form @submit.prevent="update">
               <div class="form-group row">
-                <label for="id" class="col-sm-2 col-form-label">Id</label>
-                <div class="col-sm-10">
-                  <input type="text" disabled class="form-control" id="id" v-model="user.id" placeholder="Id">
-                </div>
-              </div>
-              <div class="form-group row">
                 <label for="username" class="col-sm-2 col-form-label">Username</label>
                 <div class="col-sm-10">
                   <input type="text" disabled class="form-control" id="username" v-model="user.username" placeholder="Username">
@@ -69,14 +63,12 @@
                 <table class="table table-groups-role">
                   <thead>
                   <tr class="col-header table-header pl-0 pr-0">
-                    <th scope="col">Id</th>
                     <th scope="col">Name</th>
                     <th scope="col">Role</th>
                   </tr>
                   </thead>
                   <tbody>
                   <tr class="user-item" v-bind:key="groupRole.group.id" v-if="user.groups.length" v-for="groupRole in user.groups" @click.prevent.stop="showGroup(groupRole.group)">
-                    <td class="align-middle" scope="row">{{ groupRole.group.id }}</td>
                     <td class="align-middle">{{ groupRole.group.name }}</td>
                     <td class="align-middle">{{ groupRole.role }}</td>
                   </tr>
