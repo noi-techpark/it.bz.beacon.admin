@@ -13,7 +13,7 @@
           </div>
           <div class="col-4">
             <select class="form-control form-select-group-control" id="role" v-if="isAdmin" v-model="group.id" :disabled="!editing">
-              <option disabled value="">Select group</option>
+              <option v-bind:key="notAssignedValue" :value="notAssignedValue">{{ this.notAssignedLabel }}</option>
               <option v-bind:key="mGroup.id" v-if="groups.length" v-for="mGroup in groups" :value="mGroup.id">{{ mGroup.name }}</option>
             </select>
             <input type="text" class="form-control" v-if="!isAdmin" v-model="group.name" :readonly="true" />
@@ -489,7 +489,7 @@
     },
     name: 'Beacon',
     data() {
-      return {
+      let data = {
         title: 'Beacon',
         beacon: {
           ibeacon: false,
@@ -514,14 +514,8 @@
           pendingConfiguration: {}
         },
         beaconBackup: {},
-        group: {
-          id: null,
-          name: null
-        },
-        groupBackup: {
-          id: null,
-          name: null
-        },
+        notAssignedLabel: 'not assigned',
+        notAssignedValue: 'null',
         issues: [],
         modeTab: 'IBEACON',
         locationTab: 'GPS',
@@ -545,6 +539,17 @@
         marker: {},
         google: {}
       }
+
+      data.group = {
+        id: data.notAssignedValue,
+        name: data.notAssignedLabel
+      }
+      data.groupBackup = {
+        id: data.notAssignedValue,
+        name: data.notAssignedLabel
+      }
+
+      return data
     },
     computed: {
       ...mapGetters('settings', [
@@ -891,7 +896,7 @@
       },
       save() {
         this.saving = true
-        if(this.group.id)
+        if(this.group.id !== this.notAssignedLabel)
           this.beacon.group = this.group
         else
           this.beacon.group = null
@@ -903,12 +908,12 @@
             Object.assign(this.group, beacon.group)
           } else {
             Object.assign(this.groupBackup, {
-              id: null,
-              name: null
+              id: this.notAssignedValue,
+              name: this.notAssignedLabel
             })
             Object.assign(this.group, {
-              id: null,
-              name: null
+              id: this.notAssignedValue,
+              name: this.notAssignedLabel
             })
           }
           this.updateControls()
@@ -953,10 +958,10 @@
         })
       },
       updateMap() {
-        let latLng = new this.google.maps.LatLng(this.beacon.lat, this.beacon.lng)
+/**        let latLng = new this.google.maps.LatLng(this.beacon.lat, this.beacon.lng)
         this.marker.setPosition(latLng)
         this.map.panTo(latLng)
-        this.map.setZoom(16)
+        this.map.setZoom(16)*/
       },
       resetBeacon() {
         if (this.beaconBackup != null) {
