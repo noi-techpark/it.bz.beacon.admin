@@ -115,7 +115,11 @@ export default {
         },
         {
           title: 'Surname',
-          key: 'user.name'
+          key: 'user.surname'
+        },
+        {
+          title: 'Email',
+          key: 'user.email'
         },
         {
           title: 'Role',
