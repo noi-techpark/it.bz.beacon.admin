@@ -42,7 +42,7 @@
                 <h5>Assigned users</h5>
               </div>
               <div class="col-9 pr-0">
-                <assign-user-to-group-form ref="assignUserToGroupForm" :groupId="$route.params.id" />
+                <assign-user-to-group-form v-if="isAdmin || isManager()" ref="assignUserToGroupForm" :groupId="$route.params.id" />
               </div>
             </div>
 

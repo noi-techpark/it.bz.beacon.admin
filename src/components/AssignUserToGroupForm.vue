@@ -13,12 +13,15 @@
                         <input autocomplete="off" type="text" class="form-control form-assign-user-control" id="username" required="required"
                                v-model="searchUserField" placeholder="Username"
                                @focus="usernameFocused = true"
-                               @blur="usernameFocused = false">
+                               @blur="usernameFocused = false"
+                               v-on:keydown.up.prevent="changeActiveUsername(-1)" v-on:keydown.down.prevent="changeActiveUsername(1)"
+                               v-on:keydown.enter.prevent="selectActiveUser()">
                         <div v-if="(usernameFocused || dropdownHover) && searchedUsers.length > 0 && !userSelected"
                              class="dropdown-menu" aria-labelledby="dropdownMenuButton"
                              @mouseover="dropdownHover = true" @mouseleave="dropdownHover = false">
                           <a class="dropdown-item" v-bind:key="user.id" v-on:click.stop.prevent="selectUser(user)"
-                             v-for="user in searchedUsers">
+                             v-for="(user, userIndex) in searchedUsers"
+                             v-bind:class="{ active: userIndex == activeUsername}">
                             {{ user.username }}
                           </a>
                         </div>
@@ -82,6 +85,7 @@ export default {
       error: false,
       userSelected: false,
       usernameFocused: false,
+      activeUsername: 0,
       dropdownHover: false,
       searchedUsers: []
     }
@@ -130,6 +134,7 @@ export default {
         })
     },
     setupDropDown() {
+      this.activeUsername = null
       if (this.users === null || this.usersForGroup === null || this.searchUserField === null || this.searchUserField === '') {
         this.searchedUsers = []
       } else {
@@ -142,6 +147,28 @@ export default {
           return !user.admin && !this.usersForGroup.some((userForGroup => userForGroup.user.id === user.id))
         })
       }
+    },
+    changeActiveUsername(change) {
+      if(this.searchedUsers.length > 0) {
+        if (this.activeUsername === null) {
+          this.activeUsername = change === 1? 0: this.searchedUsers.length - 1
+        } else {
+          if(change === 1)
+            if(this.activeUsername + 1 < this.searchedUsers.length)
+              this.activeUsername += 1
+            else
+              this.activeUsername = 0
+          if(change === -1)
+            if(this.activeUsername > 0)
+              this.activeUsername -= 1
+            else
+              this.activeUsername = this.searchedUsers.length - 1
+        }
+      }
+    },
+    selectActiveUser() {
+      if(this.activeUsername !== null)
+        this.selectUser(this.searchedUsers[this.activeUsername])
     },
     selectUser(user) {
       this.searchUserField = user.username
@@ -185,6 +212,14 @@ export default {
         border: 1px solid $light-blue;
       }
     }
+  }
+
+  .dropdown-item.active {
+    background-color: $light-blue;
+  }
+
+  .dropdown-item:active {
+    background-color: $light-blue;
   }
 
   .form-assign-user-control {
