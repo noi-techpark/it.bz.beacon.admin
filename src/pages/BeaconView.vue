@@ -556,7 +556,7 @@
         'getSettingById'
       ]),
       ...mapGetters('infos', [
-        'infos'
+        'info'
       ]),
       ...mapGetters('groups', [
         'groups'
@@ -674,9 +674,17 @@
                   Object.assign(this.groupBackup, beacon.group)
                   Object.assign(this.group, beacon.group)
                 }
-                this.updateControls()
-                this.loadMap()
-                this.$set(this, 'loaded', true)
+                if(beacon.lat !== null && beacon.lng !== null && beacon.lat !== 0 && beacon.lng !== 0) {
+                  this.updateControls()
+                  this.loadMap()
+                  this.$set(this, 'loaded', true)
+                } else {
+                  this.fetchInfo(this.$route.params.id).then((info) => {
+                    this.updateControls()
+                    this.loadMap()
+                    this.$set(this, 'loaded', true)
+                  })
+                }
               })
 //      )
 
@@ -724,10 +732,10 @@
         }
       }
     },
-    methods: {/*
+    methods: {
       ...mapActions('infos', [
-        'fetchInfos'
-      ]),*/
+        'fetchInfo'
+      ]),
       ...mapActions('groups', [
         'fetchGroups',
         'clear'
@@ -745,7 +753,7 @@
         try {
           this.L = await initMap();
 //          this.beacon.info = this.getInfo(this.beacon)
-          let position = this.getPosition(this.beacon)
+          let position = this.getPosition(this.beacon, this.info)
 
           this.map = this.L.map('map')
 
@@ -1017,17 +1025,17 @@
 /*      getInfo(beacon) {
         return this.infos.find((info => info.id === beacon.id))
       },*/
-      getPosition(beacon) {
+      getPosition(beacon, info) {
         if (beacon.lat !== 0 || beacon.lng !== 0) {
           return {
             lat: beacon.lat,
             lng: beacon.lng
-          }/*
-        } else if (beacon.info != null) {
+          }
+        } else if (info != null) {
           return {
-            lat: beacon.info.latitude,
-            lng: beacon.info.longitude
-          }*/
+            lat: info.latitude,
+            lng: info.longitude
+          }
         }
 
         return {

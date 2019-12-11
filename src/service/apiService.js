@@ -248,6 +248,11 @@ export function resolveIssue(id, issueSolution) {
   return callPost(PATH_ISSUES + '/' + id + '/resolve', true, issueSolution)
 }
 
+// INFO
 export function getInfos() {
   return callGet(PATH_INFO, false)
+}
+
+export function getInfo(id) {
+  return callGet(PATH_INFO + '/' + id, false);
 }
