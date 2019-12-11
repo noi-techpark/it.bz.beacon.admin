@@ -537,7 +537,7 @@
         },
         map: {},
         marker: {},
-        google: {}
+        L: null
       }
 
       data.group = {
@@ -743,9 +743,37 @@
       },
       async loadMap() {
         try {
-          this.google = await initMap();
+          this.L = await initMap();
           this.beacon.info = this.getInfo(this.beacon)
           let position = this.getPosition(this.beacon)
+
+          this.map = this.L.map('map')
+
+          this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          }).addTo(this.map);
+
+          console.log(position)
+
+          this.map.setView([position.lat, position.lng], 16);
+
+          var customIcon = this.L.icon({
+                        iconUrl: this.iconSvg(this.beacon),
+
+                        // shadowUrl: 'leaf-shadow.png',
+
+                        iconSize:     [24, 24], // size of the icon
+                        // shadowSize:   [50, 64], // size of the shadow
+                        iconAnchor:   [12, 12], // point of the icon which will correspond to marker's location
+                        // shadowAnchor: [4, 62],  // the same for the shadow
+                        // popupAnchor:  [12, 12] // point from which the popup should open relative to the iconAnchor
+                      });
+
+          let marker = this.L.marker([position.lat, position.lng], {icon: customIcon}).addTo(this.map);
+
+          // alert('load map!')
+
+          /*
 
           this.map = new this.google.maps.Map(document.getElementById('map'), {
             center: position,
@@ -770,6 +798,8 @@
           });
 
           this.setMapControlsEnabled(this.editing)
+
+          */
 
         } catch (error) {
           this.loaded = true

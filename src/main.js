@@ -15,6 +15,13 @@ Vue.config.errorHandler = (a,b,c) => {
    alert('vue error')
 }
 
+// remove map_zoom and lat/lon on webapp start
+sessionStorage.removeItem('map_zoom')
+sessionStorage.removeItem('map_lat')
+sessionStorage.removeItem('map_lon')
+
+sessionStorage.removeItem('beacons_search')
+
 /* eslint-disable no-new */
 new Vue({
   render: (h) => h(App),

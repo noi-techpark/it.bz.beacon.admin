@@ -111,10 +111,12 @@
         map: null,
         mapBeacons: [],
         markers: [],
+        cluster: null,
         addedOnMap: false,
         myPosition: null,
         clusterer: null,
-        google: {}
+        google: {},
+        timers: []
       }
     },
     computed: {
@@ -132,6 +134,10 @@
     },
     watch: {
       search() {
+
+        // console.log('search')
+        sessionStorage.setItem('beacons_search', this.search)
+
         this.reloadTableData()
         this.$set(this, 'mapBeacons', this.mapData.slice(0))
       },
@@ -141,15 +147,33 @@
         this.$set(this, 'mapBeacons', this.mapData.slice(0)) // load map markers
       },
       mapBeacons() {
-        let newMarkers = []
+        // let newMarkers = []
 
+        /*
         if (this.mapBeacons === null) {
           this.updateMarkers(newMarkers)
           return
         }
+        */
 
-        let markers = this.L.markerClusterGroup();
-        this.map.addLayer(markers);
+        // if leaflet is not ready, skip
+        if (!this.L)
+           return
+
+        // cancel previous marker timers
+        while (this.timers.length > 0)
+           clearTimeout(this.timers.shift());
+
+        if (this.cluster == null)
+        {
+           this.cluster = this.L.markerClusterGroup();
+           // console.log(this.cluster)
+           this.map.addLayer(this.cluster);
+        }
+        else
+        {
+           this.cluster.removeLayers(this.cluster.getLayers())
+        }
 
         this.mapBeacons.forEach((beacon) => {
 //          beacon.info = this.getInfo(beacon)
@@ -175,12 +199,14 @@
             marker.on('click', () => {
               router.push({name: 'beacon-detail', params: {id: beacon.id}})
             })
-            markers.addLayer(marker);
+            let ccc = this.cluster
+            // add marker async
+            this.timers.push(setTimeout(function() { ccc.addLayer(marker); }, 200));
 
             //            .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
             //            .openPopup();
 
-            window.console.log(this.iconSvg(beacon));
+            // window.console.log(this.iconSvg(beacon));
 
             /*
             d@vide.bz
@@ -202,7 +228,7 @@
           }
         })
 
-        this.updateMarkers(newMarkers)
+        // this.updateMarkers(newMarkers)
       }
     },
     methods: {
@@ -364,6 +390,8 @@
       },
       changeMode(mode) {
         this.$store.dispatch('beacons/setViewMode', mode)
+        // when mode change, notify map
+        // this.$set(this, 'mapBeacons', this.mapData.slice(0)) // load map markers
       },
       reloadTableData(params = {}) {
         params = merge({
@@ -437,8 +465,33 @@
         this.$set(this, 'loaded', false)
       })
       try {
+
+        this.search = sessionStorage.getItem('beacons_search') || ''
+
         this.L = await initMap();
-        this.map = this.L.map('map').setView([46.6568142, 11.423318], 9);
+        console.log('this.L')
+        console.log(this.L)
+        this.map = this.L.map('map')
+        let mapx = this.map
+
+        this.map.on('zoomend', function(e) {
+            console.log(e.target.getZoom())
+            sessionStorage.setItem('map_zoom', mapx.getZoom())
+        });
+
+        this.map.on('moveend', function(e) {
+            console.log(e.target.getCenter())
+            sessionStorage.setItem('map_lat', e.target.getCenter().lat)
+            sessionStorage.setItem('map_lon', e.target.getCenter().lng)
+        });
+
+        // get previous zoom
+        let prevZoom = sessionStorage.getItem('map_zoom') || 9
+        let prevLat  = sessionStorage.getItem('map_lat') || 46.6568142
+        let prevLon  = sessionStorage.getItem('map_lon') || 11.423318
+
+        // setView after on zoomend/moveend so that they fire the first time
+        this.map.setView([prevLat, prevLon], prevZoom);
 
         // here the map is added to an empty container. This means that when the container is show,
         // is required to notify leaflet!
