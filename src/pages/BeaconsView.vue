@@ -1,4 +1,4 @@
- <template>
+<template>
   <!-- eslint-disable -->
   <layout :source="title">
     <template slot="search-input">
@@ -138,7 +138,7 @@
       beacons() {
         this.reloadTableData()
         this.$set(this, 'loaded', true)
-        this.$set(this, 'mapBeacons', this.mapData.slice(0))
+        this.$set(this, 'mapBeacons', this.mapData.slice(0)) // load map markers
       },
       mapBeacons() {
         let newMarkers = []
@@ -158,22 +158,22 @@
           if (position.lat !== 0 || position.lng !== 0) {
 
             var customIcon = this.L.icon({
-                iconUrl: this.iconSvg(beacon),
+              iconUrl: this.iconSvg(beacon),
 
-                // shadowUrl: 'leaf-shadow.png',
+              // shadowUrl: 'leaf-shadow.png',
 
-                iconSize:     [24, 24], // size of the icon
-                // shadowSize:   [50, 64], // size of the shadow
-                iconAnchor:   [12, 12], // point of the icon which will correspond to marker's location
-                // shadowAnchor: [4, 62],  // the same for the shadow
-                // popupAnchor:  [12, 12] // point from which the popup should open relative to the iconAnchor
+              iconSize:     [24, 24], // size of the icon
+              // shadowSize:   [50, 64], // size of the shadow
+              iconAnchor:   [12, 12], // point of the icon which will correspond to marker's location
+              // shadowAnchor: [4, 62],  // the same for the shadow
+              // popupAnchor:  [12, 12] // point from which the popup should open relative to the iconAnchor
             });
 
             // L.marker([51.5, -0.09], {icon: customIcon}).addTo(map);
 
             let marker = this.L.marker([position.lat, position.lng], {icon: customIcon}) //.addTo(this.map);
             marker.on('click', () => {
-               router.push({name: 'beacon-detail', params: {id: beacon.id}})
+              router.push({name: 'beacon-detail', params: {id: beacon.id}})
             })
             markers.addLayer(marker);
 
@@ -254,41 +254,41 @@
         router.push({ name: 'beacon-detail', params: { id: beacon.id }})
       },
       updateMarkers(newMarkers) {
-      /*
+        /*
 
-        d@vide.bz
+          d@vide.bz
 
-        if (this.map != null) {
-          if (this.clusterer === null) {
-            this.clusterer = new MarkerClusterer(this.map, [], {
-              styles: [
-                {
-                  url: location.origin + require('../assets/img/map/cluster/map_icon_cluster.svg'),
-                  height: 32,
-                  width: 32,
-                  textColor: '#4d4f5c'
-                }
-              ]
+          if (this.map != null) {
+            if (this.clusterer === null) {
+              this.clusterer = new MarkerClusterer(this.map, [], {
+                styles: [
+                  {
+                    url: location.origin + require('../assets/img/map/cluster/map_icon_cluster.svg'),
+                    height: 32,
+                    width: 32,
+                    textColor: '#4d4f5c'
+                  }
+                ]
+              })
+            }
+
+            let markersToKeep = this.markers.filter(marker => {
+              return newMarkers.some(newMarker => marker.position.lat() === newMarker.position.lat() && marker.position.lng() === newMarker.position.lng())
             })
+
+            let markersToRemove = this.markers.filter(marker => !markersToKeep.includes(marker))
+            let markersToAdd = newMarkers.filter(newMarker => {
+              return !markersToKeep.some(marker => {
+                return marker.position.lat() === newMarker.position.lat() && marker.position.lng() === newMarker.position.lng()
+              })
+            })
+
+            this.clusterer.removeMarkers(markersToRemove)
+            this.clusterer.addMarkers(markersToAdd)
+
+            this.markers = markersToAdd.concat(markersToKeep)
           }
-
-          let markersToKeep = this.markers.filter(marker => {
-            return newMarkers.some(newMarker => marker.position.lat() === newMarker.position.lat() && marker.position.lng() === newMarker.position.lng())
-          })
-
-          let markersToRemove = this.markers.filter(marker => !markersToKeep.includes(marker))
-          let markersToAdd = newMarkers.filter(newMarker => {
-            return !markersToKeep.some(marker => {
-              return marker.position.lat() === newMarker.position.lat() && marker.position.lng() === newMarker.position.lng()
-            })
-          })
-
-          this.clusterer.removeMarkers(markersToRemove)
-          this.clusterer.addMarkers(markersToAdd)
-
-          this.markers = markersToAdd.concat(markersToKeep)
-        }
-        */
+          */
       },
       showMyPosition(success, failure) {
         let myPositionButtonIcon = document.getElementById('myLocationButtonIcon')
@@ -367,12 +367,12 @@
       },
       reloadTableData(params = {}) {
         params = merge({
-            pagination: this.tableMeta.pagination,
-            sorting: this.tableMeta.sorting,
-            filters: this.filters
-          }, params, {
-            filters: this.filters
-          })
+          pagination: this.tableMeta.pagination,
+          sorting: this.tableMeta.sorting,
+          filters: this.filters
+        }, params, {
+          filters: this.filters
+        })
 
         if (this.beacons === null) {
           this.tableData = []
@@ -444,7 +444,7 @@
         // is required to notify leaflet!
 
         this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(this.map);
 
 
@@ -479,9 +479,9 @@
         myLocationButtonContainer.index = 1;
         this.map.controls[this.google.maps.ControlPosition.RIGHT_BOTTOM].push(myLocationButtonContainer);
         */
-        this.fetchInfos().then(() => {
+//        this.fetchInfos().then(() => {
           this.fetchBeacons()
-        })
+//        })
 
       } catch (error) {
         window.console.log(error);
