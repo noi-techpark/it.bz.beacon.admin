@@ -666,7 +666,7 @@
       this.controls.eddystoneTlmSwitch.disabled = true
       this.controls.telemetrySwitch.disabled = true
 
-      this.fetchInfos().then(() =>
+//      this.fetchInfos().then(() =>
               getBeacon(this.$route.params.id).then((beacon) => {
                 Object.assign(this.beaconBackup, beacon)
                 Object.assign(this.beacon, beacon)
@@ -678,7 +678,7 @@
                 this.loadMap()
                 this.$set(this, 'loaded', true)
               })
-      )
+//      )
 
       this.reloadIssues();
       this.reloadImages();
@@ -724,10 +724,10 @@
         }
       }
     },
-    methods: {
+    methods: {/*
       ...mapActions('infos', [
         'fetchInfos'
-      ]),
+      ]),*/
       ...mapActions('groups', [
         'fetchGroups',
         'clear'
@@ -744,7 +744,7 @@
       async loadMap() {
         try {
           this.L = await initMap();
-          this.beacon.info = this.getInfo(this.beacon)
+//          this.beacon.info = this.getInfo(this.beacon)
           let position = this.getPosition(this.beacon)
 
           this.map = this.L.map('map')
@@ -1014,20 +1014,20 @@
           this.beacon.locationType = type
         }
       },
-      getInfo(beacon) {
+/*      getInfo(beacon) {
         return this.infos.find((info => info.id === beacon.id))
-      },
+      },*/
       getPosition(beacon) {
         if (beacon.lat !== 0 || beacon.lng !== 0) {
           return {
             lat: beacon.lat,
             lng: beacon.lng
-          }
+          }/*
         } else if (beacon.info != null) {
           return {
             lat: beacon.info.latitude,
             lng: beacon.info.longitude
-          }
+          }*/
         }
 
         return {
