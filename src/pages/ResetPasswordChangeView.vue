@@ -39,13 +39,13 @@
           <div class="input form-group row">
             <label for="username" class="col-sm-3 col-form-label">Username</label>
             <div class="col-sm-9 pr-0">
-              <input type="text" disabled class="form-control" id="username" v-model="getTokenPayload().username" placeholder="Username">
+              <input type="text" disabled class="form-control" id="username" v-model="getTokenPayload().sub" placeholder="Username">
             </div>
           </div>
           <div class="input form-group row">
             <label for="password"  class="col-sm-3 pl-0 col-form-label">New password</label>
             <div class="col-sm-9 pr-0">
-              <input type="password" required class="form-control" id="password" v-model="passwordReset.newPassword" placeholder="New password">
+              <input type="password" required class="form-control" id="password" v-model="newPassword" placeholder="New password">
             </div>
           </div>
           <div class="input form-group row">
@@ -69,7 +69,7 @@
           </div>
           <div class="input row form-group">
             <div class="col-sm">
-              <button id="submit" type="submit" @click.prevent="confirmFrom">Reset password</button>
+              <button id="submit" type="submit" @click.prevent="changeFrom">Reset password</button>
             </div>
           </div>
         </form>
@@ -80,7 +80,7 @@
 </template>
 
 <script>
-  import { resetPasswordConfirmation } from '../service/apiService'
+  import { resetPasswordChange } from '../service/apiService'
   import router from '../router/index'
   import Loader from '../components/Loader'
 
@@ -100,9 +100,7 @@
           email: ''
         },
         passwordConfirm: null,
-        passwordReset: {
-          newPassword: null
-        },
+        newPassword: null,
         tokenPayload: {
           username: ''
         }
@@ -120,16 +118,16 @@
       isTokenValid() {
         return this.getTokenPayload().exp > new Date().getTime() / 1000
       },
-      confirmFrom() {
+      changeFrom() {
         this.saving = true
         this.hasError = false
-        if (this.passwordReset.newPassword !== this.passwordConfirm) {
+        if (this.newPassword !== this.passwordConfirm) {
           this.saving = false
-          this.passwordReset.newPassword = null
+          this.newPassword = null
           this.passwordConfirm = null
           alert("Inserted passwords are not the same")
         } else {
-          resetPasswordConfirmation(this.$route.params.token, this.passwordReset)
+          resetPasswordChange(this.$route.params.token, this.newPassword)
             .then(() => {
               router.push({ name: 'login' })
               this.saving = false

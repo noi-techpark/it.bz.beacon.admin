@@ -14,7 +14,7 @@ import ChangePasswordView from '../pages/ChangePasswordView'
 import ResetPasswordView from '../pages/ResetPasswordView'
 import store from '../store/store'
 import ResetPasswordRequestView from "../pages/ResetPasswordRequestView";
-import ResetPasswordConfirmView from "../pages/ResetPasswordConfirmView";
+import ResetPasswordChangeView from "../pages/ResetPasswordChangeView";
 
 Vue.use(Router)
 
@@ -96,9 +96,9 @@ const router = new Router({
       }
     },
     {
-      path: '/reset-password-confirm/:token',
-      name: 'reset-password-confirm',
-      component: ResetPasswordConfirmView,
+      path: '/reset-password-change/:token',
+      name: 'reset-password-change',
+      component: ResetPasswordChangeView,
       meta: {
         nav: 'login'
       }
@@ -187,8 +187,7 @@ router.beforeEach((to, from, next) => {
     return
   }
 
-  if (to.name === 'login' || to.name === 'reset-password' || to.name === 'reset-password-confirm') {
-    console.log("next")
+  if (to.name === 'login' || to.name === 'reset-password' || to.name === 'reset-password-change') {
 //    next({ name: 'reset-password' })
     next()
     return

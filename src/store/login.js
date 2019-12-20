@@ -5,8 +5,9 @@ const SET_ERROR = 'SET_ERROR'
 const SET_ERROR_TEXT = 'SET_ERROR_TEXT'
 const SET_USERNAME = 'SET_USERNAME'
 const SET_TOKEN = 'SET_TOKEN'
-const SET_ADMIN = 'SET_ADMIN'
+const SET_IS_ADMIN = 'SET_IS_ADMIN'
 const SET_GROUPS_ROLE = 'SET_GROUPS_ROLE'
+const CLEAR = 'CLEAR'
 
 export default {
   namespaced: true,
@@ -31,11 +32,17 @@ export default {
     [SET_TOKEN](state, value) {
       state.token = value
     },
-    [SET_ADMIN](state, value) {
+    [SET_IS_ADMIN](state, value) {
       state.admin = value
     },
     [SET_GROUPS_ROLE](state, value) {
       state.groupsRole = value
+    },
+    [CLEAR](state) {
+      state.username = null
+      state.token = null
+      state.admin = false
+      state.groupsRole = null
     }
   },
   actions: {
@@ -87,7 +94,7 @@ export default {
       localStorage.setItem('groupsRole', tokenPayload.groups)
       commit(SET_USERNAME, username)
       commit(SET_TOKEN, token)
-      commit(SET_ADMIN, tokenPayload.admin)
+      commit(SET_IS_ADMIN, tokenPayload.admin)
       commit(SET_GROUPS_ROLE, tokenPayload.groups)
       commit(SET_ERROR, false)
       commit(SET_ERROR_TEXT, null)
@@ -99,7 +106,7 @@ export default {
       localStorage.setItem('groupsRole', null)
       commit(SET_USERNAME, null)
       commit(SET_TOKEN, null)
-      commit(SET_ADMIN, false)
+      commit(SET_IS_ADMIN, false)
       commit(SET_GROUPS_ROLE, null)
       if (error !== null) {
         commit(SET_ERROR, true)
@@ -131,6 +138,11 @@ export default {
     },
     token(state) {
       return state.token
+    }
+  },
+  setters: {
+    setAdmin(state, admin) {
+
     }
   }
 }

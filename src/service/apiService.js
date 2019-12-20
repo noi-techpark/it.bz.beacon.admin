@@ -4,8 +4,8 @@ import store from '../store/store'
 
 const PATH_SIGNIN = '/v1/signin'
 const PATH_CHECK_TOKEN = '/v1/checkToken'
-const PATH_RESET_PASSWORD_REQUEST = '/v1/resetPasswordRequest'
-const PATH_RESET_PASSWORD_CONFIRM = '/v1/resetPasswordConfirm'
+const PATH_RESET_PASSWORD_REQUEST = '/v1/resetPassword/request'
+const PATH_RESET_PASSWORD_CHANGE = '/v1/resetPassword/change'
 const PATH_BEACONS = '/v1/admin/beacons'
 const PATH_ISSUES = '/v1/admin/issues'
 const PATH_USERS = '/v1/admin/users'
@@ -74,10 +74,10 @@ export function resetPasswordRequest(username) {
   })
 }
 
-export function resetPasswordConfirmation(token, passwordReset) {
-  return callPost(PATH_RESET_PASSWORD_CONFIRM, false, {
+export function resetPasswordChange(token, newPassword) {
+  return callPost(PATH_RESET_PASSWORD_CHANGE, false, {
     'token': token,
-    'passwordReset': passwordReset
+    'newPassword': newPassword
   })
 }
 
