@@ -39,12 +39,12 @@
           </div>
           <div class="input row">
             <div class="col-sm">
-              <router-link :to="{name: 'reset-password'}">Reset password</router-link>
+              <button id="submit" type="submit" @click.prevent="login">Login</button>
             </div>
           </div>
-          <div class="input row">
-            <div class="col-sm">
-              <button id="submit" type="submit" @click.prevent="login">Login</button>
+          <div class="input row" style="justify-content: center">
+            <div class="col-sm col-sm-link">
+              <router-link :to="{name: 'reset-password'}">Reset password</router-link>
             </div>
           </div>
         </form>
@@ -111,8 +111,31 @@
     color: #ffffff;
   }
 
+  input {
+    margin-bottom: 20px;
+  }
+
+  button {
+    margin-bottom: 5px;
+  }
+
   .error-message {
     max-width: 380px;
     width: 100%;
+  }
+
+  a {
+    color: #ffffff;
+    text-decoration: none;
+    background-color: transparent;
+  }
+  a:hover {
+    color: #ffffff;
+    text-decoration: underline; }
+
+  .col-sm-link {
+    max-width: 380px;
+    display: flex;
+    justify-content: end;
   }
 </style>

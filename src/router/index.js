@@ -12,9 +12,10 @@ import BeaconView from '../pages/BeaconView'
 import IssuesView from '../pages/IssuesView'
 import ChangePasswordView from '../pages/ChangePasswordView'
 import ResetPasswordView from '../pages/ResetPasswordView'
-import store from '../store/store'
 import ResetPasswordRequestView from "../pages/ResetPasswordRequestView";
 import ResetPasswordChangeView from "../pages/ResetPasswordChangeView";
+import store from '../store/store'
+import {getUsers} from '../service/apiService'
 
 Vue.use(Router)
 
@@ -179,7 +180,18 @@ router.beforeEach((to, from, next) => {
   // }
   if (store.getters['login/hasLogin']) {
     // routeActions()
-    if (to.name === 'login') {
+    if (store.getters['login/requirePasswordChange'] && to.name !== 'user-change-password') {
+      getUsers()
+        .then((users) => {
+          let authUser = users.filter((user) => {
+            return user.username === store.getters['login/getUsername']
+          })[0]
+          next({ name: 'user-change-password', params: {id: authUser.id} })
+        })
+        .catch(() => {
+        })
+    }
+    else if (to.name === 'login') {
       next({ name: 'home' })
     } else {
       next()
