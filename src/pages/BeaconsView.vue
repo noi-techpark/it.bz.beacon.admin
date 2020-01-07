@@ -472,6 +472,7 @@
         console.log('this.L')
         console.log(this.L)
         this.map = this.L.map('map')
+        this.map.zoomControl.setPosition('topright')
         let mapx = this.map
 
         this.map.on('zoomend', function(e) {
@@ -561,10 +562,13 @@
     height: 100%;
   }
 
+  #view-switch {
+     z-index: 1000;
+  }
+
   .btn-view-switch {
     color: white;
     background: $grey;
-    z-index: 1000;
     border-radius: 0.5em;
     opacity: 0.7;
     height: 2.25em;
