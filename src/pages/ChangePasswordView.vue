@@ -7,12 +7,6 @@
           <div class="col-12 p-0">
             <form @submit.prevent="change">
               <div class="form-group row">
-                <label for="id" class="col-sm-2 col-form-label">Id</label>
-                <div class="col-sm-10">
-                  <input type="text" disabled class="form-control" id="id" v-model="user.id" placeholder="Id">
-                </div>
-              </div>
-              <div class="form-group row">
                 <label for="username" class="col-sm-2 col-form-label">Username</label>
                 <div class="col-sm-10">
                   <input type="text" disabled class="form-control" id="username" v-model="user.username" placeholder="Username">
@@ -72,7 +66,7 @@
   import Loader from '../components/Loader'
   import router from '../router/index'
   import { changePassword, getUser } from '../service/apiService'
-  import { mapGetters } from 'vuex'
+  import { mapGetters, mapActions } from 'vuex'
 
   export default {
     components: {
@@ -102,7 +96,11 @@
     computed: {
       ...mapGetters('login', [
         'getUsername',
-        'isAdmin'
+        'isAdmin',
+        'requirePasswordChange'
+      ]),
+      ...mapActions('login', [
+        'logout'
       ])
     },
     mounted() {
@@ -123,7 +121,10 @@
         } else {
           changePassword(this.user, this.passwordChange)
                   .then(() => {
-                    router.push({ name: 'user-edit', params: { id: this.user.id }})
+                    if(this.requirePasswordChange)
+                      this.logout()
+                    else
+                      router.push({ name: 'user-edit', params: { id: this.user.id }})
                     this.saving = false
                   })
                   .catch(() => {

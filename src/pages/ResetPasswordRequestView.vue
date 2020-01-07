@@ -21,9 +21,9 @@
     <div class="col-sm-6 pl-0 login-form-container text-center">
       <div class="row h-100 align-items-center">
         <form class="login-form col-sm p-0">
-          <div class="row">
-            <div class="col-12 ">
-              <div class="d-flex">
+          <div class="row mb-5">
+            <div class="col-12 " style="flex: 0 0 100%;justify-content: center;display: flex;">
+              <div class="d-flex" style="max-width: 380px;width: 100%;">
                 <router-link :to="{name: 'login'}" class="btn btn-secondary btn-back">Back</router-link>
               </div>
             </div>

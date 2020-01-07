@@ -7,6 +7,7 @@ const SET_USERNAME = 'SET_USERNAME'
 const SET_TOKEN = 'SET_TOKEN'
 const SET_IS_ADMIN = 'SET_IS_ADMIN'
 const SET_GROUPS_ROLE = 'SET_GROUPS_ROLE'
+const SET_REQUIRE_PASSWORD_CHANGE = 'SET_REQUIRE_PASSWORD_CHANGE'
 const CLEAR = 'CLEAR'
 
 export default {
@@ -17,7 +18,8 @@ export default {
     username: null,
     token: null,
     admin: false,
-    groupsRole: null
+    groupsRole: null,
+    requirePasswordChange: false
   },
   mutations: {
     [SET_ERROR](state, value) {
@@ -37,6 +39,9 @@ export default {
     },
     [SET_GROUPS_ROLE](state, value) {
       state.groupsRole = value
+    },
+    [SET_REQUIRE_PASSWORD_CHANGE](state, value) {
+      state.requirePasswordChange = value
     },
     [CLEAR](state) {
       state.username = null
@@ -92,10 +97,12 @@ export default {
       let tokenPayload = JSON.parse(atob(token.split('.')[1]))
       localStorage.setItem('admin', tokenPayload.admin)
       localStorage.setItem('groupsRole', tokenPayload.groups)
+      localStorage.setItem('requirePasswordChange', tokenPayload.requirePasswordChange !== null? tokenPayload.requirePasswordChange: false)
       commit(SET_USERNAME, username)
       commit(SET_TOKEN, token)
       commit(SET_IS_ADMIN, tokenPayload.admin)
       commit(SET_GROUPS_ROLE, tokenPayload.groups)
+      commit(SET_REQUIRE_PASSWORD_CHANGE, tokenPayload.requirePasswordChange)
       commit(SET_ERROR, false)
       commit(SET_ERROR_TEXT, null)
     },
@@ -108,6 +115,7 @@ export default {
       commit(SET_TOKEN, null)
       commit(SET_IS_ADMIN, false)
       commit(SET_GROUPS_ROLE, null)
+      commit(SET_REQUIRE_PASSWORD_CHANGE, false)
       if (error !== null) {
         commit(SET_ERROR, true)
         commit(SET_ERROR_TEXT, error.message)
@@ -120,6 +128,9 @@ export default {
   getters: {
     hasLogin(state) {
       return state.token !== null
+    },
+    requirePasswordChange(state) {
+      return state.requirePasswordChange
     },
     getUsername(state) {
       return state.username

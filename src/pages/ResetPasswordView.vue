@@ -7,12 +7,6 @@
           <div class="col-12 p-0">
             <form @submit.prevent="reset">
               <div class="form-group row">
-                <label for="id" class="col-sm-2 col-form-label">Id</label>
-                <div class="col-sm-10">
-                  <input type="text" disabled class="form-control" id="id" v-model="user.id" placeholder="Id">
-                </div>
-              </div>
-              <div class="form-group row">
                 <label for="username" class="col-sm-2 col-form-label">Username</label>
                 <div class="col-sm-10">
                   <input type="text" disabled class="form-control" id="username" v-model="user.username" placeholder="Username">

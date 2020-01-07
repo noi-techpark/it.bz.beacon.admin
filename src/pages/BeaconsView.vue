@@ -2,9 +2,15 @@
   <!-- eslint-disable -->
   <layout :source="title">
     <template slot="search-input">
-      <div class="col p-0 h-100 text-right search-container">
-        <img class="search-icon" :src="require('../assets/ic_search.svg')">
+      <div class="row" style="width: 100%">
+      <div class="col-6 p-0 h-100 text-right search-container">
+        <img class="search-icon mt-0" :src="require('../assets/ic_search.svg')">
         <input type="text" class="beacon-search" v-model="search" placeholder="Search beacon">
+      </div>
+      <div class="col-6 p-0 h-100">
+        <button type="button" class="btn btn-reset ml-2" @click="resetFilter">Reset</button>
+        <button type="button" class="btn btn-reset ml-2" @click="reload">Reload</button>
+      </div>
       </div>
     </template>
     <template slot="body">
@@ -456,6 +462,13 @@
         }
 
         return encodeURI(uri);
+      },
+      resetFilter() {
+        this.map.setView([46.6568142, 11.423318], 9);
+        this.search = ''
+      },
+      reload() {
+        this.fetchBeacons()
       }
     },
     async mounted() {
@@ -617,6 +630,20 @@
     }
   }
 
+
+  .btn-reset {
+    background: $light-blue;
+    border-color: $light-blue;
+    font-size: 0.8rem;
+    color: white;
+
+    &:hover {
+      background: $lighter-blue;
+      border-color: $lighter-blue;
+      color: white;
+    }
+  }
+
   .table-header {
     background-color: $background-grey;
     color: $grey;
@@ -675,6 +702,10 @@
 
       }
     }
+  }
+
+  .search-icon {
+    top: 0px
   }
 
 </style>
