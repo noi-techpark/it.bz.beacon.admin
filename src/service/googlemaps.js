@@ -1,8 +1,10 @@
-import config from './config'
+// import config from './config'
 
-const CALLBACK_NAME = 'gmapsCallback';
+// const CALLBACK_NAME = 'gmapsCallback';
 
-let initialized = !!window.google;
+// let initialized = !!window.L;
+
+/*
 let resolveInitPromise;
 let rejectInitPromise;
 
@@ -10,13 +12,64 @@ const initPromise = new Promise((resolve, reject) => {
   resolveInitPromise = resolve;
   rejectInitPromise = reject;
 });
+ */
+
+let initPromise = null;
+
+
+function loadScriptStylePromise(tagName, params_array)
+{
+  return new Promise((resolve, reject) => {
+    const tag = document.createElement(tagName);
+
+    for (let i = 0; i < params_array.length; i++) {
+      let obj = params_array[i]
+      for (let name in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, name)) {
+          tag[name] = obj[name];
+        }
+      }
+    }
+
+    tag.onload  = () => { window.console.log('tag loaded'); resolve() };
+    tag.onerror = () => { window.console.log('tag error');  reject() };
+    window.console.log('setup new head tag')
+    window.console.log(tag)
+
+    document.head.appendChild(tag);
+    window.console.log('aggiunto al head')
+  });
+}
 
 export function initMap() {
-  if (initialized) {
+
+  if (initPromise) {
+    // alert('map already initialized?')
     return initPromise;
   }
 
-  initialized = true;
+  initPromise = new Promise(async (resolve, reject) => {
+
+    try {
+      // leaflet
+      /*await*/ loadScriptStylePromise('link',[{'href':'https://unpkg.com/leaflet@1.6.0/dist/leaflet.css'},{'rel':'stylesheet'}])
+      await loadScriptStylePromise('script',[{'src':'https://unpkg.com/leaflet@1.6.0/dist/leaflet.js'}])
+
+      // clustering plugin
+      /*await*/ loadScriptStylePromise('link',[{'href':'https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css'},{'rel':'stylesheet'}])
+      /*await*/ loadScriptStylePromise('link',[{'href':'https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css'},{'rel':'stylesheet'}])
+      await loadScriptStylePromise('script',[{'src':'https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js'}])
+
+      resolve(window.L);
+    }
+    catch (e) {
+      reject(e)
+    }
+  });
+
+   return initPromise;
+
+  /*
   window[CALLBACK_NAME] = () => resolveInitPromise(window.google);
 
   const script = document.createElement('script');
@@ -27,6 +80,7 @@ export function initMap() {
   document.querySelector('head').appendChild(script);
 
   return initPromise;
+  */
 }
 
 export function getMapStyles() {

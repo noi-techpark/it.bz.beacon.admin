@@ -4,12 +4,18 @@ import LoginView from '../pages/LoginView'
 import UsersView from '../pages/UsersView'
 import UserView from '../pages/UserView'
 import UserAddView from '../pages/UserAddView'
+import GroupsView from '../pages/GroupsView'
+import GroupView from '../pages/GroupView'
+import GroupAddView from '../pages/GroupAddView'
 import BeaconsView from '../pages/BeaconsView'
 import BeaconView from '../pages/BeaconView'
 import IssuesView from '../pages/IssuesView'
 import ChangePasswordView from '../pages/ChangePasswordView'
 import ResetPasswordView from '../pages/ResetPasswordView'
+import ResetPasswordRequestView from "../pages/ResetPasswordRequestView";
+import ResetPasswordChangeView from "../pages/ResetPasswordChangeView";
 import store from '../store/store'
+import {getUsers} from '../service/apiService'
 
 Vue.use(Router)
 
@@ -83,6 +89,22 @@ const router = new Router({
       }
     },
     {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: ResetPasswordRequestView,
+      meta: {
+        nav: 'login'
+      }
+    },
+    {
+      path: '/reset-password-change/:token',
+      name: 'reset-password-change',
+      component: ResetPasswordChangeView,
+      meta: {
+        nav: 'login'
+      }
+    },
+    {
       path: '/users',
       name: 'users',
       component: UsersView,
@@ -121,6 +143,30 @@ const router = new Router({
       meta: {
         nav: 'users'
       }
+    },
+    {
+      path: '/groups',
+      name: 'groups',
+      component: GroupsView,
+      meta: {
+        nav: 'groups'
+      }
+    },
+    {
+      path: '/groups/new',
+      name: 'group-new',
+      component: GroupAddView,
+      meta: {
+        nav: 'groups'
+      }
+    },
+    {
+      path: '/groups/:id',
+      name: 'group-edit',
+      component: GroupView,
+      meta: {
+        nav: 'groups'
+      }
     }
   ]
 })
@@ -134,7 +180,18 @@ router.beforeEach((to, from, next) => {
   // }
   if (store.getters['login/hasLogin']) {
     // routeActions()
-    if (to.name === 'login') {
+    if (store.getters['login/requirePasswordChange'] && to.name !== 'user-change-password') {
+      getUsers()
+        .then((users) => {
+          let authUser = users.filter((user) => {
+            return user.username === store.getters['login/getUsername']
+          })[0]
+          next({ name: 'user-change-password', params: {id: authUser.id} })
+        })
+        .catch(() => {
+        })
+    }
+    else if (to.name === 'login') {
       next({ name: 'home' })
     } else {
       next()
@@ -142,7 +199,8 @@ router.beforeEach((to, from, next) => {
     return
   }
 
-  if (to.name === 'login') {
+  if (to.name === 'login' || to.name === 'reset-password' || to.name === 'reset-password-change') {
+//    next({ name: 'reset-password' })
     next()
     return
   }

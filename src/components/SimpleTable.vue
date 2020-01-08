@@ -62,6 +62,10 @@
                 <template v-else-if="col.type === 'delete-button'">
                   <button type="button" class="btn btn-delete" title="Delete user" @click.prevent.stop="rowDeleteClick(record)" v-if="get(record, col.identifier) !== getUsername"></button>
                 </template>
+                <template v-else-if="col.type === 'modify-buttons'">
+                  <button type="button" :title="'Change ' + col.name" class="btn btn-edit" @click.prevent.stop="rowChangeClick(record)"></button>
+                  <button type="button" :title="'Delete ' + col.name" class="btn btn-delete" @click.prevent.stop="rowDeleteClick(record)"></button>
+                </template>
                 <template v-else-if="col.type === 'beacon-status'">
                   <beacon-status :status="get(record, col.key)"/>
                 </template>
@@ -188,6 +192,9 @@
       },
       rowDeleteClick(record) {
         this.$emit('rowDeleteClicked', record)
+      },
+      rowChangeClick(record) {
+        this.$emit('rowChangeClicked', record)
       },
       setPage(page) {
         this.emitChange({
@@ -325,6 +332,15 @@
 
   .btn-delete {
     mask-image: url("../assets/delete.svg");
+    background-color: black;
+    height: 1.3rem;
+
+    &:hover {
+      background-color: red;
+    }
+  }
+  .btn-edit {
+    mask-image: url("./../assets/ic_edit.svg");
     background-color: black;
     height: 1.3rem;
 

@@ -4,14 +4,18 @@ import store from '../store/store'
 
 const PATH_SIGNIN = '/v1/signin'
 const PATH_CHECK_TOKEN = '/v1/checkToken'
+const PATH_RESET_PASSWORD_REQUEST = '/v1/resetPassword/request'
+const PATH_RESET_PASSWORD_CHANGE = '/v1/resetPassword/change'
 const PATH_BEACONS = '/v1/admin/beacons'
 const PATH_ISSUES = '/v1/admin/issues'
 const PATH_USERS = '/v1/admin/users'
+const PATH_GROUPS = '/v1/admin/groups'
 const PATH_INFO = '/v1/infos'
 const SUB_PATH_ISSUES = '/issues'
 const SUB_PATH_IMAGES = '/images'
 const SUB_PATH_RESET_PASSWORD = '/reset-password'
 const SUB_PATH_CHANGE_PASSWORD = '/change-password'
+const SUB_PATH_USERS = '/users'
 
 function call(method, path, auth, data, headers = {}) {
   if (auth) {
@@ -64,6 +68,19 @@ export function checkToken(token) {
   })
 }
 
+export function resetPasswordRequest(username) {
+  return callPost(PATH_RESET_PASSWORD_REQUEST, false, {
+    username
+  })
+}
+
+export function resetPasswordChange(token, newPassword) {
+  return callPost(PATH_RESET_PASSWORD_CHANGE, false, {
+    'token': token,
+    'newPassword': newPassword
+  })
+}
+
 // USERS
 
 export function getUsers() {
@@ -104,6 +121,54 @@ export function resetPassword(user, passwordReset) {
   return callPatch(PATH_USERS + '/' + user.id + SUB_PATH_RESET_PASSWORD, true, passwordReset)
 }
 
+// GROUPS
+
+export function getGroups() {
+  return callGet(PATH_GROUPS, true)
+}
+
+export function getGroup(id) {
+  return callGet(PATH_GROUPS + '/' + id, true)
+}
+
+export function updateGroup(group) {
+  return callPatch(PATH_GROUPS + '/' + group.id, true, {
+    'name': group.name,
+  })
+}
+
+export function createGroup(group) {
+  return callPost(PATH_GROUPS, true, {
+    'name': group.name
+  })
+}
+
+export function deleteGroup(group) {
+  return callDelete(PATH_GROUPS + '/' + group.id, true)
+}
+
+export function getUsersForGroup(groupId) {
+  return callGet(PATH_GROUPS + '/' + groupId + SUB_PATH_USERS, true)
+}
+
+export function assignUserToGroup(groupId, user, userRole) {
+  return callPatch(PATH_GROUPS + '/' + groupId + SUB_PATH_USERS, true, {
+    'user': user.id,
+    'userRole': userRole.role
+  })
+}
+
+export function changeUserRoleInGroup(groupId, user, userRole) {
+  return callPatch(PATH_GROUPS + '/' + groupId + SUB_PATH_USERS + '/' + user.id, true, {
+    'user': user.id,
+    'userRole': userRole
+  })
+}
+
+export function removeUserFromGroup(groupId, user) {
+  return callDelete(PATH_GROUPS + '/' + groupId + SUB_PATH_USERS + '/' + user.id, true)
+}
+
 // BEACONS
 
 export function getBeacons() {
@@ -136,7 +201,8 @@ export function updateBeacon(beacon) {
     telemetry: beacon.telemetry,
     txPower: beacon.txPower,
     url: beacon.url,
-    uuid: beacon.uuid
+    uuid: beacon.uuid,
+    group: beacon.group.id
   }
   return callPatch(PATH_BEACONS + '/' + beacon.id, true, data)
 }
@@ -182,6 +248,11 @@ export function resolveIssue(id, issueSolution) {
   return callPost(PATH_ISSUES + '/' + id + '/resolve', true, issueSolution)
 }
 
+// INFO
 export function getInfos() {
   return callGet(PATH_INFO, false)
+}
+
+export function getInfo(id) {
+  return callGet(PATH_INFO + '/' + id, false);
 }

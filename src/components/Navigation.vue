@@ -40,6 +40,11 @@ export default {
           name: 'users',
           title: 'Users',
           nav: 'users'
+        },
+        {
+          name: 'groups',
+          title: 'Groups',
+          nav: 'groups'
         }
       ]
     }
@@ -92,6 +97,10 @@ export default {
       mask: url(../assets/ic_issues.svg) no-repeat center;
     }
     &.logo-users {
+      -webkit-mask: url(../assets/ic_users.svg) no-repeat center;
+      mask: url(../assets/ic_users.svg) no-repeat center;
+    }
+    &.logo-groups {
       -webkit-mask: url(../assets/ic_users.svg) no-repeat center;
       mask: url(../assets/ic_users.svg) no-repeat center;
     }

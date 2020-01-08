@@ -4,20 +4,28 @@
     <template slot="body">
       <div class="container pb-4" v-show="loaded">
         <div class="row mt-4">
-          <div class="col-12">
+          <div class="col-8">
             <h2 class="beacon-title mb-3" v-if="!editing">{{ beacon.name }}</h2>
             <div v-if="editing">
               <input type="text" class="form-control" v-model="beacon.name" :readonly="!editing" />
               <small class="text-muted">Name</small>
             </div>
           </div>
+          <div class="col-4">
+            <select class="form-control form-select-group-control" id="role" v-if="isAdmin" v-model="group.id" :disabled="!editing">
+              <option v-bind:key="notAssignedValue" :value="notAssignedValue">{{ this.notAssignedLabel }}</option>
+              <option v-bind:key="mGroup.id" v-if="groups.length" v-for="mGroup in groups" :value="mGroup.id">{{ mGroup.name }}</option>
+            </select>
+            <input type="text" class="form-control" v-if="!isAdmin" v-model="group.name" :readonly="true" />
+            <small class="text-muted">Group</small>
+          </div>
         </div>
-        <div class="row">
+        <div class="row mt-2">
           <div class="col">
             <span class="text-muted">last seen:</span> {{ beacon.lastSeen | formatDate }}
           </div>
           <div class="col-xs-12 col-sm-6 col-md-3 col-lg-2" v-show="!editing">
-            <select class="form-control" @change="executeAction">
+            <select class="form-control" @change="executeAction" v-if="canEdit()">
               <option value="">Action</option>
               <option value="edit">Edit</option>
             </select>
@@ -481,7 +489,7 @@
     },
     name: 'Beacon',
     data() {
-      return {
+      let data = {
         title: 'Beacon',
         beacon: {
           ibeacon: false,
@@ -506,6 +514,8 @@
           pendingConfiguration: {}
         },
         beaconBackup: {},
+        notAssignedLabel: 'not assigned',
+        notAssignedValue: 'null',
         issues: [],
         modeTab: 'IBEACON',
         locationTab: 'GPS',
@@ -527,16 +537,34 @@
         },
         map: {},
         marker: {},
-        google: {}
+        L: null
       }
+
+      data.group = {
+        id: data.notAssignedValue,
+        name: data.notAssignedLabel
+      }
+      data.groupBackup = {
+        id: data.notAssignedValue,
+        name: data.notAssignedLabel
+      }
+
+      return data
     },
     computed: {
       ...mapGetters('settings', [
         'getSettingById'
       ]),
       ...mapGetters('infos', [
-        'infos'
-      ])
+        'info'
+      ]),
+      ...mapGetters('groups', [
+        'groups'
+      ]),
+      ...mapGetters('login', [
+        'isAdmin',
+        'groupsRole'
+      ]),
     },
     mounted() {
       const modeTabBar = new MDCTabBar(document.querySelector('#mode-tab-bar'));
@@ -638,18 +666,32 @@
       this.controls.eddystoneTlmSwitch.disabled = true
       this.controls.telemetrySwitch.disabled = true
 
-      this.fetchInfos().then(() =>
+//      this.fetchInfos().then(() =>
               getBeacon(this.$route.params.id).then((beacon) => {
                 Object.assign(this.beaconBackup, beacon)
                 Object.assign(this.beacon, beacon)
-                this.updateControls()
-                this.loadMap()
-                this.$set(this, 'loaded', true)
+                if(beacon.group != null) {
+                  Object.assign(this.groupBackup, beacon.group)
+                  Object.assign(this.group, beacon.group)
+                }
+                if(beacon.lat !== null && beacon.lng !== null && beacon.lat !== 0 && beacon.lng !== 0) {
+                  this.updateControls()
+                  this.loadMap()
+                  this.$set(this, 'loaded', true)
+                } else {
+                  this.fetchInfo(this.$route.params.id).then((info) => {
+                    this.updateControls()
+                    this.loadMap()
+                    this.$set(this, 'loaded', true)
+                  })
+                }
               })
-      )
+//      )
 
       this.reloadIssues();
       this.reloadImages();
+
+      this.fetchGroups()
     },
     watch: {
       editing() {
@@ -692,13 +734,54 @@
     },
     methods: {
       ...mapActions('infos', [
-        'fetchInfos'
+        'fetchInfo'
       ]),
+      ...mapActions('groups', [
+        'fetchGroups',
+        'clear'
+      ]),
+      ...mapActions('login', [
+        'isAdmin',
+        'groupsRole'
+      ]),
+      canEdit() {
+        return this.isAdmin || this.groupsRole != null &&
+            this.groupsRole.some((groupRole => groupRole.group.id === this.group.id &&
+              (groupRole.role == 'MANAGER' || groupRole.role == 'BEACON_EDITOR')))
+      },
       async loadMap() {
         try {
-          this.google = await initMap();
-          this.beacon.info = this.getInfo(this.beacon)
-          let position = this.getPosition(this.beacon)
+          this.L = await initMap();
+//          this.beacon.info = this.getInfo(this.beacon)
+          let position = this.getPosition(this.beacon, this.info)
+
+          this.map = this.L.map('map')
+
+          this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          }).addTo(this.map);
+
+          console.log(position)
+
+          this.map.setView([position.lat, position.lng], 16);
+
+          var customIcon = this.L.icon({
+                        iconUrl: this.iconSvg(this.beacon),
+
+                        // shadowUrl: 'leaf-shadow.png',
+
+                        iconSize:     [24, 24], // size of the icon
+                        // shadowSize:   [50, 64], // size of the shadow
+                        iconAnchor:   [12, 12], // point of the icon which will correspond to marker's location
+                        // shadowAnchor: [4, 62],  // the same for the shadow
+                        // popupAnchor:  [12, 12] // point from which the popup should open relative to the iconAnchor
+                      });
+
+          let marker = this.L.marker([position.lat, position.lng], {icon: customIcon}).addTo(this.map);
+
+          // alert('load map!')
+
+          /*
 
           this.map = new this.google.maps.Map(document.getElementById('map'), {
             center: position,
@@ -723,6 +806,8 @@
           });
 
           this.setMapControlsEnabled(this.editing)
+
+          */
 
         } catch (error) {
           this.loaded = true
@@ -849,9 +934,26 @@
       },
       save() {
         this.saving = true
+        if(this.group.id !== this.notAssignedLabel)
+          this.beacon.group = this.group
+        else
+          this.beacon.group = null
         updateBeacon(this.beacon).then(beacon => {
           Object.assign(this.beaconBackup, beacon)
           Object.assign(this.beacon, beacon)
+          if(beacon.group != null) {
+            Object.assign(this.groupBackup, beacon.group)
+            Object.assign(this.group, beacon.group)
+          } else {
+            Object.assign(this.groupBackup, {
+              id: this.notAssignedValue,
+              name: this.notAssignedLabel
+            })
+            Object.assign(this.group, {
+              id: this.notAssignedValue,
+              name: this.notAssignedLabel
+            })
+          }
           this.updateControls()
           this.updateMap()
           this.$set(this, 'editing', false)
@@ -865,6 +967,10 @@
         getBeacon(this.beacon.id).then(beacon => {
           Object.assign(this.beaconBackup, beacon)
           Object.assign(this.beacon, beacon)
+          if(beacon.group != null) {
+            Object.assign(this.groupBackup, beacon.group)
+            Object.assign(this.group, beacon.group)
+          }
           this.updateControls()
           this.updateMap()
         })
@@ -890,14 +996,16 @@
         })
       },
       updateMap() {
-        let latLng = new this.google.maps.LatLng(this.beacon.lat, this.beacon.lng)
+/**        let latLng = new this.google.maps.LatLng(this.beacon.lat, this.beacon.lng)
         this.marker.setPosition(latLng)
         this.map.panTo(latLng)
-        this.map.setZoom(16)
+        this.map.setZoom(16)*/
       },
       resetBeacon() {
         if (this.beaconBackup != null) {
           Object.assign(this.beacon, this.beaconBackup)
+          if(this.groupBackup != null)
+            Object.assign(this.group, this.groupBackup)
           this.updateControls()
         }
       },
@@ -914,19 +1022,19 @@
           this.beacon.locationType = type
         }
       },
-      getInfo(beacon) {
+/*      getInfo(beacon) {
         return this.infos.find((info => info.id === beacon.id))
-      },
-      getPosition(beacon) {
+      },*/
+      getPosition(beacon, info) {
         if (beacon.lat !== 0 || beacon.lng !== 0) {
           return {
             lat: beacon.lat,
             lng: beacon.lng
           }
-        } else if (beacon.info != null) {
+        } else if (info != null) {
           return {
-            lat: beacon.info.latitude,
-            lng: beacon.info.longitude
+            lat: info.latitude,
+            lng: info.longitude
           }
         }
 
@@ -1368,6 +1476,12 @@
         }
       }
     }
+  }
+
+  select.form-select-group-control {
+    height: calc(1.5em + 0.75rem + 2px);
+    font-size: 1rem;
+    line-height: 1.5;
   }
 
 </style>

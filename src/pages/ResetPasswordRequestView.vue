@@ -1,6 +1,6 @@
 <template>
   <!-- eslint-disable -->
-  <div id="login" class="row h-100">
+  <div id="reset-password" class="row h-100">
     <div class="col-sm-6 text-center p-0">
       <div class="row h-100 start-screen">
         <div class="col-sm-12 p-0">
@@ -21,9 +21,16 @@
     <div class="col-sm-6 pl-0 login-form-container text-center">
       <div class="row h-100 align-items-center">
         <form class="login-form col-sm p-0">
+          <div class="row mb-5">
+            <div class="col-12 " style="flex: 0 0 100%;justify-content: center;display: flex;">
+              <div class="d-flex" style="max-width: 380px;width: 100%;">
+                <router-link :to="{name: 'login'}" class="btn btn-secondary btn-back">Back</router-link>
+              </div>
+            </div>
+          </div>
           <div class="input row justify-content-center" v-show="hasError">
             <span class="col-sm alert alert-danger error-message" role="alert">
-              Anmeldung fehlgeschlagen.
+              Password reset failed.
             </span>
           </div>
           <div class="input row">
@@ -33,54 +40,46 @@
           </div>
           <div class="input row">
             <div class="col-sm">
-              <input :type="passwordFieldType" id="password" name="password" placeholder="Password" v-model="password" :class="'form-control' + (hasError ? ' is-invalid' : '')">
-              <!--<button type="button" @click="switchVisibility">show / hide</button>-->
-            </div>
-          </div>
-          <div class="input row">
-            <div class="col-sm">
-              <button id="submit" type="submit" @click.prevent="login">Login</button>
-            </div>
-          </div>
-          <div class="input row" style="justify-content: center">
-            <div class="col-sm col-sm-link">
-              <router-link :to="{name: 'reset-password'}">Reset password</router-link>
+              <button id="submit" type="submit" @click.prevent="confirmFrom">Reset password</button>
             </div>
           </div>
         </form>
       </div>
+      <loader :visible="sending" :label="'Sending password reset request...'"/>
     </div>
   </div>
 </template>
 
 <script>
-  import { mapGetters } from 'vuex'
+  import { resetPasswordRequest } from '../service/apiService'
+  import router from '../router/index'
+  import Loader from '../components/Loader'
 
   export default {
+    components: {
+      Loader
+    },
     name: 'Login',
     data() {
       return {
         username: '',
-        password: '',
-        passwordFieldType: 'password'
+        hasError: false,
+        sending: false
       }
-    },
-    computed: {
-      ...mapGetters('login', [
-        'hasError',
-        'getError'
-      ])
     },
     methods: {
-      login() {
-        this.$store.dispatch('login/login', {
-          username: this.username,
-          password: this.password
-        })
+      confirmFrom() {
+        this.sending = true
+        resetPasswordRequest(this.username)
+          .then(() => {
+            router.push({ name: 'login' })
+            this.sending = false
+          })
+          .catch(() => {
+            this.$set(this, 'hasError', true)
+            this.sending = false
+          })
       },
-      switchVisibility() {
-        this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password'
-      }
     }
   }
 </script>
@@ -111,31 +110,13 @@
     color: #ffffff;
   }
 
-  input {
-    margin-bottom: 20px;
-  }
-
-  button {
-    margin-bottom: 5px;
-  }
-
   .error-message {
     max-width: 380px;
     width: 100%;
   }
 
-  a {
-    color: #ffffff;
-    text-decoration: none;
-    background-color: transparent;
-  }
-  a:hover {
-    color: #ffffff;
-    text-decoration: underline; }
-
-  .col-sm-link {
-    max-width: 380px;
-    display: flex;
-    justify-content: end;
+  .btn.btn-back {
+    margin-bottom: 0.8rem;
+    font-size: 0.8em;
   }
 </style>

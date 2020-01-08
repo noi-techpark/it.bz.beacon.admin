@@ -1,14 +1,20 @@
- <template>
+<template>
   <!-- eslint-disable -->
   <layout :source="title">
     <template slot="search-input">
-      <div class="col p-0 h-100 text-right search-container">
-        <img class="search-icon" :src="require('../assets/ic_search.svg')">
+      <div class="row" style="width: 100%">
+      <div class="col-6 p-0 h-100 text-right search-container">
+        <img class="search-icon mt-0" :src="require('../assets/ic_search.svg')">
         <input type="text" class="beacon-search" v-model="search" placeholder="Search beacon">
+      </div>
+      <div class="col-6 p-0 h-100">
+        <button type="button" class="btn btn-reset ml-2" @click="resetFilter">Reset</button>
+        <button type="button" class="btn btn-reset ml-2" @click="reload">Reload</button>
+      </div>
       </div>
     </template>
     <template slot="body">
-      <div class="row flex-grow-1">
+      <div class="row flex-grow-1" style="overflow: hidden">
         <div id="view-switch" class="position-absolute mt-4 ml-4 btn-group" role="group" aria-label="Switch view">
           <button type="button" :class="'btn btn-view-switch ' + (viewMode === LIST ? 'btn-view-switch-active' : '')" @click="changeMode(LIST)"><img src="../assets/ic_list.svg"/></button>
           <button type="button" :class="'btn btn-view-switch ' + (viewMode === MAP ? 'btn-view-switch-active' : '')" @click="changeMode(MAP)"><img src="../assets/ic_map.svg"/></button>
@@ -21,10 +27,11 @@
             <div class="col-12 p-0 text-center" v-show="tableData.length <= 0">
               <span class="text-muted">No beacons found...</span>
             </div>
-            <button type="button" class="fab add-fab" :to="{name: 'beacon-new'}" @click="openAddBeaconsModal"></button>
+            <button type="button" class="fab add-fab" v-if="canAddBeacon()"
+                    :to="{name: 'beacon-new'}" @click="openAddBeaconsModal"></button>
           </div>
         </div>
-        <div id="map" class="beacon-map" v-show="loaded && viewMode === MAP">
+        <div id="map" class="beacon-map" xv-show="loaded && viewMode === MAP" :style="{visibility: loaded && viewMode === MAP ? 'visible' : 'hidden'}">
         </div>
         <loader :visible="!loaded" :label="'Loading beacons...'"/>
         <add-beacons-modal ref="addBeaconsModal" />
@@ -91,6 +98,7 @@
             type: 'beacon-status'
           }
         ],
+        mapData: [],
         tableData: [],
         tableMeta: {
           sorting: {
@@ -109,10 +117,12 @@
         map: null,
         mapBeacons: [],
         markers: [],
+        cluster: null,
         addedOnMap: false,
         myPosition: null,
         clusterer: null,
-        google: {}
+        google: {},
+        timers: []
       }
     },
     computed: {
@@ -122,28 +132,91 @@
       ]),
       ...mapGetters('infos', [
         'infos'
-      ])
+      ]),
+      ...mapGetters('login', [
+        'isAdmin',
+        'groupsRole'
+      ]),
     },
     watch: {
       search() {
+
+        // console.log('search')
+        sessionStorage.setItem('beacons_search', this.search)
+
         this.reloadTableData()
+        this.$set(this, 'mapBeacons', this.mapData.slice(0))
       },
       beacons() {
         this.reloadTableData()
         this.$set(this, 'loaded', true)
+        this.$set(this, 'mapBeacons', this.mapData.slice(0)) // load map markers
       },
       mapBeacons() {
-        let newMarkers = []
+        // let newMarkers = []
 
+        /*
         if (this.mapBeacons === null) {
           this.updateMarkers(newMarkers)
           return
         }
+        */
+
+        // if leaflet is not ready, skip
+        if (!this.L)
+           return
+
+        // cancel previous marker timers
+        while (this.timers.length > 0)
+           clearTimeout(this.timers.shift());
+
+        if (this.cluster == null)
+        {
+           this.cluster = this.L.markerClusterGroup();
+           // console.log(this.cluster)
+           this.map.addLayer(this.cluster);
+        }
+        else
+        {
+           this.cluster.removeLayers(this.cluster.getLayers())
+        }
+
         this.mapBeacons.forEach((beacon) => {
-          beacon.info = this.getInfo(beacon)
+//          beacon.info = this.getInfo(beacon)
           let position = this.getPosition(beacon)
 
           if (position.lat !== 0 || position.lng !== 0) {
+
+            var customIcon = this.L.icon({
+              iconUrl: this.iconSvg(beacon),
+
+              // shadowUrl: 'leaf-shadow.png',
+
+              iconSize:     [24, 24], // size of the icon
+              // shadowSize:   [50, 64], // size of the shadow
+              iconAnchor:   [12, 12], // point of the icon which will correspond to marker's location
+              // shadowAnchor: [4, 62],  // the same for the shadow
+              // popupAnchor:  [12, 12] // point from which the popup should open relative to the iconAnchor
+            });
+
+            // L.marker([51.5, -0.09], {icon: customIcon}).addTo(map);
+
+            let marker = this.L.marker([position.lat, position.lng], {icon: customIcon}) //.addTo(this.map);
+            marker.on('click', () => {
+              router.push({name: 'beacon-detail', params: {id: beacon.id}})
+            })
+            let ccc = this.cluster
+            // add marker async
+            this.timers.push(setTimeout(function() { ccc.addLayer(marker); }, 200));
+
+            //            .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+            //            .openPopup();
+
+            // window.console.log(this.iconSvg(beacon));
+
+            /*
+            d@vide.bz
+
             let marker = new this.google.maps.Marker({
               position: this.getPosition(beacon),
               icon: {
@@ -157,10 +230,11 @@
               router.push({name: 'beacon-detail', params: {id: beacon.id}})
             })
             newMarkers.push(marker)
+            */
           }
         })
 
-        this.updateMarkers(newMarkers)
+        // this.updateMarkers(newMarkers)
       }
     },
     methods: {
@@ -171,6 +245,13 @@
       ...mapActions('infos', [
         'fetchInfos'
       ]),
+      ...mapActions('login', [
+        'isAdmin',
+        'groupsRole'
+      ]),
+      canAddBeacon() {
+        return this.isAdmin || this.groupsRole.some((groupRole => groupRole.role == 'MANAGER'))
+      },
       getInfo(beacon) {
         return this.infos.find((info => info.id === beacon.id))
       },
@@ -205,36 +286,41 @@
         router.push({ name: 'beacon-detail', params: { id: beacon.id }})
       },
       updateMarkers(newMarkers) {
-        if (this.map != null) {
-          if (this.clusterer === null) {
-            this.clusterer = new MarkerClusterer(this.map, [], {
-              styles: [
-                {
-                  url: location.origin + require('../assets/img/map/cluster/map_icon_cluster.svg'),
-                  height: 32,
-                  width: 32,
-                  textColor: '#4d4f5c'
-                }
-              ]
+        /*
+
+          d@vide.bz
+
+          if (this.map != null) {
+            if (this.clusterer === null) {
+              this.clusterer = new MarkerClusterer(this.map, [], {
+                styles: [
+                  {
+                    url: location.origin + require('../assets/img/map/cluster/map_icon_cluster.svg'),
+                    height: 32,
+                    width: 32,
+                    textColor: '#4d4f5c'
+                  }
+                ]
+              })
+            }
+
+            let markersToKeep = this.markers.filter(marker => {
+              return newMarkers.some(newMarker => marker.position.lat() === newMarker.position.lat() && marker.position.lng() === newMarker.position.lng())
             })
+
+            let markersToRemove = this.markers.filter(marker => !markersToKeep.includes(marker))
+            let markersToAdd = newMarkers.filter(newMarker => {
+              return !markersToKeep.some(marker => {
+                return marker.position.lat() === newMarker.position.lat() && marker.position.lng() === newMarker.position.lng()
+              })
+            })
+
+            this.clusterer.removeMarkers(markersToRemove)
+            this.clusterer.addMarkers(markersToAdd)
+
+            this.markers = markersToAdd.concat(markersToKeep)
           }
-
-          let markersToKeep = this.markers.filter(marker => {
-            return newMarkers.some(newMarker => marker.position.lat() === newMarker.position.lat() && marker.position.lng() === newMarker.position.lng())
-          })
-
-          let markersToRemove = this.markers.filter(marker => !markersToKeep.includes(marker))
-          let markersToAdd = newMarkers.filter(newMarker => {
-            return !markersToKeep.some(marker => {
-              return marker.position.lat() === newMarker.position.lat() && marker.position.lng() === newMarker.position.lng()
-            })
-          })
-
-          this.clusterer.removeMarkers(markersToRemove)
-          this.clusterer.addMarkers(markersToAdd)
-
-          this.markers = markersToAdd.concat(markersToKeep)
-        }
+          */
       },
       showMyPosition(success, failure) {
         let myPositionButtonIcon = document.getElementById('myLocationButtonIcon')
@@ -310,15 +396,17 @@
       },
       changeMode(mode) {
         this.$store.dispatch('beacons/setViewMode', mode)
+        // when mode change, notify map
+        // this.$set(this, 'mapBeacons', this.mapData.slice(0)) // load map markers
       },
       reloadTableData(params = {}) {
         params = merge({
-            pagination: this.tableMeta.pagination,
-            sorting: this.tableMeta.sorting,
-            filters: this.filters
-          }, params, {
-            filters: this.filters
-          })
+          pagination: this.tableMeta.pagination,
+          sorting: this.tableMeta.sorting,
+          filters: this.filters
+        }, params, {
+          filters: this.filters
+        })
 
         if (this.beacons === null) {
           this.tableData = []
@@ -329,7 +417,8 @@
             return beacon.name.toLowerCase().includes(this.search.toLowerCase())
           })
         }
-        this.$set(this, 'mapBeacons', this.tableData.slice(0))
+
+        this.$set(this, 'mapData', this.tableData.slice(0))
 
         this.tableData.sort((beaconA, beaconB) => {
           if (beaconA[params.sorting.col] < beaconB[params.sorting.col]) {
@@ -373,6 +462,13 @@
         }
 
         return encodeURI(uri);
+      },
+      resetFilter() {
+        this.map.setView([46.6568142, 11.423318], 9);
+        this.search = ''
+      },
+      reload() {
+        this.fetchBeacons()
       }
     },
     async mounted() {
@@ -382,7 +478,50 @@
         this.$set(this, 'loaded', false)
       })
       try {
-        this.google = await initMap();
+
+        this.search = sessionStorage.getItem('beacons_search') || ''
+
+        this.L = await initMap();
+        console.log('this.L')
+        console.log(this.L)
+        this.map = this.L.map('map')
+        this.map.zoomControl.setPosition('topright')
+        let mapx = this.map
+
+        this.map.on('zoomend', function(e) {
+            console.log(e.target.getZoom())
+            sessionStorage.setItem('map_zoom', mapx.getZoom())
+        });
+
+        this.map.on('moveend', function(e) {
+            console.log(e.target.getCenter())
+            sessionStorage.setItem('map_lat', e.target.getCenter().lat)
+            sessionStorage.setItem('map_lon', e.target.getCenter().lng)
+        });
+
+        // get previous zoom
+        let prevZoom = sessionStorage.getItem('map_zoom') || 9
+        let prevLat  = sessionStorage.getItem('map_lat') || 46.6568142
+        let prevLon  = sessionStorage.getItem('map_lon') || 11.423318
+
+        // setView after on zoomend/moveend so that they fire the first time
+        this.map.setView([prevLat, prevLon], prevZoom);
+
+        // here the map is added to an empty container. This means that when the container is show,
+        // is required to notify leaflet!
+
+        this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(this.map);
+
+
+
+        /*
+        this.L.marker([51.5, -0.09]).addTo(map)
+            .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+            .openPopup();
+        */
+        /*
         this.map = new this.google.maps.Map(document.getElementById('map'), {
           center: {
             lat: 46.6568142,
@@ -406,11 +545,15 @@
         });
         myLocationButtonContainer.index = 1;
         this.map.controls[this.google.maps.ControlPosition.RIGHT_BOTTOM].push(myLocationButtonContainer);
-        this.fetchInfos().then(() => {
+        */
+//        this.fetchInfos().then(() => {
           this.fetchBeacons()
-        })
+//        })
+
       } catch (error) {
-        this.loaded = true
+        window.console.log(error);
+        throw error;
+        // this.loaded = true
       }
     },
   }
@@ -432,10 +575,13 @@
     height: 100%;
   }
 
+  #view-switch {
+     z-index: 1000;
+  }
+
   .btn-view-switch {
     color: white;
     background: $grey;
-    z-index: 1000;
     border-radius: 0.5em;
     opacity: 0.7;
     height: 2.25em;
@@ -481,6 +627,20 @@
 
     &:hover {
       background-color: red;
+    }
+  }
+
+
+  .btn-reset {
+    background: $light-blue;
+    border-color: $light-blue;
+    font-size: 0.8rem;
+    color: white;
+
+    &:hover {
+      background: $lighter-blue;
+      border-color: $lighter-blue;
+      color: white;
     }
   }
 
@@ -542,6 +702,10 @@
 
       }
     }
+  }
+
+  .search-icon {
+    top: 0px
   }
 
 </style>
