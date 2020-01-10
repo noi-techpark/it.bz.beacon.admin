@@ -135,7 +135,6 @@
         if (this.cluster == null)
         {
            this.cluster = this.L.markerClusterGroup();
-           // console.log(this.cluster)
            this.map.addLayer(this.cluster);
         }
         else
@@ -172,39 +171,6 @@
 
         });
 
-        /*
-        this.beaconIds = []
-        let newMarkers = []
-
-        if (this.tableData === null) {
-          this.updateMarkers(newMarkers)
-          return
-        }
-        this.tableData.forEach((issue) => {
-          if (!this.beaconIds.includes(issue.beacon.id)) {
-            let marker = new this.google.maps.Marker({
-              position: {
-                lat: issue.beacon.lat,
-                lng: issue.beacon.lng
-              },
-              icon: {
-                url: this.iconSvg(issue.beacon),
-                size: new this.google.maps.Size(48, 48),
-                scaledSize: new this.google.maps.Size(24, 24),
-                anchor: new this.google.maps.Point(12, 12)
-              }
-            })
-            marker.addListener('click', () => {
-              router.push({name: 'issue-detail', params: {id: issue.beacon.id}})
-            })
-            this.beaconIds.push(issue.beacon.id)
-            newMarkers.push(marker)
-          }
-        })
-
-        this.updateMarkers(newMarkers)
-
-        */
       }
     },
     methods: {
@@ -212,51 +178,12 @@
         'fetchIssues',
         'clear'
       ]),
-      updateMarkers(newMarkers) {
-        if (this.map != null) {
-          if (this.clusterer === null) {
-            this.clusterer = new MarkerClusterer(this.map, [], {
-              styles: [
-                {
-                  url: location.origin + require('../assets/img/map/cluster/map_icon_cluster.svg'),
-                  height: 32,
-                  width: 32,
-                  textColor: '#4d4f5c'
-                }
-              ]
-            })
-          }
-
-          let markersToKeep = this.markers.filter(marker => {
-            return newMarkers.some(newMarker => marker.position.lat() === newMarker.position.lat() && marker.position.lng() === newMarker.position.lng())
-          })
-
-          let markersToRemove = this.markers.filter(marker => !markersToKeep.includes(marker))
-          let markersToAdd = newMarkers.filter(newMarker => {
-            return !markersToKeep.some(marker => {
-              return marker.position.lat() === newMarker.position.lat() && marker.position.lng() === newMarker.position.lng()
-            })
-          })
-
-          this.clusterer.removeMarkers(markersToRemove)
-          this.clusterer.addMarkers(markersToAdd)
-
-          this.markers = markersToAdd.concat(markersToKeep)
-        }
-      },
       getPosition(beacon) {
-
-        // TODO check this
 
         if (beacon.lat !== 0 || beacon.lng !== 0) {
           return {
             lat: beacon.lat,
             lng: beacon.lng
-          }
-        } else if (beacon.info != null) {
-          return {
-            lat: beacon.info.latitude,
-            lng: beacon.info.longitude
           }
         }
 
@@ -403,25 +330,7 @@
     },
     async mounted() {
 
-      this.clear()
-        /*
-        this.google = await initMap();
-        this.map = new this.google.maps.Map(document.getElementById('map'), {
-          center: {
-            lat: 46.6568142,
-            lng: 11.423318
-          },
-          zoom: 9,
-          disableDefaultUI: true,
-          zoomControl: true,
-          mapTypeControl: false,
-          scaleControl: true,
-          streetViewControl: false,
-          rotateControl: true,
-          fullscreenControl: true,
-          styles: getMapStyles()
-        })
-        */
+        this.clear()
 
         this.L = await initMap();
         this.map = this.L.map('map')

@@ -249,6 +249,8 @@
           }
         }
 
+        // place to a prefefined place instead of 0,0?
+
         return {
           lat: 0,
           lng: 0
@@ -480,33 +482,10 @@
            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(this.map);
 
-       /*
-        this.map = new this.google.maps.Map(document.getElementById('map'), {
-          center: {
-            lat: 46.6568142,
-            lng: 11.423318
-          },
-          zoom: 9,
-          disableDefaultUI: true,
-          zoomControl: true,
-          mapTypeControl: false,
-          scaleControl: true,
-          streetViewControl: false,
-          rotateControl: true,
-          fullscreenControl: true,
-          styles: getMapStyles()
-        })
+        this.fetchBeacons()
 
-        let myLocationButtonContainer = document.createElement('div');
-        let myLocationControl = new this.MyLocationControl(myLocationButtonContainer);
-        myLocationControl.addClickListener(() => {
-          this.goToMyPosition()
-        });
-        myLocationButtonContainer.index = 1;
-        this.map.controls[this.google.maps.ControlPosition.RIGHT_BOTTOM].push(myLocationButtonContainer);
-        */
 //        this.fetchInfos().then(() => {
-          this.fetchBeacons()
+//           this.fetchBeacons()
 //        })
 
       } catch (error) {
