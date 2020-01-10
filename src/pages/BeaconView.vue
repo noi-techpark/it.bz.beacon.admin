@@ -704,7 +704,7 @@
         this.controls.eddystoneEtlmSwitch.disabled = !this.editing
         this.controls.eddystoneTlmSwitch.disabled = !this.editing
         this.controls.telemetrySwitch.disabled = !this.editing
-        this.setMapControlsEnabled(this.editing)
+        // this.setMapControlsEnabled(this.editing)
 
         if (this.editing && this.beacon.pendingConfiguration != null) {
           this.beacon.interval = this.beacon.pendingConfiguration.interval
