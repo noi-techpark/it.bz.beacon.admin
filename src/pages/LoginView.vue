@@ -136,6 +136,6 @@
   .col-sm-link {
     max-width: 380px;
     display: flex;
-    justify-content: end;
+    justify-content: flex-end;
   }
 </style>
