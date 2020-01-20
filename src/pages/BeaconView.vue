@@ -254,6 +254,15 @@
                             </span>
                           <span class="mdc-tab__ripple"></span>
                         </button>
+                        <button class="mdc-tab mdc-tab--min-width" role="tab" aria-selected="true" tabindex="0">
+                            <span class="mdc-tab__content">
+                              <span class="mdc-tab__text-label">Info</span>
+                            </span>
+                          <span class="mdc-tab-indicator">
+                              <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                            </span>
+                          <span class="mdc-tab__ripple"></span>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -399,6 +408,84 @@
                     </div>
                   </div>
                 </div>
+                <div id="config-info" class="row mt-4 flex-column" v-show="modeTab === 'INFO'">
+                  <div class="row mt-3">
+                    <div class="col-6 pl-0">
+                      <input type="text" class="form-control" v-model="info.online" :readonly="!editing" />
+                      <small class="text-muted">Online</small>
+                    </div>
+                    <div class="col-6 pr-0">
+                      <input type="text" class="form-control" v-model="info.status" :readonly="!editing" />
+                      <small class="text-muted">Status</small>
+                    </div>
+                  </div>
+                  <div class="row mt-3">
+                    <div class="col-6 pl-0">
+                      <input type="text" class="form-control" v-model="info.batteryLevel" :readonly="!editing" />
+                      <small class="text-muted">Battery level</small>
+                    </div>
+                    <div class="col-6 pr-0">
+                      <input type="text" class="form-control" v-model="info.trustedUpdatedAt" :readonly="!editing" />
+                      <small class="text-muted">Trusted updated at</small>
+                    </div>
+                  </div>
+                  <div class="row mt-3">
+                    <div class="col-8 pl-0">
+                      <input type="text" class="form-control" v-model="info.uuid" :readonly="true" />
+                      <small class="text-muted">UUID</small>
+                    </div>
+                    <div class="col-2">
+                      <input type="text" class="form-control" v-model="info.major" :readonly="true" />
+                      <small class="text-muted">Major</small>
+                    </div>
+                    <div class="col-2 pr-0">
+                      <input type="text" class="form-control" v-model="info.minor" :readonly="true" />
+                      <small class="text-muted">Minor</small>
+                    </div>
+                  </div>
+                  <div class="row mt-3">
+                    <div class="col-12 pl-0 pr-0">
+                      <input type="text" class="form-control" v-model="info.name" :readonly="true" />
+                      <small class="text-muted">Name</small>
+                    </div>
+                  </div>
+                  <div class="row mt-3">
+                    <div class="col-8 pl-0">
+                      <input type="text" class="form-control" v-model="info.address" :readonly="true" />
+                      <small class="text-muted">Address</small>
+                    </div>
+                    <div class="col-4 pl-0">
+                      <input type="text" class="form-control" v-model="info.floor" :readonly="true" />
+                      <small class="text-muted">Floor</small>
+                    </div>
+                  </div>
+                  <div class="row mt-3">
+                    <div class="col-6 pl-0">
+                      <input type="text" class="form-control" v-model="info.latitude" :readonly="true" />
+                      <small class="text-muted">Latitude</small>
+                    </div>
+                    <div class="col-6">
+                      <input type="text" class="form-control" v-model="info.longitude" :readonly="true" />
+                      <small class="text-muted">Longitude</small>
+                    </div>
+                  </div>
+                  <div class="row mt-3">
+                    <div class="col-4 pl-0">
+                      <input type="text" class="form-control" v-model="info.cap" :readonly="true" />
+                      <small class="text-muted">CAP</small>
+                    </div>
+                    <div class="col-8">
+                      <input type="text" class="form-control" v-model="info.location" :readonly="true" />
+                      <small class="text-muted">Location</small>
+                    </div>
+                  </div>
+                  <div class="row mt-3">
+                    <div class="col-12 pl-0 pr-0">
+                      <input type="text" class="form-control" v-model="info.website" :readonly="true" />
+                      <small class="text-muted">Website</small>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="row beacon-detail-card mt-4 flex-grow-1">
@@ -459,7 +546,7 @@
 <script>
   import Layout from '../components/Layout'
   import Loader from '../components/Loader'
-  import { getBeacon, updateBeacon } from '../service/apiService'
+  import { getBeacon, updateBeacon, getInfo } from '../service/apiService'
   import {MDCSlider} from '@material/slider'
   import {MDCTabBar} from '@material/tab-bar'
   import {MDCSwitch} from '@material/switch'
@@ -514,6 +601,27 @@
           pendingConfiguration: {}
         },
         beaconBackup: {},
+        info: {
+          address: '',
+          batteryLevel: 0,
+          cap: '',
+          floor: '',
+          id: '',
+          instanceId: '',
+          latitude: 0,
+          location: '',
+          longitude: 0,
+          major: 0,
+          minor: 0,
+          name: '',
+          namespace: '',
+          online: true,
+          status: 'PLANED',
+          trustedUpdatedAt: 0,
+          txPower: 0,
+          uuid: '',
+          website: ''
+        },
         notAssignedLabel: 'not assigned',
         notAssignedValue: 'null',
         issues: [],
@@ -575,6 +683,9 @@
             break;
           case 2:
             this.$set(this, 'modeTab', 'GENERAL')
+            break;
+          case 3:
+            this.$set(this, 'modeTab', 'INFO')
             break;
           default:
             this.$set(this, 'modeTab', 'IBEACON')
@@ -666,23 +777,23 @@
       this.controls.eddystoneTlmSwitch.disabled = true
       this.controls.telemetrySwitch.disabled = true
 
-      this.fetchInfo(this.$route.params.id).then(() =>
-              getBeacon(this.$route.params.id).then((beacon) => {
-                Object.assign(this.beaconBackup, beacon)
-                Object.assign(this.beacon, beacon)
-                if(beacon.group != null) {
-                  Object.assign(this.groupBackup, beacon.group)
-                  Object.assign(this.group, beacon.group)
-                }
-                this.beacon.info = this.info
-                let position = this.getPosition(this.beacon, this.info)
-                if(position.lat !== 0 && position.lng !== 0) {
-                  this.updateControls()
-                  this.loadMap()
-                  this.$set(this, 'loaded', true)
-                }
-              })
-      )
+      getInfo(this.$route.params.id).then((info) => {
+        Object.assign(this.info, info)
+        getBeacon(this.$route.params.id).then((beacon) => {
+          Object.assign(this.beaconBackup, beacon)
+          Object.assign(this.beacon, beacon)
+          if (beacon.group != null) {
+            Object.assign(this.groupBackup, beacon.group)
+            Object.assign(this.group, beacon.group)
+          }
+          let position = this.getPosition(this.beacon, this.info)
+          if (position.lat !== 0 && position.lng !== 0) {
+            this.updateControls()
+            this.loadMap()
+            this.$set(this, 'loaded', true)
+          }
+        })
+      })
 
       this.reloadIssues();
       this.reloadImages();
@@ -729,9 +840,6 @@
       }
     },
     methods: {
-      ...mapActions('infos', [
-        'fetchInfo'
-      ]),
       ...mapActions('groups', [
         'fetchGroups',
         'clear'
@@ -742,13 +850,12 @@
       ]),
       canEdit() {
         return this.isAdmin || this.groupsRole != null &&
-            this.groupsRole.some((groupRole => groupRole.group.id === this.group.id &&
-              (groupRole.role == 'MANAGER' || groupRole.role == 'BEACON_EDITOR')))
+          this.groupsRole.some((groupRole => groupRole.group.id === this.group.id &&
+            (groupRole.role == 'MANAGER' || groupRole.role == 'BEACON_EDITOR')))
       },
       async loadMap() {
         try {
           this.L = await initMap();
-          this.beacon.info = this.info
           let position = this.getPosition(this.beacon, this.info)
 
           this.map = this.L.map('map')
@@ -762,16 +869,16 @@
           this.map.setView([position.lat, position.lng], 16);
 
           var customIcon = this.L.icon({
-                        iconUrl: this.iconSvg(this.beacon),
+            iconUrl: this.iconSvg(this.beacon),
 
-                        // shadowUrl: 'leaf-shadow.png',
+            // shadowUrl: 'leaf-shadow.png',
 
-                        iconSize:     [24, 24], // size of the icon
-                        // shadowSize:   [50, 64], // size of the shadow
-                        iconAnchor:   [12, 12], // point of the icon which will correspond to marker's location
-                        // shadowAnchor: [4, 62],  // the same for the shadow
-                        // popupAnchor:  [12, 12] // point from which the popup should open relative to the iconAnchor
-                      });
+            iconSize:     [24, 24], // size of the icon
+            // shadowSize:   [50, 64], // size of the shadow
+            iconAnchor:   [12, 12], // point of the icon which will correspond to marker's location
+            // shadowAnchor: [4, 62],  // the same for the shadow
+            // popupAnchor:  [12, 12] // point from which the popup should open relative to the iconAnchor
+          });
 
           let marker = this.L.marker([position.lat, position.lng], {icon: customIcon}).addTo(this.map);
 
@@ -806,17 +913,17 @@
           */
 
         } catch (error) {
-           //this.loaded = true
-           throw error
+          //this.loaded = true
+          throw error
         }
       },
       showBatteryAlert() {
         if (!this.getSettingById('DO_NOT_SHOW_BATTERY_ALERT')) {
           this.$refs.batteryAlert.open()
-                  .then((dontShowAgain) => {
-                    this.$store.dispatch('settings/setSetting', {key: 'DO_NOT_SHOW_BATTERY_ALERT', value: dontShowAgain})
-                  })
-                  .catch(() => {})
+            .then((dontShowAgain) => {
+              this.$store.dispatch('settings/setSetting', {key: 'DO_NOT_SHOW_BATTERY_ALERT', value: dontShowAgain})
+            })
+            .catch(() => {})
         }
       },
       reloadIssues() {
@@ -875,14 +982,14 @@
         if (event.target.files.length > 0) {
           this.uploadingImage = true
           createImageForBeacon(this.beacon.id, event.target.files[0])
-                  .then(() => {
-                    this.reloadImages()
-                    this.$set(this, 'uploadingImage', false)
-                  })
-                  .catch(() => {
-                    alert('Image upload failed. Please try again.')
-                    this.$set(this, 'uploadingImage', false)
-                  })
+            .then(() => {
+              this.reloadImages()
+              this.$set(this, 'uploadingImage', false)
+            })
+            .catch(() => {
+              alert('Image upload failed. Please try again.')
+              this.$set(this, 'uploadingImage', false)
+            })
         }
       },
       showImage(image) {
@@ -891,25 +998,25 @@
       showIssueDetail(issue) {
         if (issue.resolved) {
           this.$refs.issueDetailModal.open(issue)
-                  .then(() => {})
-                  .catch(() => {})
+            .then(() => {})
+            .catch(() => {})
         }
       },
       createIssue() {
         this.$refs.issueModal.open()
-                .then(() => {
-                  this.reload()
-                  this.reloadIssues()
-                })
-                .catch(() => {})
+          .then(() => {
+            this.reload()
+            this.reloadIssues()
+          })
+          .catch(() => {})
       },
       resolveIssue(issue) {
         this.$refs.resolveIssueModal.open(issue)
-                .then(() => {
-                  this.reload()
-                  this.reloadIssues()
-                })
-                .catch(() => {})
+          .then(() => {
+            this.reload()
+            this.reloadIssues()
+          })
+          .catch(() => {})
       },
       updateControls() {
         this.controls.frequencySlider.value = this.beacon.txPower
@@ -993,10 +1100,10 @@
         })
       },
       updateMap() {
-/**        let latLng = new this.google.maps.LatLng(this.beacon.lat, this.beacon.lng)
-        this.marker.setPosition(latLng)
-        this.map.panTo(latLng)
-        this.map.setZoom(16)*/
+        /**        let latLng = new this.google.maps.LatLng(this.beacon.lat, this.beacon.lng)
+         this.marker.setPosition(latLng)
+         this.map.panTo(latLng)
+         this.map.setZoom(16)*/
       },
       resetBeacon() {
         if (this.beaconBackup != null) {
@@ -1124,14 +1231,14 @@
       },
       removeImage(image) {
         this.$refs.deleteImageConfirm.open()
-                .then(() => {
-                  deleteImageForBeacon(this.beacon.id, image.id)
-                          .then(() => {
-                            this.reloadImages()
-                          })
-                          .catch(() => {})
-                })
-                .catch(() => {})
+          .then(() => {
+            deleteImageForBeacon(this.beacon.id, image.id)
+              .then(() => {
+                this.reloadImages()
+              })
+              .catch(() => {})
+          })
+          .catch(() => {})
       }
     },
     filters: {
