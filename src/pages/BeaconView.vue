@@ -810,7 +810,8 @@
           */
 
         } catch (error) {
-          this.loaded = true
+           //this.loaded = true
+           throw error
         }
       },
       showBatteryAlert() {
