@@ -234,18 +234,15 @@
           .catch(() => {})
       },
       getPosition(beacon) {
-
-        // TODO check this
-
-        if (beacon.lat !== 0 || beacon.lng !== 0) {
+        if (beacon.lat !== 0 && beacon.lng !== 0) {
           return {
             lat: beacon.lat,
             lng: beacon.lng
           }
-        } else if (beacon.info != null) {
+        } else if (beacon.info_lat !== 0 && beacon.info_lng !== 0) {
           return {
-            lat: beacon.info.latitude,
-            lng: beacon.info.longitude
+            lat: beacon.info_lat,
+            lng: beacon.info_lng
           }
         }
 

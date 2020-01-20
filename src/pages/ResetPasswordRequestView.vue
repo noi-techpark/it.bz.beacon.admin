@@ -20,7 +20,21 @@
     </div>
     <div class="col-sm-6 pl-0 login-form-container text-center">
       <div class="row h-100 align-items-center">
-        <form class="login-form col-sm p-0">
+        <div class="login-form col-sm p-0" v-show="emailSuccess">
+          <div class="row mb-5">
+            <div class="col-12 " style="flex: 0 0 100%;justify-content: center;display: flex;">
+              <div class="d-flex" style="max-width: 380px;width: 100%;">
+                <router-link :to="{name: 'login'}" class="btn btn-secondary btn-back">Back</router-link>
+              </div>
+            </div>
+          </div>
+          <div class="input row justify-content-center">
+              <span class="col-sm alert alert-success error-message" role="alert">
+                An email with the reset password instructions has been sent.
+              </span>
+          </div>
+        </div>
+        <form class="login-form col-sm p-0" v-show="!emailSuccess">
           <div class="row mb-5">
             <div class="col-12 " style="flex: 0 0 100%;justify-content: center;display: flex;">
               <div class="d-flex" style="max-width: 380px;width: 100%;">
@@ -64,7 +78,8 @@
       return {
         username: '',
         hasError: false,
-        sending: false
+        sending: false,
+        emailSuccess: false
       }
     },
     methods: {
@@ -72,8 +87,8 @@
         this.sending = true
         resetPasswordRequest(this.username)
           .then(() => {
-            router.push({ name: 'login' })
             this.sending = false
+            this.emailSuccess = true
           })
           .catch(() => {
             this.$set(this, 'hasError', true)
