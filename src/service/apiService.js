@@ -95,7 +95,8 @@ export function updateUser(user) {
   return callPatch(PATH_USERS + '/' + user.id, true, {
     'email': user.email,
     'name': user.name,
-    'surname': user.surname
+    'surname': user.surname,
+    'admin': user.admin
   })
 }
 
