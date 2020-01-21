@@ -8,7 +8,7 @@
       </div>
     </template>
     <template slot="body">
-      <div class="row flex-grow-1">
+      <div class="row flex-grow-1" style="overflow: hidden">
         <div id="view-switch" class="position-absolute mt-4 ml-4 btn-group" role="group" aria-label="Switch view">
           <button type="button" :class="'btn btn-view-switch ' + (viewMode === LIST ? 'btn-view-switch-active' : '')" @click="changeMode(LIST)"><img src="../assets/ic_list.svg"/></button>
           <button type="button" :class="'btn btn-view-switch ' + (viewMode === MAP ? 'btn-view-switch-active' : '')" @click="changeMode(MAP)"><img src="../assets/ic_map.svg"/></button>
@@ -23,7 +23,7 @@
             </div>
           </div>
         </div>
-        <div id="map" class="issue-map" v-show="loaded && viewMode === MAP">
+        <div id="map" class="issue-map" :style="{visibility: loaded && viewMode === MAP ? 'visible' : 'hidden'}">
         </div>
         <loader :visible="!loaded" :label="'Loading issues...'"/>
       </div>
@@ -104,7 +104,8 @@
         addedOnMap: false,
         myPosition: null,
         clusterer: null,
-        google: {}
+        google: {},
+        timers: []
       }
     },
     computed: {
@@ -122,37 +123,54 @@
         this.$set(this, 'loaded', true)
       },
       tableData() {
-        this.beaconIds = []
-        let newMarkers = []
 
-        if (this.tableData === null) {
-          this.updateMarkers(newMarkers)
-          return
+        // if leaflet is not ready, skip
+        if (!this.L)
+           return
+
+        // cancel previous marker timers
+        while (this.timers.length > 0)
+           clearTimeout(this.timers.shift());
+
+        if (this.cluster == null)
+        {
+           this.cluster = this.L.markerClusterGroup();
+           this.map.addLayer(this.cluster);
+        }
+        else
+        {
+           this.cluster.removeLayers(this.cluster.getLayers())
         }
 
         this.tableData.forEach((issue) => {
-          if (!this.beaconIds.includes(issue.beacon.id)) {
-            let marker = new this.google.maps.Marker({
-              position: {
-                lat: issue.beacon.lat,
-                lng: issue.beacon.lng
-              },
-              icon: {
-                url: this.iconSvg(issue.beacon),
-                size: new this.google.maps.Size(48, 48),
-                scaledSize: new this.google.maps.Size(24, 24),
-                anchor: new this.google.maps.Point(12, 12)
-              }
-            })
-            marker.addListener('click', () => {
-              router.push({name: 'issue-detail', params: {id: issue.beacon.id}})
-            })
-            this.beaconIds.push(issue.beacon.id)
-            newMarkers.push(marker)
-          }
-        })
+          let beacon = issue.beacon
 
-        this.updateMarkers(newMarkers)
+          let position = this.getPosition(beacon)
+          console.log(position)
+          console.log(issue.beacon)
+
+          if (position.lat !== 0 || position.lng !== 0) {
+
+            var customIcon = this.L.icon({
+              iconUrl: this.iconSvg(beacon),
+              iconSize:     [24, 24], // size of the icon
+              iconAnchor:   [12, 12], // point of the icon which will correspond to marker's location
+            });
+
+            console.log(customIcon)
+
+            let marker = this.L.marker([position.lat, position.lng], {icon: customIcon}) //.addTo(this.map);
+            marker.on('click', () => {
+              router.push({name: 'beacon-detail', params: {id: beacon.id}})
+            })
+            let ccc = this.cluster
+            // add marker async
+            this.timers.push(setTimeout(function() { ccc.addLayer(marker); }, 200));
+
+          }
+
+        });
+
       }
     },
     methods: {
@@ -160,36 +178,18 @@
         'fetchIssues',
         'clear'
       ]),
-      updateMarkers(newMarkers) {
-        if (this.map != null) {
-          if (this.clusterer === null) {
-            this.clusterer = new MarkerClusterer(this.map, [], {
-              styles: [
-                {
-                  url: location.origin + require('../assets/img/map/cluster/map_icon_cluster.svg'),
-                  height: 32,
-                  width: 32,
-                  textColor: '#4d4f5c'
-                }
-              ]
-            })
+      getPosition(beacon) {
+
+        if (beacon.lat !== 0 || beacon.lng !== 0) {
+          return {
+            lat: beacon.lat,
+            lng: beacon.lng
           }
+        }
 
-          let markersToKeep = this.markers.filter(marker => {
-            return newMarkers.some(newMarker => marker.position.lat() === newMarker.position.lat() && marker.position.lng() === newMarker.position.lng())
-          })
-
-          let markersToRemove = this.markers.filter(marker => !markersToKeep.includes(marker))
-          let markersToAdd = newMarkers.filter(newMarker => {
-            return !markersToKeep.some(marker => {
-              return marker.position.lat() === newMarker.position.lat() && marker.position.lng() === newMarker.position.lng()
-            })
-          })
-
-          this.clusterer.removeMarkers(markersToRemove)
-          this.clusterer.addMarkers(markersToAdd)
-
-          this.markers = markersToAdd.concat(markersToKeep)
+        return {
+          lat: 0,
+          lng: 0
         }
       },
       showDetail(issue) {
@@ -285,7 +285,7 @@
           this.tableData = this.issues.slice(0).filter((issue) => {
             return typeof issue !== 'undefined'
           }).filter((issue) => {
-            return issue.beacon.name.toLowerCase().includes(this.search.toLowerCase())
+              return issue.beacon.name.toLowerCase().includes(this.search.toLowerCase())
           })
         }
         this.tableData.sort((issueA, issueB) => {
@@ -329,24 +329,36 @@
       }
     },
     async mounted() {
-      this.clear()
-      try {
-        this.google = await initMap();
-        this.map = new this.google.maps.Map(document.getElementById('map'), {
-          center: {
-            lat: 46.6568142,
-            lng: 11.423318
-          },
-          zoom: 9,
-          disableDefaultUI: true,
-          zoomControl: true,
-          mapTypeControl: false,
-          scaleControl: true,
-          streetViewControl: false,
-          rotateControl: true,
-          fullscreenControl: true,
-          styles: getMapStyles()
-        })
+
+        this.clear()
+
+        this.L = await initMap();
+        this.map = this.L.map('map')
+        this.map.zoomControl.setPosition('topright')
+        let map = this.map
+
+        this.map.on('zoomend', function(e) {
+            console.log(e.target.getZoom())
+            sessionStorage.setItem('map_zoom', map.getZoom())
+        });
+
+        this.map.on('moveend', function(e) {
+            sessionStorage.setItem('map_lat', e.target.getCenter().lat)
+            sessionStorage.setItem('map_lon', e.target.getCenter().lng)
+        });
+
+        // get previous zoom
+        let prevZoom = sessionStorage.getItem('map_zoom') || 9
+        let prevLat  = sessionStorage.getItem('map_lat')  || 46.6568142
+        let prevLon  = sessionStorage.getItem('map_lon')  || 11.423318
+
+        // setView after on zoomend/moveend so that they fire the first time
+        this.map.setView([prevLat, prevLon], prevZoom);
+
+        this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(this.map);
+
 
         let myLocationButtonContainer = document.createElement('div');
         let myLocationControl = new this.MyLocationControl(myLocationButtonContainer);
@@ -354,11 +366,8 @@
           this.goToMyPosition()
         });
         myLocationButtonContainer.index = 1;
-        this.map.controls[this.google.maps.ControlPosition.RIGHT_BOTTOM].push(myLocationButtonContainer);
+        // this.map.controls[this.google.maps.ControlPosition.RIGHT_BOTTOM].push(myLocationButtonContainer);
         this.fetchIssues()
-      } catch (error) {
-        // console.error(error);
-      }
     },
   }
 </script>
@@ -377,6 +386,10 @@
   .issue-map {
     width: 100%;
     height: 100%;
+  }
+
+  #view-switch {
+     z-index: 1000;
   }
 
   .btn-view-switch {

@@ -31,7 +31,7 @@
                     :to="{name: 'beacon-new'}" @click="openAddBeaconsModal"></button>
           </div>
         </div>
-        <div id="map" class="beacon-map" xv-show="loaded && viewMode === MAP" :style="{visibility: loaded && viewMode === MAP ? 'visible' : 'hidden'}">
+        <div id="map" class="beacon-map" :style="{visibility: loaded && viewMode === MAP ? 'visible' : 'hidden'}">
         </div>
         <loader :visible="!loaded" :label="'Loading beacons...'"/>
         <add-beacons-modal ref="addBeaconsModal" />
@@ -182,24 +182,15 @@
         }
 
         this.mapBeacons.forEach((beacon) => {
-//          beacon.info = this.getInfo(beacon)
           let position = this.getPosition(beacon)
 
           if (position.lat !== 0 || position.lng !== 0) {
 
             var customIcon = this.L.icon({
               iconUrl: this.iconSvg(beacon),
-
-              // shadowUrl: 'leaf-shadow.png',
-
               iconSize:     [24, 24], // size of the icon
-              // shadowSize:   [50, 64], // size of the shadow
               iconAnchor:   [12, 12], // point of the icon which will correspond to marker's location
-              // shadowAnchor: [4, 62],  // the same for the shadow
-              // popupAnchor:  [12, 12] // point from which the popup should open relative to the iconAnchor
             });
-
-            // L.marker([51.5, -0.09], {icon: customIcon}).addTo(map);
 
             let marker = this.L.marker([position.lat, position.lng], {icon: customIcon}) //.addTo(this.map);
             marker.on('click', () => {
@@ -209,28 +200,6 @@
             // add marker async
             this.timers.push(setTimeout(function() { ccc.addLayer(marker); }, 200));
 
-            //            .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-            //            .openPopup();
-
-            // window.console.log(this.iconSvg(beacon));
-
-            /*
-            d@vide.bz
-
-            let marker = new this.google.maps.Marker({
-              position: this.getPosition(beacon),
-              icon: {
-                url: this.iconSvg(beacon),
-                size: new this.google.maps.Size(48, 48),
-                scaledSize: new this.google.maps.Size(24, 24),
-                anchor: new this.google.maps.Point(12, 12)
-              }
-            })
-            marker.addListener('click', () => {
-              router.push({name: 'beacon-detail', params: {id: beacon.id}})
-            })
-            newMarkers.push(marker)
-            */
           }
         })
 
@@ -265,17 +234,19 @@
           .catch(() => {})
       },
       getPosition(beacon) {
-        if (beacon.lat !== 0 || beacon.lng !== 0) {
+        if (beacon.lat !== 0 && beacon.lng !== 0) {
           return {
             lat: beacon.lat,
             lng: beacon.lng
           }
-        } else if (beacon.info != null) {
+        } else if (beacon.info_lat !== 0 && beacon.info_lng !== 0) {
           return {
-            lat: beacon.info.latitude,
-            lng: beacon.info.longitude
+            lat: beacon.info_lat,
+            lng: beacon.info_lng
           }
         }
+
+        // place to a prefefined place instead of 0,0?
 
         return {
           lat: 0,
@@ -482,72 +453,36 @@
         this.search = sessionStorage.getItem('beacons_search') || ''
 
         this.L = await initMap();
-        console.log('this.L')
-        console.log(this.L)
         this.map = this.L.map('map')
         this.map.zoomControl.setPosition('topright')
-        let mapx = this.map
+        let map = this.map
 
         this.map.on('zoomend', function(e) {
             console.log(e.target.getZoom())
-            sessionStorage.setItem('map_zoom', mapx.getZoom())
+            sessionStorage.setItem('map_zoom', map.getZoom())
         });
 
         this.map.on('moveend', function(e) {
-            console.log(e.target.getCenter())
             sessionStorage.setItem('map_lat', e.target.getCenter().lat)
             sessionStorage.setItem('map_lon', e.target.getCenter().lng)
         });
 
         // get previous zoom
         let prevZoom = sessionStorage.getItem('map_zoom') || 9
-        let prevLat  = sessionStorage.getItem('map_lat') || 46.6568142
-        let prevLon  = sessionStorage.getItem('map_lon') || 11.423318
+        let prevLat  = sessionStorage.getItem('map_lat')  || 46.6568142
+        let prevLon  = sessionStorage.getItem('map_lon')  || 11.423318
 
         // setView after on zoomend/moveend so that they fire the first time
         this.map.setView([prevLat, prevLon], prevZoom);
 
-        // here the map is added to an empty container. This means that when the container is show,
-        // is required to notify leaflet!
-
         this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(this.map);
 
+        this.fetchBeacons()
 
-
-        /*
-        this.L.marker([51.5, -0.09]).addTo(map)
-            .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-            .openPopup();
-        */
-        /*
-        this.map = new this.google.maps.Map(document.getElementById('map'), {
-          center: {
-            lat: 46.6568142,
-            lng: 11.423318
-          },
-          zoom: 9,
-          disableDefaultUI: true,
-          zoomControl: true,
-          mapTypeControl: false,
-          scaleControl: true,
-          streetViewControl: false,
-          rotateControl: true,
-          fullscreenControl: true,
-          styles: getMapStyles()
-        })
-
-        let myLocationButtonContainer = document.createElement('div');
-        let myLocationControl = new this.MyLocationControl(myLocationButtonContainer);
-        myLocationControl.addClickListener(() => {
-          this.goToMyPosition()
-        });
-        myLocationButtonContainer.index = 1;
-        this.map.controls[this.google.maps.ControlPosition.RIGHT_BOTTOM].push(myLocationButtonContainer);
-        */
 //        this.fetchInfos().then(() => {
-          this.fetchBeacons()
+//           this.fetchBeacons()
 //        })
 
       } catch (error) {
