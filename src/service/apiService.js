@@ -95,7 +95,8 @@ export function updateUser(user) {
   return callPatch(PATH_USERS + '/' + user.id, true, {
     'email': user.email,
     'name': user.name,
-    'surname': user.surname
+    'surname': user.surname,
+    'admin': user.admin
   })
 }
 
@@ -208,6 +209,7 @@ export function updateBeacon(beacon) {
 }
 
 export function createBeaconsByOrder(order) {
+  // alert(order)
   return callPost(PATH_BEACONS + '/createByOrder', true, order);
 }
 

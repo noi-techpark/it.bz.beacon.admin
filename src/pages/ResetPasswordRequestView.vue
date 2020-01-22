@@ -44,12 +44,12 @@
           </div>
           <div class="input row justify-content-center" v-show="hasError">
             <span class="col-sm alert alert-danger error-message" role="alert">
-              Password reset failed.
+              {{errorMessage}}
             </span>
           </div>
           <div class="input row">
             <div class="col-sm">
-              <input type="text" id="username" name="username" placeholder="Username" v-model="username" :class="'form-control' + (hasError ? ' is-invalid' : '')">
+              <input type="text" id="username" name="username" placeholder="Username or Email" v-model="username" :class="'form-control' + (hasError ? ' is-invalid' : '')">
             </div>
           </div>
           <div class="input row">
@@ -66,7 +66,6 @@
 
 <script>
   import { resetPasswordRequest } from '../service/apiService'
-  import router from '../router/index'
   import Loader from '../components/Loader'
 
   export default {
@@ -78,6 +77,7 @@
       return {
         username: '',
         hasError: false,
+        errorMessage: '',
         sending: false,
         emailSuccess: false
       }
@@ -90,8 +90,12 @@
             this.sending = false
             this.emailSuccess = true
           })
-          .catch(() => {
+          .catch((e) => {
             this.$set(this, 'hasError', true)
+            if(e.response.status === 404 && e.response.data.message === 'User not found')
+              this.$set(this, 'errorMessage', 'User not found.')
+            else
+              this.$set(this, 'errorMessage', 'Password reset failed.')
             this.sending = false
           })
       },
