@@ -778,22 +778,28 @@
       this.controls.telemetrySwitch.disabled = true
 
       getInfo(this.$route.params.id).then((info) => {
-        Object.assign(this.info, info)
-        getBeacon(this.$route.params.id).then((beacon) => {
-          Object.assign(this.beaconBackup, beacon)
-          Object.assign(this.beacon, beacon)
-          if (beacon.group != null) {
-            Object.assign(this.groupBackup, beacon.group)
-            Object.assign(this.group, beacon.group)
-          }
-          let position = this.getPosition(this.beacon, this.info)
-          if (position.lat !== 0 && position.lng !== 0) {
-            this.updateControls()
-            this.loadMap()
+          Object.assign(this.info, info)
+      }).catch((error) => {
+          // if you can't find a info record (404), let the object empty
+          // console.log(error);
+      }).finally(() => {
+          getBeacon(this.$route.params.id).then((beacon) => {
+            Object.assign(this.beaconBackup, beacon)
+            Object.assign(this.beacon, beacon)
+            // console.log(this.beacon)
+            if (beacon.group != null) {
+              Object.assign(this.groupBackup, beacon.group)
+              Object.assign(this.group, beacon.group)
+            }
+            let position = this.getPosition(this.beacon)
+            if (position.lat !== 0 && position.lng !== 0) {
+              this.updateControls()
+              this.loadMap()
+            }
             this.$set(this, 'loaded', true)
-          }
-        })
+          })
       })
+
 
       this.reloadIssues();
       this.reloadImages();
@@ -856,7 +862,7 @@
       async loadMap() {
         try {
           this.L = await initMap();
-          let position = this.getPosition(this.beacon, this.info)
+          let position = this.getPosition(this.beacon)
 
           this.map = this.L.map('map')
 
@@ -1124,22 +1130,16 @@
           this.beacon.locationType = type
         }
       },
-      getPosition(beacon, info) {
+      getPosition(beacon) {
         if (beacon.lat !== 0 || beacon.lng !== 0) {
           return {
             lat: beacon.lat,
             lng: beacon.lng
           }
-        } else if (info != null) {
-          return {
-            lat: info.latitude,
-            lng: info.longitude
-          }
         }
-
         return {
-          lat: 0,
-          lng: 0
+          lat: beacon.info_lat,
+          lng: beacon.info_lon
         }
       },
       iconSvg(beacon) {
