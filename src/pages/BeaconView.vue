@@ -864,8 +864,6 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           }).addTo(this.map);
 
-          console.log(position)
-
           this.map.setView([position.lat, position.lng], 16);
 
           var customIcon = this.L.icon({

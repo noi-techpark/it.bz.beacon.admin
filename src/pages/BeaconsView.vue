@@ -458,7 +458,6 @@
         let map = this.map
 
         this.map.on('zoomend', function(e) {
-            console.log(e.target.getZoom())
             sessionStorage.setItem('map_zoom', map.getZoom())
         });
 

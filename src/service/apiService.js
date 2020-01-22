@@ -208,6 +208,7 @@ export function updateBeacon(beacon) {
 }
 
 export function createBeaconsByOrder(order) {
+  // alert(order)
   return callPost(PATH_BEACONS + '/createByOrder', true, order);
 }
 
