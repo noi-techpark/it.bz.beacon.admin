@@ -30,6 +30,20 @@
                   <input type="email" :disabled="!canChange()" required class="form-control" id="email" v-model="user.email" placeholder="Email">
                 </div>
               </div>
+              <div class="form-group row">
+                <label for="admin-basic-switch" class="col-sm-2 col-form-label">Admin</label>
+                <div class="col-sm-10">
+                  <div id="admin-switch" class="mdc-switch">
+                    <div class="mdc-switch__track"></div>
+                    <div class="mdc-switch__thumb-underlay">
+                      <div class="mdc-switch__thumb">
+                        <input type="checkbox" :disabled="!canChange()" v-model="user.admin" id="admin-basic-switch" class="mdc-switch__native-control" role="switch">
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
               <div class="row">
                 <div class="col-12 pl-0 pr-0">
                   <div class="alert alert-danger" role="alert" v-if="error">
@@ -89,6 +103,7 @@
 import Layout from '../components/Layout'
 import Loader from '../components/Loader'
 import router from '../router/index'
+import {MDCSwitch} from '@material/switch'
 import { updateUser, getUser } from '../service/apiService'
 import { mapGetters } from 'vuex'
 
@@ -106,11 +121,15 @@ export default {
         name: '',
         surname: '',
         email: '',
+        admin: false,
         groups: []
       },
       loaded: false,
       saving: false,
-      error: false
+      error: false,
+      controls: {
+        adminSwitch: null
+      },
     }
   },
   computed: {
@@ -120,8 +139,15 @@ export default {
     ])
   },
   mounted() {
+    this.controls.adminSwitch = new MDCSwitch(document.querySelector('#admin-switch'));
+    this.controls.adminSwitch.nativeControl_.addEventListener('change', (event) => {
+      this.user.admin = event.target.checked
+      this.controls.adminSwitch.checked = this.user.admin
+    })
     getUser(this.$route.params.id).then((user) => {
       Object.assign(this.user, user)
+      this.controls.adminSwitch.checked = this.user.admin
+      this.controls.adminSwitch.disabled = !this.canChange() || this.isSelf()
       this.$set(this, 'loaded', true)
     })
   },
