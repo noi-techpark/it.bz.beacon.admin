@@ -793,9 +793,9 @@
             }
             let position = this.getPosition(this.beacon)
             if (position.lat !== 0 && position.lng !== 0) {
-              this.updateControls()
               this.loadMap()
             }
+            this.updateControls()
             this.$set(this, 'loaded', true)
           })
       })
@@ -1066,7 +1066,8 @@
           this.updateMap()
           this.$set(this, 'editing', false)
           this.$set(this, 'saving', false)
-        }).catch(() => {
+        }).catch((e) => {
+          console.log(e)
           alert('An error occured during saving. Please check your input values.')
           this.$set(this, 'saving', false)
         })
