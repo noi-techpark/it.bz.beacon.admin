@@ -411,21 +411,21 @@
                 <div id="config-info" class="row mt-4 flex-column" v-show="modeTab === 'INFO'">
                   <div class="row mt-3">
                     <div class="col-6 pl-0">
-                      <input type="text" class="form-control" v-model="info.online" :readonly="!editing" />
+                      <input type="text" class="form-control" v-model="info.online" :readonly="true" />
                       <small class="text-muted">Online</small>
                     </div>
                     <div class="col-6 pr-0">
-                      <input type="text" class="form-control" v-model="info.status" :readonly="!editing" />
+                      <input type="text" class="form-control" v-model="info.status" :readonly="true" />
                       <small class="text-muted">Status</small>
                     </div>
                   </div>
                   <div class="row mt-3">
                     <div class="col-6 pl-0">
-                      <input type="text" class="form-control" v-model="info.batteryLevel" :readonly="!editing" />
+                      <input type="text" class="form-control" v-model="info.batteryLevel" :readonly="true" />
                       <small class="text-muted">Battery level</small>
                     </div>
                     <div class="col-6 pr-0">
-                      <input type="text" class="form-control" v-model="info.trustedUpdatedAt" :readonly="!editing" />
+                      <input type="text" class="form-control" v-model="info.trustedUpdatedAt" :readonly="true" />
                       <small class="text-muted">Trusted updated at</small>
                     </div>
                   </div>
