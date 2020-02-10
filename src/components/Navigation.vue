@@ -2,7 +2,7 @@
   <!-- eslint-disable -->
   <div id="navigation" class="main-navigation col-sm p-0">
     <nav class="row h-100 align-items-start">
-      <div class="col-12 p-0">
+      <div class="col-12 p-0 d-flex flex-column h-100">
         <div class="row">
           <div class="beacon-logo shadow-sm col-12 p-0 text-center">
             <img src="../assets/logo.png" class="align-self-center">
@@ -12,12 +12,17 @@
           <span class="navigation-symbol col"><img :src="iconSvg(item)"/></span>
           <span class="pl1 navigation-text col">{{ item.title }}</span>
         </router-link>
+        <div class="row request-support-container">
+          <a class="request-support-link" :href="'mailto:' + supportEmail">Request support</a>
+        </div>
       </div>
     </nav>
   </div>
 </template>
 
 <script>
+import config from '../service/config'
+
 export default {
   // props: {
   //   source: ''
@@ -46,7 +51,8 @@ export default {
           title: 'Groups',
           nav: 'groups'
         }
-      ]
+      ],
+      supportEmail: config.SUPPORT_EMAIL
     }
   },
   methods: {
@@ -106,4 +112,18 @@ export default {
     }
   }
 }
+
+.request-support-container {
+  flex-grow: 1;
+  align-content: end;
+  padding: 8px 10px;
+}
+.request-support-link {
+  color: #ffffff;
+  text-decoration: none;
+  background-color: transparent;
+}
+.request-support-link:hover {
+  color: #ffffff;
+  text-decoration: underline; }
 </style>
