@@ -1,11 +1,14 @@
 import router from '../router/index'
-import {signIn, checkToken, getUsers} from '../service/apiService'
+import {signIn, checkToken} from '../service/apiService'
 
 const SET_ERROR = 'SET_ERROR'
 const SET_ERROR_TEXT = 'SET_ERROR_TEXT'
 const SET_USERNAME = 'SET_USERNAME'
 const SET_TOKEN = 'SET_TOKEN'
-const SET_ADMIN = 'SET_ADMIN'
+const SET_IS_ADMIN = 'SET_IS_ADMIN'
+const SET_GROUPS_ROLE = 'SET_GROUPS_ROLE'
+const SET_REQUIRE_PASSWORD_CHANGE = 'SET_REQUIRE_PASSWORD_CHANGE'
+const CLEAR = 'CLEAR'
 
 export default {
   namespaced: true,
@@ -14,7 +17,9 @@ export default {
     errorText: '',
     username: null,
     token: null,
-    admin: false
+    admin: false,
+    groupsRole: null,
+    requirePasswordChange: false
   },
   mutations: {
     [SET_ERROR](state, value) {
@@ -29,8 +34,20 @@ export default {
     [SET_TOKEN](state, value) {
       state.token = value
     },
-    [SET_ADMIN](state, value) {
+    [SET_IS_ADMIN](state, value) {
       state.admin = value
+    },
+    [SET_GROUPS_ROLE](state, value) {
+      state.groupsRole = value
+    },
+    [SET_REQUIRE_PASSWORD_CHANGE](state, value) {
+      state.requirePasswordChange = value
+    },
+    [CLEAR](state) {
+      state.username = null
+      state.token = null
+      state.admin = false
+      state.groupsRole = null
     }
   },
   actions: {
@@ -45,18 +62,7 @@ export default {
             username,
             token: loginResponse.token
           })
-          getUsers().then(usersResponse => {
-            let admin = usersResponse.some(user => {
-              return user.username === username && user.admin === true
-            })
-
-            dispatch('storeAdmin', {
-              admin
-            })
-            router.push({ name: 'home' })
-          }).catch(error => {
-            dispatch('clearAuth', error)
-          })
+          router.push({ name: 'home' })
         })
         .catch((error) => {
           dispatch('clearAuth', error)
@@ -70,8 +76,10 @@ export default {
               username: localStorage.getItem('username'),
               token: localStorage.getItem('loginToken')
             })
-            dispatch('storeAdmin', {
-              admin: localStorage.getItem('admin') === "true"
+            //TODO remove
+            dispatch('storeAuth', {
+              username: localStorage.getItem('username'),
+              token: checkTokenResponse.token
             })
             return true
           }
@@ -83,25 +91,31 @@ export default {
           return false
         })
     },
-    storeAuth({ commit }, { username, token }) {
+    storeAuth({ commit }, { username, token}) {
       localStorage.setItem('loginToken', token)
       localStorage.setItem('username', username)
+      let tokenPayload = JSON.parse(atob(token.split('.')[1]))
+      localStorage.setItem('admin', tokenPayload.admin)
+      localStorage.setItem('groupsRole', tokenPayload.groups)
+      localStorage.setItem('requirePasswordChange', tokenPayload.requirePasswordChange !== null? tokenPayload.requirePasswordChange: false)
       commit(SET_USERNAME, username)
       commit(SET_TOKEN, token)
+      commit(SET_IS_ADMIN, tokenPayload.admin)
+      commit(SET_GROUPS_ROLE, tokenPayload.groups)
+      commit(SET_REQUIRE_PASSWORD_CHANGE, tokenPayload.requirePasswordChange)
       commit(SET_ERROR, false)
       commit(SET_ERROR_TEXT, null)
-    },
-    storeAdmin({ commit }, { admin }) {
-      localStorage.setItem('admin', admin)
-      commit(SET_ADMIN, admin)
     },
     clearAuth({ commit }, error = null) {
       localStorage.setItem('loginToken', null)
       localStorage.setItem('username', null)
       localStorage.setItem('admin', false)
+      localStorage.setItem('groupsRole', null)
       commit(SET_USERNAME, null)
       commit(SET_TOKEN, null)
-      commit(SET_ADMIN, false)
+      commit(SET_IS_ADMIN, false)
+      commit(SET_GROUPS_ROLE, null)
+      commit(SET_REQUIRE_PASSWORD_CHANGE, false)
       if (error !== null) {
         commit(SET_ERROR, true)
         commit(SET_ERROR_TEXT, error.message)
@@ -115,11 +129,17 @@ export default {
     hasLogin(state) {
       return state.token !== null
     },
+    requirePasswordChange(state) {
+      return state.requirePasswordChange
+    },
     getUsername(state) {
       return state.username
     },
     isAdmin(state) {
       return state.admin
+    },
+    groupsRole(state) {
+      return state.groupsRole
     },
     getError(state) {
       return state.errorText
@@ -129,6 +149,11 @@ export default {
     },
     token(state) {
       return state.token
+    }
+  },
+  setters: {
+    setAdmin(state, admin) {
+
     }
   }
 }
