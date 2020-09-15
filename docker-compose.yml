@@ -1,0 +1,13 @@
+version: "3.4"
+services:
+  app:
+    image: node:12
+    volumes:
+       - ./:/code
+    working_dir: /code
+    command: sh -c "test -d node_modules || yarn install; yarn run serve"
+    environment:
+      VUE_APP_API_BASE_URL: "http://localhost:8999"
+    ports:
+      - "9999:8080"
+    tty: true
