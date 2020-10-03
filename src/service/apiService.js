@@ -180,7 +180,7 @@ export function getBeacon(id) {
   return callGet(PATH_BEACONS + '/' + id, true);
 }
 
-export function updateBeacon(beacon) {
+export function updateBeacon(beacon, info) {
   let data =  {
     description: beacon.description,
     eddystoneEid: beacon.eddystoneEid,
@@ -203,7 +203,16 @@ export function updateBeacon(beacon) {
     txPower: beacon.txPower,
     url: beacon.url,
     uuid: beacon.uuid,
-    group: beacon.group.id
+    group: beacon.group.id,
+    info: {
+      name: info.name,
+      website: info.website,
+      address: info.address,
+      location: info.location,
+      cap: info.cap,
+      latitude: info.latitude,
+      longitude: info.longitude
+    }
   }
   return callPatch(PATH_BEACONS + '/' + beacon.id, true, data)
 }

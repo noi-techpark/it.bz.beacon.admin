@@ -445,43 +445,43 @@
                   </div>
                   <div class="row mt-3">
                     <div class="col-12 pl-0 pr-0">
-                      <input type="text" class="form-control" v-model="info.name" :readonly="true" />
+                      <input type="text" class="form-control" v-model="info.name" :readonly="!editing" />
                       <small class="text-muted">Name</small>
                     </div>
                   </div>
                   <div class="row mt-3">
                     <div class="col-8 pl-0">
-                      <input type="text" class="form-control" v-model="info.address" :readonly="true" />
+                      <input type="text" class="form-control" v-model="info.address" :readonly="!editing" />
                       <small class="text-muted">Address</small>
                     </div>
                     <div class="col-4 pl-0">
-                      <input type="text" class="form-control" v-model="info.floor" :readonly="true" />
+                      <input type="text" class="form-control" v-model="info.floor" :readonly="!editing" />
                       <small class="text-muted">Floor</small>
                     </div>
                   </div>
                   <div class="row mt-3">
                     <div class="col-6 pl-0">
-                      <input type="text" class="form-control" v-model="info.latitude" :readonly="true" />
+                      <input type="text" class="form-control" v-model="info.latitude" :readonly="!editing" />
                       <small class="text-muted">Latitude</small>
                     </div>
                     <div class="col-6">
-                      <input type="text" class="form-control" v-model="info.longitude" :readonly="true" />
+                      <input type="text" class="form-control" v-model="info.longitude" :readonly="!editing" />
                       <small class="text-muted">Longitude</small>
                     </div>
                   </div>
                   <div class="row mt-3">
                     <div class="col-4 pl-0">
-                      <input type="text" class="form-control" v-model="info.cap" :readonly="true" />
+                      <input type="text" class="form-control" v-model="info.cap" :readonly="!editing" />
                       <small class="text-muted">CAP</small>
                     </div>
                     <div class="col-8">
-                      <input type="text" class="form-control" v-model="info.location" :readonly="true" />
+                      <input type="text" class="form-control" v-model="info.location" :readonly="!editing" />
                       <small class="text-muted">Location</small>
                     </div>
                   </div>
                   <div class="row mt-3">
                     <div class="col-12 pl-0 pr-0">
-                      <input type="text" class="form-control" v-model="info.website" :readonly="true" />
+                      <input type="text" class="form-control" v-model="info.website" :readonly="!editing" />
                       <small class="text-muted">Website</small>
                     </div>
                   </div>
@@ -622,6 +622,7 @@
           uuid: '',
           website: ''
         },
+        infoBackup: {},
         notAssignedLabel: 'not assigned',
         notAssignedValue: 'null',
         issues: [],
@@ -778,6 +779,7 @@
       this.controls.telemetrySwitch.disabled = true
 
       getInfo(this.$route.params.id).then((info) => {
+          Object.assign(this.infoBackup, info)
           Object.assign(this.info, info)
       }).catch((error) => {
           // if you can't find a info record (404), let the object empty
@@ -1046,26 +1048,34 @@
           this.beacon.group = this.group
         else
           this.beacon.group = null
-        updateBeacon(this.beacon).then(beacon => {
-          Object.assign(this.beaconBackup, beacon)
-          Object.assign(this.beacon, beacon)
-          if(beacon.group != null) {
-            Object.assign(this.groupBackup, beacon.group)
-            Object.assign(this.group, beacon.group)
-          } else {
-            Object.assign(this.groupBackup, {
-              id: this.notAssignedValue,
-              name: this.notAssignedLabel
+        updateBeacon(this.beacon, this.info).then(beacon => {
+            getInfo(this.beacon.id).then((info) => {
+              Object.assign(this.infoBackup, info)
+              Object.assign(this.info, info)
+            }).catch((error) => {
+              // if you can't find a info record (404), let the object empty
+              // console.log(error);
+            }).finally(() => {
+              Object.assign(this.beaconBackup, beacon)
+              Object.assign(this.beacon, beacon)
+              if (beacon.group != null) {
+                Object.assign(this.groupBackup, beacon.group)
+                Object.assign(this.group, beacon.group)
+              } else {
+                Object.assign(this.groupBackup, {
+                  id: this.notAssignedValue,
+                  name: this.notAssignedLabel
+                })
+                Object.assign(this.group, {
+                  id: this.notAssignedValue,
+                  name: this.notAssignedLabel
+                })
+              }
+              this.updateControls()
+              this.updateMap()
+              this.$set(this, 'editing', false)
+              this.$set(this, 'saving', false)
             })
-            Object.assign(this.group, {
-              id: this.notAssignedValue,
-              name: this.notAssignedLabel
-            })
-          }
-          this.updateControls()
-          this.updateMap()
-          this.$set(this, 'editing', false)
-          this.$set(this, 'saving', false)
         }).catch((e) => {
           console.log(e)
           alert('An error occured during saving. Please check your input values.')
@@ -1073,15 +1083,23 @@
         })
       },
       reload() {
-        getBeacon(this.beacon.id).then(beacon => {
-          Object.assign(this.beaconBackup, beacon)
-          Object.assign(this.beacon, beacon)
-          if(beacon.group != null) {
-            Object.assign(this.groupBackup, beacon.group)
-            Object.assign(this.group, beacon.group)
-          }
-          this.updateControls()
-          this.updateMap()
+        getInfo(this.beacon.id).then((info) => {
+          Object.assign(this.infoBackup, info)
+          Object.assign(this.info, info)
+        }).catch((error) => {
+          // if you can't find a info record (404), let the object empty
+          // console.log(error);
+        }).finally(() => {
+          getBeacon(this.beacon.id).then(beacon => {
+            Object.assign(this.beaconBackup, beacon)
+            Object.assign(this.beacon, beacon)
+            if (beacon.group != null) {
+              Object.assign(this.groupBackup, beacon.group)
+              Object.assign(this.group, beacon.group)
+            }
+            this.updateControls()
+            this.updateMap()
+          })
         })
       },
       cancelEdit() {
@@ -1111,6 +1129,9 @@
          this.map.setZoom(16)*/
       },
       resetBeacon() {
+        if ( this.infoBackup != null) {
+          Object.assign(this.info, this.infoBackup)
+        }
         if (this.beaconBackup != null) {
           Object.assign(this.beacon, this.beaconBackup)
           if(this.groupBackup != null)
