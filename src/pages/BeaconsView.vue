@@ -67,6 +67,10 @@
         title: 'Beacons',
         tableCols: [
           {
+            title: 'Id',
+            key: 'id'
+          },
+          {
             title: 'Name',
             key: 'name'
           },
@@ -385,7 +389,8 @@
           this.tableData = this.beacons.slice(0).filter((beacon) => {
             return typeof beacon !== 'undefined'
           }).filter((beacon) => {
-            return beacon.name.toLowerCase().includes(this.search.toLowerCase())
+            return beacon.name.toLowerCase().includes(this.search.toLowerCase()) ||
+              beacon.id.toLowerCase().includes(this.search.toLowerCase())
           })
         }
 

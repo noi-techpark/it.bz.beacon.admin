@@ -5,7 +5,7 @@
       <div class="container pb-4" v-show="loaded">
         <div class="row mt-4">
           <div class="col-8">
-            <h2 class="beacon-title mb-3" v-if="!editing">{{ beacon.name }}</h2>
+            <h2 class="beacon-title mt-3" v-if="!editing">{{ beacon.name }}</h2>
             <div v-if="editing">
               <input type="text" class="form-control" v-model="beacon.name" :readonly="!editing" />
               <small class="text-muted">Name</small>
@@ -20,9 +20,9 @@
             <small class="text-muted">Group</small>
           </div>
         </div>
-        <div class="row mt-2">
+        <div class="row">
           <div class="col">
-            <span class="text-muted">last seen:</span> {{ beacon.lastSeen | formatDate }}
+            <h5 class="beacon-title">Id: {{ beacon.id }}</h5>
           </div>
           <div class="col-xs-12 col-sm-6 col-md-3 col-lg-2" v-show="!editing">
             <select class="form-control" @change="executeAction" v-if="canEdit()">
@@ -33,6 +33,11 @@
           <div class="col-auto edit-actions" v-show="editing">
             <button class="btn btn-outline-secondary mr-4" @click="cancelEdit">Cancel</button>
             <button class="btn btn-primary" @click="save">Save</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <span class="text-muted">last seen:</span> {{ beacon.lastSeen | formatDate }}
           </div>
         </div>
         <div class="row mt-4" v-if="editing && beacon.status === 'CONFIGURATION_PENDING' && !configResetted">
