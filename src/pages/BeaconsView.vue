@@ -1,3 +1,4 @@
+
 <template>
   <!-- eslint-disable -->
   <layout :source="title">
@@ -85,6 +86,10 @@
           {
             title: 'Description',
             key: 'description'
+          },
+          {
+            title: 'Group',
+            key: 'group.name'
           },
           {
             title: 'Seen',
@@ -397,10 +402,23 @@
         this.$set(this, 'mapData', this.tableData.slice(0))
 
         this.tableData.sort((beaconA, beaconB) => {
-          if (beaconA[params.sorting.col] < beaconB[params.sorting.col]) {
+          let valA = beaconA
+          let valB = beaconB
+          let sortingCols = params.sorting.col.split('.')
+          for(let i = 0; i < sortingCols.length; i++) {
+            valA = valA != null? valA[sortingCols[i]]: null
+            valB = valB != null? valB[sortingCols[i]]: null
+          }
+          if(valA != null && valB == null) {
+            return -1
+          }
+          if(valA == null && valB != null) {
+            return 1
+          }
+          if (valA < valB) {
             return params.sorting.order === 'asc' ? -1 : 1
           }
-          if (beaconA[params.sorting.col] > beaconB[params.sorting.col]) {
+          if (valA > valB) {
             return params.sorting.order === 'asc' ? 1 : -1
           }
           return 0
