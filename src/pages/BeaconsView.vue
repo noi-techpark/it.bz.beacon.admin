@@ -4,11 +4,30 @@
   <layout :source="title">
     <template slot="search-input">
       <div class="row" style="width: 100%">
-      <div class="col-6 p-0 h-100 text-right search-container">
+      <div class="col-4 p-0 h-100 text-right search-container">
         <img class="search-icon mt-0" :src="require('../assets/ic_search.svg')">
         <input type="text" class="beacon-search" v-model="search" placeholder="Search beacon">
       </div>
-      <div class="col-6 p-0 h-100">
+        <div class="col-4 p-0 h-100 text-right search-container">
+          <div class="dropdown">
+          <img class="search-icon mt-0" :src="require('../assets/ic_groups_gray.svg')">
+          <input type="text" class="beacon-search" v-model="searchGroupField.search" placeholder="Group"
+                 @focus="searchGroupField.focused = true"
+                 @blur="searchGroupField.focused = false"
+                 v-on:keydown.up.prevent="changeActiveGroup(-1)" v-on:keydown.down.prevent="changeActiveGroup(1)"
+                 v-on:keydown.enter.prevent="selectActiveGroup()">
+            <div v-if="searchGroupDropdownVisible"
+                 class="dropdown-menu" aria-labelledby="dropdownMenuButton"
+                 @mouseover="searchGroupField.dropdownHover = true" @mouseleave="searchGroupField.dropdownHover = false">
+              <a class="dropdown-item" v-bind:key="group.id" v-on:click.stop.prevent="selectGroup(group)"
+                 v-for="(group, groupIndex) in searchGroupField.searchedGroups"
+                 v-bind:class="{ active: groupIndex == searchGroupField.activeGroup}">
+                {{ group.name }}
+              </a>
+            </div>
+          </div>
+        </div>
+      <div class="col-4 p-0 h-100">
         <button type="button" class="btn btn-reset ml-2" @click="resetFilter">Reset</button>
         <button type="button" class="btn btn-reset ml-2" @click="reload">Reload</button>
       </div>
@@ -122,6 +141,15 @@
           }
         },
         search: '',
+        groupFilter: '',
+        searchGroupField: {
+          search: '',
+          selected: false,
+          focused: false,
+          activeGroup: 0,
+          dropdownHover: false,
+          searchedGroups: []
+        },
         loaded: false,
         map: null,
         mapBeacons: [],
@@ -139,13 +167,23 @@
         'beacons',
         'viewMode'
       ]),
-      ...mapGetters('infos', [
-        'infos'
-      ]),
       ...mapGetters('login', [
         'isAdmin',
         'groupsRole'
       ]),
+      ...mapGetters('groups', [
+        'groups'
+      ]),
+      searchGroupDropdownFocused() {
+        return (this.searchGroupField.focused || this.searchGroupField.dropdownHover);
+      },
+      searchGroupDropdownVisible() {
+        return (this.searchGroupField.focused || this.searchGroupField.dropdownHover) &&
+          this.searchGroupField.searchedGroups.length > 0 && !this.searchGroupField.selected;
+      },
+      searchGroupFieldSearch() {
+        return this.searchGroupField.search;
+      }
     },
     watch: {
       search() {
@@ -160,6 +198,35 @@
         this.reloadTableData()
         this.$set(this, 'loaded', true)
         this.$set(this, 'mapBeacons', this.mapData.slice(0)) // load map markers
+      },
+      groups() {
+        this.setupDropDown()
+      },
+      searchGroupFieldSearch() {
+        this.setupDropDown()
+        this.searchGroupField.selected = this.searchGroupField.searchedGroups !== null && this.searchGroupField.searchedGroups.some((group) => group.name === this.searchGroupFieldSearch)
+        if (this.searchGroupField.selected && this.searchGroupFieldSearch !== this.groupFilter) {
+          this.groupFilter = this.searchGroupFieldSearch;
+        }
+        if (this.searchGroupFieldSearch === '' && this.groupFilter !== '') {
+          this.groupFilter = '';
+        }
+      },
+      searchGroupDropdownFocused() {
+        if(!this.searchGroupDropdownFocused) {
+          this.searchGroupField.search = this.groupFilter
+        }
+      },
+      searchGroupDropdownVisible() {
+        if(!this.searchGroupDropdownVisible) {
+          this.searchGroupField.dropdownHover = false;
+        }
+      },
+      groupFilter() {
+        sessionStorage.setItem("group_filter", this.groupFilter)
+
+        this.reloadTableData()
+        this.$set(this, 'mapBeacons', this.mapData.slice(0))
       },
       mapBeacons() {
         // let newMarkers = []
@@ -220,18 +287,16 @@
         'fetchBeacons',
         'clear'
       ]),
-      ...mapActions('infos', [
-        'fetchInfos'
-      ]),
       ...mapActions('login', [
         'isAdmin',
         'groupsRole'
       ]),
+      ...mapActions('groups', [
+        'fetchGroups',
+        'clear'
+      ]),
       canAddBeacon() {
         return this.isAdmin || this.groupsRole.some((groupRole => groupRole.role == 'MANAGER'))
-      },
-      getInfo(beacon) {
-        return this.infos.find((info => info.id === beacon.id))
       },
       openAddBeaconsModal() {
         this.$refs.addBeaconsModal.open()
@@ -394,6 +459,8 @@
           this.tableData = this.beacons.slice(0).filter((beacon) => {
             return typeof beacon !== 'undefined'
           }).filter((beacon) => {
+            return this.groupFilter === '' || beacon.group !== null && beacon.group.name === this.groupFilter
+          }).filter((beacon) => {
             return beacon.name.toLowerCase().includes(this.search.toLowerCase()) ||
               beacon.id.toLowerCase().includes(this.search.toLowerCase())
           })
@@ -460,9 +527,49 @@
       resetFilter() {
         this.map.setView([46.6568142, 11.423318], 9);
         this.search = ''
+        this.searchGroupField.search = ''
       },
       reload() {
         this.fetchBeacons()
+        this.fetchGroups()
+      },
+      setupDropDown() {
+        this.searchGroupField.activeGroup = null
+        if (this.groups === null || this.searchGroupField.search === null || this.searchGroupField.search === '') {
+          this.searchGroupField.searchedGroups = []
+        } else {
+
+          this.searchGroupField.searchedGroups = this.groups.slice(0).filter((group) => {
+            return typeof group !== 'undefined'
+          }).filter((group) => {
+            return group.name.toLowerCase().includes(this.searchGroupField.search.toLowerCase())
+          })
+        }
+      },
+      changeActiveGroup(change) {
+        if(this.searchGroupField.searchedGroups.length > 0) {
+          if (this.searchGroupField.activeGroup === null) {
+            this.searchGroupField.activeGroup = change === 1? 0: this.searchGroupField.searchedGroups.length - 1
+          } else {
+            if(change === 1)
+              if(this.searchGroupField.activeGroup + 1 < this.searchGroupField.searchedGroups.length)
+                this.searchGroupField.activeGroup += 1
+              else
+                this.searchGroupField.activeGroup = 0
+            if(change === -1)
+              if(this.searchGroupField.activeGroup > 0)
+                this.searchGroupField.activeGroup -= 1
+              else
+                this.searchGroupField.activeGroup = this.searchGroupField.searchedGroups.length - 1
+          }
+        }
+      },
+      selectActiveGroup() {
+        if(this.searchGroupField.activeGroup !== null)
+          this.selectUser(this.searchGroupField.searchedGroups[this.searchGroupField.activeGroup])
+      },
+      selectGroup(group) {
+        this.searchGroupField.search = group.name
       }
     },
     async mounted() {
@@ -474,6 +581,8 @@
       try {
 
         this.search = sessionStorage.getItem('beacons_search') || ''
+        this.groupFilter = sessionStorage.getItem('group_filter') || ''
+        this.searchGroupField.search = this.groupFilter;
 
         this.L = await initMap();
         this.map = this.L.map('map')
@@ -503,9 +612,6 @@
 
         this.fetchBeacons()
 
-//        this.fetchInfos().then(() => {
-//           this.fetchBeacons()
-//        })
 
       } catch (error) {
         window.console.log(error);
@@ -530,6 +636,7 @@
   .beacon-map {
     width: 100%;
     height: 100%;
+    z-index: 0;
   }
 
   #view-switch {
@@ -663,6 +770,19 @@
 
   .search-icon {
     top: 0px
+  }
+
+  .dropdown-item.active {
+    background-color: $light-blue;
+  }
+
+  .dropdown-item:active {
+    background-color: $light-blue;
+  }
+
+  .dropdown-menu {
+    display: block;
+    left: 25px;
   }
 
 </style>
