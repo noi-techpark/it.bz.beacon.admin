@@ -443,11 +443,11 @@
                   </div>
                   <div class="row mt-3">
                     <div class="col-6 pl-0">
-                      <input type="text" class="form-control" v-model="info.latitude" :readonly="!editing" />
+                      <input type="text" class="form-control" v-model="info.latitude" :readonly="!editing" @change="updateMap" />
                       <small class="text-muted">Latitude</small>
                     </div>
                     <div class="col-6">
-                      <input type="text" class="form-control" v-model="info.longitude" :readonly="!editing" />
+                      <input type="text" class="form-control" v-model="info.longitude" :readonly="!editing" @change="updateMap" />
                       <small class="text-muted">Longitude</small>
                     </div>
                   </div>
@@ -628,6 +628,7 @@
         },
         map: {},
         marker: {},
+        markerPoi: {},
         L: null
       }
 
@@ -868,7 +869,8 @@
             // popupAnchor:  [12, 12] // point from which the popup should open relative to the iconAnchor
           });
 
-          let marker = this.L.marker([position.lat, position.lng], {icon: customIcon}).addTo(this.map);
+          this.marker = this.L.marker([position.lat, position.lng], {icon: customIcon}).addTo(this.map);
+          this.markerPoi = this.L.marker([this.info.latitude, this.info.longitude]).addTo(this.map);
 
           // alert('load map!')
 
@@ -1105,10 +1107,20 @@
         })
       },
       updateMap() {
-        /**        let latLng = new this.google.maps.LatLng(this.beacon.lat, this.beacon.lng)
-         this.marker.setPosition(latLng)
-         this.map.panTo(latLng)
-         this.map.setZoom(16)*/
+        let position = this.getPosition(this.beacon)
+        if(this.L === null) {
+          if (position.lat !== 0 && position.lng !== 0) {
+            this.loadMap()
+          }
+        } else {
+          if (!isNaN(position.lat) && !isNaN(position.lng) && position.lat !== 0 && position.lng !== 0) {
+            this.marker.setLatLng(new this.L.LatLng(position.lat, position.lng))
+            this.map.setView([position.lat, position.lng], 16);
+          }
+          if (!isNaN(this.info.latitude) && !isNaN(this.info.longitude)) {
+            this.markerPoi.setLatLng(new this.L.LatLng(this.info.latitude, this.info.longitude));
+          }
+        }
       },
       resetBeacon() {
         if ( this.infoBackup != null) {
