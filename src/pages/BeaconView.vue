@@ -58,6 +58,9 @@
                 <div class="mt-2">
                   <h4 class="mb-0"><strong>{{ beacon.batteryLevel }}%</strong></h4>
                   <div :class="'small ' + (beacon.batteryLevel > 5 ? 'label-yellow' : '')">critical < 5%</div>
+                  <div class="small">
+                    Trusted updated at: {{ info.trustedUpdatedAt | formatDateTime }}
+                  </div>
                 </div>
               </div>
               <div :class="'col-6 d-flex flex-column justify-content-between flex-grow-1 flex-shrink-0 border-start ' + getStatusCardClass(beacon)">
@@ -416,36 +419,10 @@
                 <div id="config-info" class="row mt-4 flex-column" v-show="modeTab === 'INFO'">
                   <div class="row mt-3">
                     <div class="col-6 pl-0">
-                      <input type="text" class="form-control" v-model="info.online" :readonly="true" />
-                      <small class="text-muted">Online</small>
+                      <span class="text-muted">Online:</span> {{ info.online }}
                     </div>
-                    <div class="col-6 pr-0">
-                      <input type="text" class="form-control" v-model="info.status" :readonly="true" />
-                      <small class="text-muted">Status</small>
-                    </div>
-                  </div>
-                  <div class="row mt-3">
                     <div class="col-6 pl-0">
-                      <input type="text" class="form-control" v-model="info.batteryLevel" :readonly="true" />
-                      <small class="text-muted">Battery level</small>
-                    </div>
-                    <div class="col-6 pr-0">
-                      <input type="text" class="form-control" v-model="info.trustedUpdatedAt" :readonly="true" />
-                      <small class="text-muted">Trusted updated at</small>
-                    </div>
-                  </div>
-                  <div class="row mt-3">
-                    <div class="col-8 pl-0">
-                      <input type="text" class="form-control" v-model="info.uuid" :readonly="true" />
-                      <small class="text-muted">UUID</small>
-                    </div>
-                    <div class="col-2">
-                      <input type="text" class="form-control" v-model="info.major" :readonly="true" />
-                      <small class="text-muted">Major</small>
-                    </div>
-                    <div class="col-2 pr-0">
-                      <input type="text" class="form-control" v-model="info.minor" :readonly="true" />
-                      <small class="text-muted">Minor</small>
+                      <span class="text-muted">Status:</span> {{ info.status }}
                     </div>
                   </div>
                   <div class="row mt-3">
@@ -1274,6 +1251,14 @@
         }
 
         return date.format('DD.MM.YYYY')
+      },
+      formatDateTime(dateString) {
+        let date = moment(dateString)
+        if (!date.isValid()) {
+          return ''
+        }
+
+        return date.format('DD.MM.YYYY HH:mm')
       }
     }
   }
