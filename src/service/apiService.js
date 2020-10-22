@@ -208,6 +208,7 @@ export function updateBeacon(beacon, info) {
       name: info.name,
       website: info.website,
       address: info.address,
+      floor: info.floor,
       location: info.location,
       cap: info.cap,
       latitude: info.latitude,
