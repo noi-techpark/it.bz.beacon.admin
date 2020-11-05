@@ -206,7 +206,6 @@ export function updateBeacon(beacon, info) {
     group: beacon.group.id,
     info: {
       name: info.name,
-      website: info.website,
       address: info.address,
       floor: info.floor,
       location: info.location,

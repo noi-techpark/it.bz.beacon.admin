@@ -461,12 +461,6 @@
                       <small class="text-muted">Location</small>
                     </div>
                   </div>
-                  <div class="row mt-3">
-                    <div class="col-12 pl-0 pr-0">
-                      <input type="text" class="form-control" v-model="info.website" :readonly="!editing" />
-                      <small class="text-muted">Website</small>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -601,8 +595,7 @@
           status: 'PLANED',
           trustedUpdatedAt: 0,
           txPower: 0,
-          uuid: '',
-          website: ''
+          uuid: ''
         },
         infoBackup: {},
         notAssignedLabel: 'not assigned',
