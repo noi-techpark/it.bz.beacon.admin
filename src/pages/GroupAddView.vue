@@ -12,10 +12,16 @@
                   <input type="text" required class="form-control" id="name" v-model="group.name" placeholder="Name">
                 </div>
               </div>
+              <div class="form-group row">
+                <label for="kontaktIoApiKey" class="col-sm-2 pl-0 col-form-label">kontakt.io API Key</label>
+                <div class="col-sm-10 pr-0">
+                  <input type="text" required class="form-control" id="kontaktIoApiKey" v-model="group.kontaktIoApiKey" placeholder="kontakt.io API Key">
+                </div>
+              </div>
               <div class="row">
                 <div class="col-12 pl-0 pr-0">
                   <div class="alert alert-danger" role="alert" v-if="error">
-                    Unable to create new group. Please verify that the group does not already exist and the password corresponds to the password rules.
+                    Unable to create new group. Please verify the data and that the group does not already exist.
                   </div>
                 </div>
               </div>
@@ -53,7 +59,8 @@
       return {
         title: 'AddGroup',
         group: {
-          name: ''
+          name: '',
+          kontaktIoApiKey: ''
         },
         saving: false,
         error: false

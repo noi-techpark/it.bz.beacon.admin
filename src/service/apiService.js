@@ -135,12 +135,14 @@ export function getGroup(id) {
 export function updateGroup(group) {
   return callPatch(PATH_GROUPS + '/' + group.id, true, {
     'name': group.name,
+    'kontaktIoApiKey': group.kontaktIoApiKey
   })
 }
 
 export function createGroup(group) {
   return callPost(PATH_GROUPS, true, {
-    'name': group.name
+    'name': group.name,
+    'kontaktIoApiKey': group.kontaktIoApiKey
   })
 }
 

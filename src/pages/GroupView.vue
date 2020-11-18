@@ -12,6 +12,12 @@
                   <input type="text" :disabled="!isAdmin" required class="form-control" id="name" v-model="group.name" placeholder="Name">
                 </div>
               </div>
+              <div class="form-group row">
+                <label for="kontakt_io_api_key" class="col-sm-2 pl-0 col-form-label">kontakt.io API Key</label>
+                <div class="col-sm-10">
+                  <input type="text" :disabled="!isAdmin" required class="form-control" id="kontakt_io_api_key" v-model="group.kontaktIoApiKey" placeholder="kontakt.io API Key">
+                </div>
+              </div>
               <div class="row">
                 <div class="col-12 pl-0 pr-0">
                   <div class="alert alert-danger" role="alert" v-if="error">
@@ -99,7 +105,8 @@ export default {
       title: 'Group',
       group: {
         id: '',
-        name: ''
+        name: '',
+        kontaktIoApiKey: ''
       },
       userRole: {
         user: ''
