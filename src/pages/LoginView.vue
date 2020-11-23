@@ -44,6 +44,7 @@
           </div>
           <div class="input row" style="justify-content: center">
             <div class="col-sm col-sm-link">
+              <a :href="'mailto:' + supportEmail">Request support</a>
               <router-link :to="{name: 'reset-password'}">Reset password</router-link>
             </div>
           </div>
@@ -55,6 +56,7 @@
 
 <script>
   import { mapGetters } from 'vuex'
+  import config from '../service/config'
 
   export default {
     name: 'Login',
@@ -62,7 +64,8 @@
       return {
         username: '',
         password: '',
-        passwordFieldType: 'password'
+        passwordFieldType: 'password',
+        supportEmail: config.SUPPORT_EMAIL
       }
     },
     computed: {
@@ -136,6 +139,6 @@
   .col-sm-link {
     max-width: 380px;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
   }
 </style>

@@ -21,6 +21,7 @@ sessionStorage.removeItem('map_lat')
 sessionStorage.removeItem('map_lon')
 
 sessionStorage.removeItem('beacons_search')
+sessionStorage.removeItem('group_filter')
 
 /* eslint-disable no-new */
 new Vue({

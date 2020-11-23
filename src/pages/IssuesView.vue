@@ -2,9 +2,18 @@
   <!-- eslint-disable -->
   <layout :source="title">
     <template slot="search-input">
-      <div class="col p-0 h-100 text-right search-container">
-        <img class="search-icon" :src="require('../assets/ic_search.svg')">
-        <input type="text" class="beacon-search" v-model="search" placeholder="Search issue">
+      <div class="row" style="width: 100%">
+        <div class="col-4 p-0 h-100 text-right search-container">
+          <img class="search-icon mt-0" :src="require('../assets/ic_search.svg')">
+          <input type="text" class="beacon-search" v-model="search" placeholder="Search issue">
+        </div>
+        <div class="col-4 p-0 h-100 text-right search-container">
+          <search-group-filter ref="searchGroupFilter" v-model="groupFilter" />
+        </div>
+        <div class="col-4 p-0 h-100">
+          <button type="button" class="btn btn-reset ml-2" @click="resetFilter">Reset</button>
+          <button type="button" class="btn btn-reset ml-2" @click="reload">Reload</button>
+        </div>
       </div>
     </template>
     <template slot="body">
@@ -41,9 +50,11 @@
   import MarkerClusterer  from '@google/markerclusterer'
   import router from '../router/index'
   import merge from 'lodash/merge'
+  import SearchGroupFilter from "../components/SearchGroupFilter";
 
   export default {
     components: {
+      SearchGroupFilter,
       Layout,
       SimpleTable,
       Loader
@@ -55,6 +66,10 @@
         MAP: MAP,
         title: 'Issues',
         tableCols: [
+          {
+            title: 'Id',
+            key: 'beacon.id'
+          },
           {
             title: 'Name',
             key: 'beacon.name'
@@ -73,6 +88,10 @@
             type: 'date'
           },
           {
+            title: 'Group',
+            key: 'beacon.group.name'
+          },
+          {
             title: 'Battery',
             key: 'beacon.batteryLevel',
             type: 'battery-level'
@@ -83,6 +102,7 @@
             type: 'beacon-status'
           }
         ],
+        mapData: [],
         tableData: [],
         tableMeta: {
           sorting: {
@@ -97,8 +117,10 @@
           }
         },
         search: '',
+        groupFilter: '',
         loaded: false,
         map: null,
+        mapBeacons: [],
         markers: [],
         beaconIds: [],
         addedOnMap: false,
@@ -117,37 +139,51 @@
     watch: {
       search() {
         this.reloadTableData()
+        this.$set(this, 'mapBeacons', this.mapData.slice(0))
       },
       issues() {
         this.reloadTableData()
         this.$set(this, 'loaded', true)
+        this.$set(this, 'mapBeacons', this.mapData.slice(0)) // load map markers
       },
-      tableData() {
+      groupFilter() {
+        sessionStorage.setItem("group_filter", this.groupFilter)
+
+        this.reloadTableData()
+        this.$set(this, 'mapBeacons', this.mapData.slice(0))
+      },
+      mapBeacons() {
+        // let newMarkers = []
+
+        /*
+        if (this.mapBeacons === null) {
+          this.updateMarkers(newMarkers)
+          return
+        }
+        */
 
         // if leaflet is not ready, skip
         if (!this.L)
-           return
+          return
 
         // cancel previous marker timers
         while (this.timers.length > 0)
-           clearTimeout(this.timers.shift());
+          clearTimeout(this.timers.shift());
 
         if (this.cluster == null)
         {
-           this.cluster = this.L.markerClusterGroup();
-           this.map.addLayer(this.cluster);
+          this.cluster = this.L.markerClusterGroup();
+          this.map.addLayer(this.cluster);
         }
         else
         {
-           this.cluster.removeLayers(this.cluster.getLayers())
+          this.cluster.removeLayers(this.cluster.getLayers())
         }
 
-        this.tableData.forEach((issue) => {
+        this.mapBeacons.forEach((issue) => {
           let beacon = issue.beacon
 
           let position = this.getPosition(beacon)
-          console.log(position)
-          console.log(issue.beacon)
 
           if (position.lat !== 0 || position.lng !== 0) {
 
@@ -156,8 +192,6 @@
               iconSize:     [24, 24], // size of the icon
               iconAnchor:   [12, 12], // point of the icon which will correspond to marker's location
             });
-
-            console.log(customIcon)
 
             let marker = this.L.marker([position.lat, position.lng], {icon: customIcon}) //.addTo(this.map);
             marker.on('click', () => {
@@ -168,9 +202,9 @@
             this.timers.push(setTimeout(function() { ccc.addLayer(marker); }, 200));
 
           }
+        })
 
-        });
-
+        // this.updateMarkers(newMarkers)
       }
     },
     methods: {
@@ -178,12 +212,20 @@
         'fetchIssues',
         'clear'
       ]),
+      ...mapActions('groups', [
+        'fetchGroups',
+        'clear'
+      ]),
       getPosition(beacon) {
-
-        if (beacon.lat !== 0 || beacon.lng !== 0) {
+        if (beacon.lat !== 0 && beacon.lng !== 0) {
           return {
             lat: beacon.lat,
             lng: beacon.lng
+          }
+        } else if (beacon.info_lat !== 0 && beacon.info_lng !== 0) {
+          return {
+            lat: beacon.info_lat,
+            lng: beacon.info_lng
           }
         }
 
@@ -285,14 +327,32 @@
           this.tableData = this.issues.slice(0).filter((issue) => {
             return typeof issue !== 'undefined'
           }).filter((issue) => {
-              return issue.beacon.name.toLowerCase().includes(this.search.toLowerCase())
+            return this.groupFilter === '' || issue.beacon.group !== null && issue.beacon.group.name === this.groupFilter
+          }).filter((issue) => {
+            return issue.beacon.name.toLowerCase().includes(this.search.toLowerCase())
           })
         }
-        this.tableData.sort((issueA, issueB) => {
-          if (issueA[params.sorting.col] < issueB[params.sorting.col]) {
+
+        this.$set(this, 'mapData', this.tableData.slice(0))
+
+        this.tableData.sort((beaconA, beaconB) => {
+          let valA = beaconA
+          let valB = beaconB
+          let sortingCols = params.sorting.col.split('.')
+          for(let i = 0; i < sortingCols.length; i++) {
+            valA = valA != null? valA[sortingCols[i]]: null
+            valB = valB != null? valB[sortingCols[i]]: null
+          }
+          if(valA != null && valB == null) {
+            return -1
+          }
+          if(valA == null && valB != null) {
+            return 1
+          }
+          if (valA < valB) {
             return params.sorting.order === 'asc' ? -1 : 1
           }
-          if (issueA[params.sorting.col] > issueB[params.sorting.col]) {
+          if (valA > valB) {
             return params.sorting.order === 'asc' ? 1 : -1
           }
           return 0
@@ -309,28 +369,46 @@
       },
       iconSvg(beacon) {
         let uri = location.origin;
-        switch(beacon.status) {
-          case 'BATTERY_LOW':
-          case 'ISSUE':
-            uri += require('../assets/img/map/map_icon_issue.svg')
-            break
-          case 'CONFIGURATION_PENDING':
-            uri += require('../assets/img/map/map_icon_pending.svg')
-            break
-          case 'NO_SIGNAL':
-            uri += require('../assets/img/map/map_icon_nosignal.svg')
-            break
-          default:
-            uri += require('../assets/img/map/map_icon_ok.svg')
-            break
+        if (beacon.lat === 0 && beacon.lng === 0) {
+          uri += require('../assets/img/map/map_icon_provisoric.svg')
+        } else {
+          switch (beacon.status) {
+            case 'BATTERY_LOW':
+            case 'ISSUE':
+              uri += require('../assets/img/map/map_icon_issue.svg')
+              break
+            case 'CONFIGURATION_PENDING':
+              uri += require('../assets/img/map/map_icon_pending.svg')
+              break
+            case 'NO_SIGNAL':
+              uri += require('../assets/img/map/map_icon_nosignal.svg')
+              break
+            default:
+              uri += require('../assets/img/map/map_icon_ok.svg')
+              break
+          }
         }
 
         return encodeURI(uri);
-      }
+      },
+      resetFilter() {
+        this.map.setView([46.6568142, 11.423318], 9);
+        this.search = ''
+        this.groupFilter = ''
+      },
+      reload() {
+        this.fetchIssues()
+        this.fetchGroups()
+      },
     },
     async mounted() {
+      this.loaded = false
+      this.$nextTick()
+      this.clear().then(() => {
+        this.$set(this, 'loaded', false)
+      })
+      try {
 
-        this.clear()
 
         this.L = await initMap();
         this.map = this.L.map('map')
@@ -338,13 +416,12 @@
         let map = this.map
 
         this.map.on('zoomend', function(e) {
-            console.log(e.target.getZoom())
-            sessionStorage.setItem('map_zoom', map.getZoom())
+          sessionStorage.setItem('map_zoom', map.getZoom())
         });
 
         this.map.on('moveend', function(e) {
-            sessionStorage.setItem('map_lat', e.target.getCenter().lat)
-            sessionStorage.setItem('map_lon', e.target.getCenter().lng)
+          sessionStorage.setItem('map_lat', e.target.getCenter().lat)
+          sessionStorage.setItem('map_lon', e.target.getCenter().lng)
         });
 
         // get previous zoom
@@ -356,18 +433,18 @@
         this.map.setView([prevLat, prevLon], prevZoom);
 
         this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(this.map);
 
-
-        let myLocationButtonContainer = document.createElement('div');
-        let myLocationControl = new this.MyLocationControl(myLocationButtonContainer);
-        myLocationControl.addClickListener(() => {
-          this.goToMyPosition()
-        });
-        myLocationButtonContainer.index = 1;
-        // this.map.controls[this.google.maps.ControlPosition.RIGHT_BOTTOM].push(myLocationButtonContainer);
         this.fetchIssues()
+        this.fetchGroups()
+
+
+      } catch (error) {
+        window.console.log(error);
+        throw error;
+        // this.loaded = true
+      }
     },
   }
 </script>
@@ -386,10 +463,11 @@
   .issue-map {
     width: 100%;
     height: 100%;
+    z-index: 0;
   }
 
   #view-switch {
-     z-index: 1000;
+    z-index: 1000;
   }
 
   .btn-view-switch {
@@ -440,6 +518,20 @@
 
     &:hover {
       background-color: red;
+    }
+  }
+
+
+  .btn-reset {
+    background: $light-blue;
+    border-color: $light-blue;
+    font-size: 0.8rem;
+    color: white;
+
+    &:hover {
+      background: $lighter-blue;
+      border-color: $lighter-blue;
+      color: white;
     }
   }
 
@@ -501,6 +593,10 @@
 
       }
     }
+  }
+
+  .search-icon {
+    top: 0px
   }
 
 </style>

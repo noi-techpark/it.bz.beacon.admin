@@ -30,7 +30,8 @@
           </div>
           <div class="input row justify-content-center">
               <span class="col-sm alert alert-success error-message" role="alert">
-                An email with the reset password instructions has been sent.
+                The reset password instructions has been sent to you at email you provided. If you don't receive the
+                email please check if you provide the registered email or check your spam folder
               </span>
           </div>
         </div>
@@ -90,15 +91,12 @@
             this.sending = false
             this.emailSuccess = true
           })
-          .catch((e) => {
+          .catch(() => {
             this.$set(this, 'hasError', true)
-            if(e.response.status === 404 && e.response.data.message === 'User not found')
-              this.$set(this, 'errorMessage', 'User not found.')
-            else
-              this.$set(this, 'errorMessage', 'Password reset failed.')
+            this.$set(this, 'errorMessage', 'Password reset failed.')
             this.sending = false
           })
-      },
+      }
     }
   }
 </script>

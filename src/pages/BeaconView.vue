@@ -5,7 +5,7 @@
       <div class="container pb-4" v-show="loaded">
         <div class="row mt-4">
           <div class="col-8">
-            <h2 class="beacon-title mb-3" v-if="!editing">{{ beacon.name }}</h2>
+            <h2 class="beacon-title mt-3" v-if="!editing">{{ beacon.name }}</h2>
             <div v-if="editing">
               <input type="text" class="form-control" v-model="beacon.name" :readonly="!editing" />
               <small class="text-muted">Name</small>
@@ -20,9 +20,9 @@
             <small class="text-muted">Group</small>
           </div>
         </div>
-        <div class="row mt-2">
+        <div class="row">
           <div class="col">
-            <span class="text-muted">last seen:</span> {{ beacon.lastSeen | formatDate }}
+            <h5 class="beacon-title">Id: {{ beacon.id }}</h5>
           </div>
           <div class="col-xs-12 col-sm-6 col-md-3 col-lg-2" v-show="!editing">
             <select class="form-control" @change="executeAction" v-if="canEdit()">
@@ -33,6 +33,11 @@
           <div class="col-auto edit-actions" v-show="editing">
             <button class="btn btn-outline-secondary mr-4" @click="cancelEdit">Cancel</button>
             <button class="btn btn-primary" @click="save">Save</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <span class="text-muted">last seen:</span> {{ beacon.lastSeen | formatDate }}
           </div>
         </div>
         <div class="row mt-4" v-if="editing && beacon.status === 'CONFIGURATION_PENDING' && !configResetted">
@@ -53,6 +58,9 @@
                 <div class="mt-2">
                   <h4 class="mb-0"><strong>{{ beacon.batteryLevel }}%</strong></h4>
                   <div :class="'small ' + (beacon.batteryLevel > 5 ? 'label-yellow' : '')">critical < 5%</div>
+                  <div class="small">
+                    Trusted updated at: {{ info.trustedUpdatedAt | formatDateTime }}
+                  </div>
                 </div>
               </div>
               <div :class="'col-6 d-flex flex-column justify-content-between flex-grow-1 flex-shrink-0 border-start ' + getStatusCardClass(beacon)">
@@ -411,78 +419,46 @@
                 <div id="config-info" class="row mt-4 flex-column" v-show="modeTab === 'INFO'">
                   <div class="row mt-3">
                     <div class="col-6 pl-0">
-                      <input type="text" class="form-control" v-model="info.online" :readonly="true" />
-                      <small class="text-muted">Online</small>
+                      <span class="text-muted">Online:</span> {{ info.online }}
                     </div>
-                    <div class="col-6 pr-0">
-                      <input type="text" class="form-control" v-model="info.status" :readonly="true" />
-                      <small class="text-muted">Status</small>
-                    </div>
-                  </div>
-                  <div class="row mt-3">
                     <div class="col-6 pl-0">
-                      <input type="text" class="form-control" v-model="info.batteryLevel" :readonly="true" />
-                      <small class="text-muted">Battery level</small>
-                    </div>
-                    <div class="col-6 pr-0">
-                      <input type="text" class="form-control" v-model="info.trustedUpdatedAt" :readonly="true" />
-                      <small class="text-muted">Trusted updated at</small>
-                    </div>
-                  </div>
-                  <div class="row mt-3">
-                    <div class="col-8 pl-0">
-                      <input type="text" class="form-control" v-model="info.uuid" :readonly="true" />
-                      <small class="text-muted">UUID</small>
-                    </div>
-                    <div class="col-2">
-                      <input type="text" class="form-control" v-model="info.major" :readonly="true" />
-                      <small class="text-muted">Major</small>
-                    </div>
-                    <div class="col-2 pr-0">
-                      <input type="text" class="form-control" v-model="info.minor" :readonly="true" />
-                      <small class="text-muted">Minor</small>
+                      <span class="text-muted">Status:</span> {{ info.status }}
                     </div>
                   </div>
                   <div class="row mt-3">
                     <div class="col-12 pl-0 pr-0">
-                      <input type="text" class="form-control" v-model="info.name" :readonly="true" />
+                      <input type="text" class="form-control" v-model="info.name" :readonly="!editing" />
                       <small class="text-muted">Name</small>
                     </div>
                   </div>
                   <div class="row mt-3">
                     <div class="col-8 pl-0">
-                      <input type="text" class="form-control" v-model="info.address" :readonly="true" />
+                      <input type="text" class="form-control" v-model="info.address" :readonly="!editing" />
                       <small class="text-muted">Address</small>
                     </div>
                     <div class="col-4 pl-0">
-                      <input type="text" class="form-control" v-model="info.floor" :readonly="true" />
+                      <input type="text" class="form-control" v-model="info.floor" :readonly="!editing" />
                       <small class="text-muted">Floor</small>
                     </div>
                   </div>
                   <div class="row mt-3">
                     <div class="col-6 pl-0">
-                      <input type="text" class="form-control" v-model="info.latitude" :readonly="true" />
+                      <input type="text" class="form-control" v-model="info.latitude" :readonly="!editing" @change="updateMap" />
                       <small class="text-muted">Latitude</small>
                     </div>
                     <div class="col-6">
-                      <input type="text" class="form-control" v-model="info.longitude" :readonly="true" />
+                      <input type="text" class="form-control" v-model="info.longitude" :readonly="!editing" @change="updateMap" />
                       <small class="text-muted">Longitude</small>
                     </div>
                   </div>
                   <div class="row mt-3">
                     <div class="col-4 pl-0">
-                      <input type="text" class="form-control" v-model="info.cap" :readonly="true" />
+                      <input type="text" class="form-control" v-model="info.cap" :readonly="!editing" />
                       <small class="text-muted">CAP</small>
                     </div>
                     <div class="col-8">
-                      <input type="text" class="form-control" v-model="info.location" :readonly="true" />
+                      <input type="text" class="form-control" v-model="info.location" :readonly="!editing" />
                       <small class="text-muted">Location</small>
-                    </div>
-                  </div>
-                  <div class="row mt-3">
-                    <div class="col-12 pl-0 pr-0">
-                      <input type="text" class="form-control" v-model="info.website" :readonly="true" />
-                      <small class="text-muted">Website</small>
                     </div>
                   </div>
                 </div>
@@ -619,9 +595,9 @@
           status: 'PLANED',
           trustedUpdatedAt: 0,
           txPower: 0,
-          uuid: '',
-          website: ''
+          uuid: ''
         },
+        infoBackup: {},
         notAssignedLabel: 'not assigned',
         notAssignedValue: 'null',
         issues: [],
@@ -645,6 +621,7 @@
         },
         map: {},
         marker: {},
+        markerPoi: {},
         L: null
       }
 
@@ -778,6 +755,7 @@
       this.controls.telemetrySwitch.disabled = true
 
       getInfo(this.$route.params.id).then((info) => {
+          Object.assign(this.infoBackup, info)
           Object.assign(this.info, info)
       }).catch((error) => {
           // if you can't find a info record (404), let the object empty
@@ -884,7 +862,8 @@
             // popupAnchor:  [12, 12] // point from which the popup should open relative to the iconAnchor
           });
 
-          let marker = this.L.marker([position.lat, position.lng], {icon: customIcon}).addTo(this.map);
+          this.marker = this.L.marker([position.lat, position.lng], {icon: customIcon}).addTo(this.map);
+          this.markerPoi = this.L.marker([this.info.latitude, this.info.longitude]).addTo(this.map);
 
           // alert('load map!')
 
@@ -1046,26 +1025,34 @@
           this.beacon.group = this.group
         else
           this.beacon.group = null
-        updateBeacon(this.beacon).then(beacon => {
-          Object.assign(this.beaconBackup, beacon)
-          Object.assign(this.beacon, beacon)
-          if(beacon.group != null) {
-            Object.assign(this.groupBackup, beacon.group)
-            Object.assign(this.group, beacon.group)
-          } else {
-            Object.assign(this.groupBackup, {
-              id: this.notAssignedValue,
-              name: this.notAssignedLabel
+        updateBeacon(this.beacon, this.info).then(beacon => {
+            getInfo(this.beacon.id).then((info) => {
+              Object.assign(this.infoBackup, info)
+              Object.assign(this.info, info)
+            }).catch((error) => {
+              // if you can't find a info record (404), let the object empty
+              // console.log(error);
+            }).finally(() => {
+              Object.assign(this.beaconBackup, beacon)
+              Object.assign(this.beacon, beacon)
+              if (beacon.group != null) {
+                Object.assign(this.groupBackup, beacon.group)
+                Object.assign(this.group, beacon.group)
+              } else {
+                Object.assign(this.groupBackup, {
+                  id: this.notAssignedValue,
+                  name: this.notAssignedLabel
+                })
+                Object.assign(this.group, {
+                  id: this.notAssignedValue,
+                  name: this.notAssignedLabel
+                })
+              }
+              this.updateControls()
+              this.updateMap()
+              this.$set(this, 'editing', false)
+              this.$set(this, 'saving', false)
             })
-            Object.assign(this.group, {
-              id: this.notAssignedValue,
-              name: this.notAssignedLabel
-            })
-          }
-          this.updateControls()
-          this.updateMap()
-          this.$set(this, 'editing', false)
-          this.$set(this, 'saving', false)
         }).catch((e) => {
           console.log(e)
           alert('An error occured during saving. Please check your input values.')
@@ -1073,15 +1060,23 @@
         })
       },
       reload() {
-        getBeacon(this.beacon.id).then(beacon => {
-          Object.assign(this.beaconBackup, beacon)
-          Object.assign(this.beacon, beacon)
-          if(beacon.group != null) {
-            Object.assign(this.groupBackup, beacon.group)
-            Object.assign(this.group, beacon.group)
-          }
-          this.updateControls()
-          this.updateMap()
+        getInfo(this.beacon.id).then((info) => {
+          Object.assign(this.infoBackup, info)
+          Object.assign(this.info, info)
+        }).catch((error) => {
+          // if you can't find a info record (404), let the object empty
+          // console.log(error);
+        }).finally(() => {
+          getBeacon(this.beacon.id).then(beacon => {
+            Object.assign(this.beaconBackup, beacon)
+            Object.assign(this.beacon, beacon)
+            if (beacon.group != null) {
+              Object.assign(this.groupBackup, beacon.group)
+              Object.assign(this.group, beacon.group)
+            }
+            this.updateControls()
+            this.updateMap()
+          })
         })
       },
       cancelEdit() {
@@ -1105,12 +1100,25 @@
         })
       },
       updateMap() {
-        /**        let latLng = new this.google.maps.LatLng(this.beacon.lat, this.beacon.lng)
-         this.marker.setPosition(latLng)
-         this.map.panTo(latLng)
-         this.map.setZoom(16)*/
+        let position = this.getPosition(this.beacon)
+        if(this.L === null) {
+          if (position.lat !== 0 && position.lng !== 0) {
+            this.loadMap()
+          }
+        } else {
+          if (!isNaN(position.lat) && !isNaN(position.lng) && position.lat !== 0 && position.lng !== 0) {
+            this.marker.setLatLng(new this.L.LatLng(position.lat, position.lng))
+            this.map.setView([position.lat, position.lng], 16);
+          }
+          if (!isNaN(this.info.latitude) && !isNaN(this.info.longitude)) {
+            this.markerPoi.setLatLng(new this.L.LatLng(this.info.latitude, this.info.longitude));
+          }
+        }
       },
       resetBeacon() {
+        if ( this.infoBackup != null) {
+          Object.assign(this.info, this.infoBackup)
+        }
         if (this.beaconBackup != null) {
           Object.assign(this.beacon, this.beaconBackup)
           if(this.groupBackup != null)
@@ -1248,6 +1256,14 @@
         }
 
         return date.format('DD.MM.YYYY')
+      },
+      formatDateTime(dateString) {
+        let date = moment(dateString)
+        if (!date.isValid()) {
+          return ''
+        }
+
+        return date.format('DD.MM.YYYY HH:mm')
       }
     }
   }
