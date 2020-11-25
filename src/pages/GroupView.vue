@@ -213,10 +213,6 @@ export default {
       'fetchUsersForGroup',
       'clear'
     ]),
-    ...mapActions('login', [
-      'isAdmin',
-      'groupsRole'
-    ]),
     showUserDetail(user) {
       router.push({ name: 'user-edit', params: { id: user.user.id }})
     },

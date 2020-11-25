@@ -96,10 +96,6 @@ export default {
       'fetchGroups',
       'clear'
     ]),
-    ...mapActions('login', [
-      'isAdmin',
-      'groupsRole'
-    ]),
     isManager(group) {
       return this.groupsRole.some((groupRole => groupRole.group.id === group.id && groupRole.role == 'MANAGER'))
     },

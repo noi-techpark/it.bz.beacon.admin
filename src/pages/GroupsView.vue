@@ -105,9 +105,6 @@
         'fetchGroups',
         'clear'
       ]),
-      ...mapActions('login', [
-        'isAdmin'
-      ]),
       showDetail(group) {
         router.push({ name: 'group-edit', params: { id: group.id }})
       },

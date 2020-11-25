@@ -113,9 +113,6 @@ export default {
       'fetchUsers',
       'clear'
     ]),
-    ...mapActions('login', [
-      'isAdmin'
-    ]),
     showDetail(user) {
       router.push({ name: 'user-edit', params: { id: user.id }})
     },

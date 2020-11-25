@@ -828,10 +828,6 @@
         'fetchGroups',
         'clear'
       ]),
-      ...mapActions('login', [
-        'isAdmin',
-        'groupsRole'
-      ]),
       canEdit() {
         return this.isAdmin || this.groupsRole != null &&
           this.groupsRole.some((groupRole => groupRole.group.id === this.group.id &&
