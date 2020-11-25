@@ -13,9 +13,9 @@
                 </div>
               </div>
               <div class="form-group row">
-                <label for="kontaktIoApiKey" class="col-sm-2 pl-0 col-form-label">kontakt.io API Key</label>
+                <label for="apiKey" class="col-sm-2 pl-0 col-form-label">kontakt.io API Key</label>
                 <div class="col-sm-10 pr-0">
-                  <input type="text" required class="form-control" id="kontaktIoApiKey" v-model="group.kontaktIoApiKey" placeholder="kontakt.io API Key">
+                  <input type="text" required class="form-control" id="apiKey" v-model="apiKey" placeholder="kontakt.io API Key">
                 </div>
               </div>
               <div class="row">
@@ -59,9 +59,9 @@
       return {
         title: 'AddGroup',
         group: {
-          name: '',
-          kontaktIoApiKey: ''
+          name: ''
         },
+        apiKey: '',
         saving: false,
         error: false
       }
@@ -75,7 +75,7 @@
       create() {
         this.saving = true
         this.error = false
-        createGroup(this.group)
+        createGroup(this.group, this.apiKey)
                 .then(() => {
                   router.push({name: 'groups'})
                   this.saving = false

@@ -16,6 +16,7 @@ const SUB_PATH_IMAGES = '/images'
 const SUB_PATH_RESET_PASSWORD = '/reset-password'
 const SUB_PATH_CHANGE_PASSWORD = '/change-password'
 const SUB_PATH_USERS = '/users'
+const SUB_PATH_AKI_KEY = '/apiKey'
 
 function call(method, path, auth, data, headers = {}) {
   if (auth) {
@@ -132,17 +133,17 @@ export function getGroup(id) {
   return callGet(PATH_GROUPS + '/' + id, true)
 }
 
-export function updateGroup(group) {
+export function updateGroup(group, apiKey) {
   return callPatch(PATH_GROUPS + '/' + group.id, true, {
     'name': group.name,
-    'kontaktIoApiKey': group.kontaktIoApiKey
+    'apiKey': apiKey
   })
 }
 
-export function createGroup(group) {
+export function createGroup(group, apiKey) {
   return callPost(PATH_GROUPS, true, {
     'name': group.name,
-    'kontaktIoApiKey': group.kontaktIoApiKey
+    'apiKey': apiKey
   })
 }
 
@@ -170,6 +171,10 @@ export function changeUserRoleInGroup(groupId, user, userRole) {
 
 export function removeUserFromGroup(groupId, user) {
   return callDelete(PATH_GROUPS + '/' + groupId + SUB_PATH_USERS + '/' + user.id, true)
+}
+
+export function getGroupApiKey(groupId) {
+  return callGet(PATH_GROUPS + '/' + groupId + SUB_PATH_AKI_KEY, true)
 }
 
 // BEACONS
