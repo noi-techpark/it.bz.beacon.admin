@@ -176,7 +176,6 @@ export default {
   },
   mounted() {
     this.fetchUsers()
-    this.fetchUsersForGroup()
   }
 }
 </script>

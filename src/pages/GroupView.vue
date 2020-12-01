@@ -12,6 +12,12 @@
                   <input type="text" :disabled="!isAdmin" required class="form-control" id="name" v-model="group.name" placeholder="Name">
                 </div>
               </div>
+              <div v-if="canSeeApiKey()" class="form-group row">
+                <label for="apiKey" class="col-sm-2 pl-0 col-form-label">API key</label>
+                <div class="col-sm-10">
+                  <input type="text" :disabled="!isAdmin" required class="form-control" id="apiKey" v-model="groupApiKey.apiKey" placeholder="API key">
+                </div>
+              </div>
               <div class="row">
                 <div class="col-12 pl-0 pr-0">
                   <div class="alert alert-danger" role="alert" v-if="error">
@@ -75,7 +81,7 @@
 import Layout from '../components/Layout'
 import Loader from '../components/Loader'
 import router from '../router/index'
-import { updateGroup, getGroup, removeUserFromGroup } from '../service/apiService'
+import {updateGroup, getGroup, removeUserFromGroup, getGroupApiKey} from '../service/apiService'
 import { mapActions, mapGetters } from 'vuex'
 import Confirm from '../components/Confirm'
 import AssignUserToGroupForm from '../components/AssignUserToGroupForm'
@@ -100,6 +106,10 @@ export default {
       group: {
         id: '',
         name: ''
+      },
+      groupApiKey: {
+        id: '',
+        apiKey: ''
       },
       userRole: {
         user: ''
@@ -171,13 +181,16 @@ export default {
       Object.assign(this.group, group)
       this.$set(this, 'loaded', true)
     }),
+    getGroupApiKey(this.$route.params.id).then((groupApiKey) => {
+      Object.assign(this.groupApiKey, groupApiKey)
+    })
     this.fetchUsersForGroup(this.$route.params.id)
   },
   methods: {
     update() {
       this.saving = true
       this.error = false
-      updateGroup(this.group)
+      updateGroup(this.group, this.groupApiKey.apiKey)
         .then(() => {
           router.push({ name: 'groups' })
           this.saving = false
@@ -190,14 +203,15 @@ export default {
     isManager() {
       return this.groupsRole.some((groupRole => groupRole.group.id === this.group.id && groupRole.role == 'MANAGER'))
     },
+    canSeeApiKey() {
+      return this.isAdmin || this.groupsRole != null &&
+        this.groupsRole.some((groupRole => groupRole.group.id === this.group.id &&
+          (groupRole.role == 'MANAGER' || groupRole.role == 'BEACON_EDITOR')))
+    },
 
     ...mapActions('groups', [
       'fetchUsersForGroup',
       'clear'
-    ]),
-    ...mapActions('login', [
-      'isAdmin',
-      'groupsRole'
     ]),
     showUserDetail(user) {
       router.push({ name: 'user-edit', params: { id: user.user.id }})

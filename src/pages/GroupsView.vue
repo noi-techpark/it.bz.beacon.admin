@@ -105,11 +105,8 @@
         'fetchGroups',
         'clear'
       ]),
-      ...mapActions('login', [
-        'isAdmin'
-      ]),
       showDetail(group) {
-        router.push({ name: 'group-edit', params: { id: group.id }})
+        router.push({ name: 'group-edit', params: { id: String(group.id) }})
       },
       reloadTableData(params = {}) {
         params = merge({

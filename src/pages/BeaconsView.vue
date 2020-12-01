@@ -232,10 +232,6 @@
         'fetchBeacons',
         'clear'
       ]),
-      ...mapActions('login', [
-        'isAdmin',
-        'groupsRole'
-      ]),
       ...mapActions('groups', [
         'fetchGroups',
         'clear'
