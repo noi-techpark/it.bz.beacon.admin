@@ -38,6 +38,7 @@
           </div>
         </div>
       </form>
+      <loader :visible="addingBeacons" :label="'Adding beacons...'"/>
     </div>
   </modal>
 </template>
@@ -47,10 +48,12 @@ import Modal from './Modal'
 import { Scrollable } from '../directive/Scrollable'
 import { createBeaconsByOrder } from '../service/apiService'
 import { mapActions, mapGetters } from 'vuex'
+import Loader from '../components/Loader'
 
 export default {
   components: {
-    Modal
+    Modal,
+    Loader
   },
   directives: {
     Scrollable
@@ -64,11 +67,6 @@ export default {
       'isAdmin',
       'groupsRole'
     ]),
-  },
-  props: {
-    beaconId: {
-      type: String
-    }
   },
   watch: {
     orderId() {
@@ -88,7 +86,8 @@ export default {
         id: null,
         groupId: null
       },
-      error: false
+      error: false,
+      addingBeacons: false
     }
   },
   methods: {
@@ -103,6 +102,7 @@ export default {
       this.groupId = ''
       this.orderId = ''
       this.visible = true
+      this.error = false
       return new Promise((resolve, reject) => {
         this.promise = {
           resolve: resolve,
@@ -111,7 +111,7 @@ export default {
       })
     },
     close(resolved) {
-      this.visible = false
+      this.addingBeacons = false
       if (this.promise) {
         if (resolved) {
           this.promise.resolve()
@@ -122,13 +122,16 @@ export default {
       this.promise = null
     },
     resolve() {
+      this.addingBeacons = true
       this.error = false
       createBeaconsByOrder(this.order)
         .then(() => {
           this.close(true)
+          this.$set(this, 'addingBeacons', false)
         })
         .catch(() => {
           this.$set(this, 'error', true)
+          this.$set(this, 'addingBeacons', false)
         })
     }
   },
