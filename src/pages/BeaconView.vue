@@ -637,9 +637,6 @@
       ...mapGetters('settings', [
         'getSettingById'
       ]),
-      ...mapGetters('infos', [
-        'info'
-      ]),
       ...mapGetters('groups', [
         'groups'
       ]),
