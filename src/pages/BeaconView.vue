@@ -1033,8 +1033,11 @@
               this.$set(this, 'saving', false)
             })
         }).catch((e) => {
-          console.log(e)
-          alert('An error occured during saving. Please check your input values.')
+          if(!!e.response && !!e.response.data && !!e.response.data.message) {
+            alert('An error occured during saving: ' + e.response.data.message)
+          } else {
+            alert('An error occured during saving. Please check your input values.')
+          }
           this.$set(this, 'saving', false)
         })
       },
