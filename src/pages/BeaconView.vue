@@ -13,7 +13,6 @@
           </div>
           <div class="col-4">
             <select class="form-control form-select-group-control" id="role" v-if="isAdmin" v-model="group.id" :disabled="!editing">
-              <option v-bind:key="notAssignedValue" :value="notAssignedValue">{{ this.notAssignedLabel }}</option>
               <option v-bind:key="mGroup.id" v-if="groups.length" v-for="mGroup in groups" :value="mGroup.id">{{ mGroup.name }}</option>
             </select>
             <input type="text" class="form-control" v-if="!isAdmin" v-model="group.name" :readonly="true" />
@@ -598,8 +597,6 @@
           uuid: ''
         },
         infoBackup: {},
-        notAssignedLabel: 'not assigned',
-        notAssignedValue: 'null',
         issues: [],
         modeTab: 'IBEACON',
         locationTab: 'GPS',
@@ -626,12 +623,12 @@
       }
 
       data.group = {
-        id: data.notAssignedValue,
-        name: data.notAssignedLabel
+        id: 0,
+        name: ''
       }
       data.groupBackup = {
-        id: data.notAssignedValue,
-        name: data.notAssignedLabel
+        id: 0,
+        name: ''
       }
 
       return data
@@ -1017,10 +1014,7 @@
       },
       save() {
         this.saving = true
-        if(this.group.id !== this.notAssignedLabel)
-          this.beacon.group = this.group
-        else
-          this.beacon.group = null
+        this.beacon.group = this.group
         updateBeacon(this.beacon, this.info).then(beacon => {
             getInfo(this.beacon.id).then((info) => {
               Object.assign(this.infoBackup, info)
@@ -1031,19 +1025,8 @@
             }).finally(() => {
               Object.assign(this.beaconBackup, beacon)
               Object.assign(this.beacon, beacon)
-              if (beacon.group != null) {
-                Object.assign(this.groupBackup, beacon.group)
-                Object.assign(this.group, beacon.group)
-              } else {
-                Object.assign(this.groupBackup, {
-                  id: this.notAssignedValue,
-                  name: this.notAssignedLabel
-                })
-                Object.assign(this.group, {
-                  id: this.notAssignedValue,
-                  name: this.notAssignedLabel
-                })
-              }
+              Object.assign(this.groupBackup, beacon.group)
+              Object.assign(this.group, beacon.group)
               this.updateControls()
               this.updateMap()
               this.$set(this, 'editing', false)
