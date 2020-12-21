@@ -242,9 +242,13 @@
       openAddBeaconsModal() {
         this.$refs.addBeaconsModal.open()
           .then(() => {
-            this.clear()
-            this.$set(this, 'loaded', false)
-            this.fetchBeacons()
+            let generatedGroup = this.groups.slice(0).filter((group) => {
+              return this.$refs.addBeaconsModal.$data.groupId !== null && this.$refs.addBeaconsModal.$data.groupId == group.id
+            })
+            if(generatedGroup.length > 0) {
+              this.groupFilter = generatedGroup[0].name;
+            }
+            this.reload()
           })
           .catch(() => {})
       },
