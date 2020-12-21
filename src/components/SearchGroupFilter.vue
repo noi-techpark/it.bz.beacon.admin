@@ -119,7 +119,7 @@ export default {
     },
     selectActiveGroup() {
       if(this.activeGroup !== null)
-        this.selectUser(this.searchedGroups[this.activeGroup])
+        this.search = this.searchedGroups[this.activeGroup].name
     },
     selectGroup(group) {
       this.search = group.name
