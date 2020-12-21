@@ -1031,7 +1031,13 @@
             })
         }).catch((e) => {
           if(!!e.response && !!e.response.data && !!e.response.data.message) {
-            alert('An error occured during saving: ' + e.response.data.message)
+            if(e.response.data.message == "Invalid api key") {
+              alert("Impossible to perform the group change. The API key of the destination group has no access to the beacon.\n" +
+                "Please contact the owner to share this beacon in the kontakt.io dashboard panel.")
+            } else {
+              alert('An error occured during saving: ' +
+                (!!e.response.data.details? e.response.data.details: e.response.data.message));
+            }
           } else {
             alert('An error occured during saving. Please check your input values.')
           }
