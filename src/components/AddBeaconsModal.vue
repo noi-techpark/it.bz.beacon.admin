@@ -111,7 +111,7 @@ export default {
       })
     },
     close(resolved) {
-      this.addingBeacons = false
+      this.visible = false
       if (this.promise) {
         if (resolved) {
           this.promise.resolve()
