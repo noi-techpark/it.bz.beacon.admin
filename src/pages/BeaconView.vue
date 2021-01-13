@@ -1034,6 +1034,9 @@
             if(e.response.data.message == "Invalid api key") {
               alert("Impossible to perform the group change. The API key of the destination group has no access to the beacon.\n" +
                 "Please contact the owner to share this beacon in the kontakt.io dashboard panel.")
+            } else if(e.response.data.message == "No access to beacon") {
+              alert("The beacon groups API key has no access to the beacon data due to the expiraton or unsafe termination of the share.\n" +
+                "Please contact the owner to share this beacon in the kontakt.io dashboard panel.")
             } else {
               alert('An error occured during saving: ' +
                 (!!e.response.data.details? e.response.data.details: e.response.data.message));
