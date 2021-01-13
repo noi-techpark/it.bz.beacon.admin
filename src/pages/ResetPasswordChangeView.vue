@@ -51,7 +51,7 @@
           <div class="input form-group row">
             <div class="col-sm-3 pl-0 col-form-label"></div>
             <div class="col-sm-9 pr-0">
-              Min. 8 characters, max. 32 characters, must contain one of $&+,:;=\?@#|/'<>.^*()%!
+              <span class="password-informations">Min. 8 characters, max. 32 characters, must contain one of $&+,:;=\?@#|/'<>.^*()%!</span>
             </div>
           </div>
           <div class="input form-group row">
@@ -187,5 +187,11 @@
 
   .btn {
     font-size: 0.8em;
+  }
+
+  span.password-informations {
+    max-width: 380px;
+    width: 100%;
+    display: inline-block;
   }
 </style>
