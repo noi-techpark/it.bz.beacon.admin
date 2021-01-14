@@ -763,7 +763,8 @@
               Object.assign(this.groupBackup, beacon.group)
               Object.assign(this.group, beacon.group)
             }
-            let position = this.getPosition(this.beacon)
+            let position = this.getPosition(this.beacon,this.info)
+            console.log(position)
             if (position.lat !== 0 && position.lng !== 0) {
               this.loadMap()
             }
@@ -830,7 +831,8 @@
       async loadMap() {
         try {
           this.L = await initMap();
-          let position = this.getPosition(this.beacon)
+          let position = this.getPosition(this.beacon,this.info)
+          console.log(position)
 
           this.map = this.L.map('map')
 
@@ -1088,7 +1090,8 @@
         })
       },
       updateMap() {
-        let position = this.getPosition(this.beacon)
+        let position = this.getPosition(this.beacon,this.info)
+        console.log(position)
         if(this.L === null) {
           if (position.lat !== 0 && position.lng !== 0) {
             this.loadMap()
@@ -1127,17 +1130,35 @@
           this.beacon.locationType = type
         }
       },
-      getPosition(beacon) {
-        if (beacon.lat !== 0 || beacon.lng !== 0) {
-          return {
+      getPosition(beacon,info) {
+        let position = {
+          lat: 0,
+          lng: 0
+        };
+        if(typeof beacon.lat == 'string') {
+          beacon.lat = parseFloat(beacon.lat.replace(',', '.'));
+        }
+        if(typeof beacon.lng == 'string') {
+          beacon.lng = parseFloat(beacon.lng.replace(',', '.'));
+        }
+        if(!!info && typeof info.latitude == 'string') {
+          info.latitude = parseFloat(info.latitude.replace(',', '.'));
+        }
+        if(!!info && typeof info.longitude == 'string') {
+          info.longitude = parseFloat(info.longitude.replace(',', '.'));
+        }
+        if (!!info && (beacon.lat !== 0 || beacon.lng !== 0)) {
+          position = {
             lat: beacon.lat,
             lng: beacon.lng
           }
+        } else {
+          position = {
+            lat: info.latitude,
+            lng: info.longitude
+          }
         }
-        return {
-          lat: beacon.info_lat,
-          lng: beacon.info_lon
-        }
+        return position;
       },
       iconSvg(beacon) {
         let uri = location.origin;
