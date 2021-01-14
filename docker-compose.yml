@@ -1,13 +1,15 @@
 version: "3.4"
 services:
   app:
-    image: node:12
+    build:
+      context: .
+      dockerfile: infrastructure/docker/node.dockerfile
     volumes:
        - ./:/code
     working_dir: /code
     command: sh -c "test -d node_modules || yarn install; yarn run serve"
-    environment:
-      VUE_APP_API_BASE_URL: "http://localhost:8999"
+    env_file:
+      - .env
     ports:
       - "9999:8080"
     tty: true
