@@ -10,7 +10,6 @@ pipeline {
         AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
         VUE_APP_API_BASE_URL = "https://api.beacon.testingmachine.eu"
-        VUE_APP_GOOGLE_MAPS_API_KEY = credentials('beacon-admin-webapp-google-maps-api-key')
     }
 
     stages {

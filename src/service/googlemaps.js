@@ -68,19 +68,6 @@ export function initMap() {
   });
 
    return initPromise;
-
-  /*
-  window[CALLBACK_NAME] = () => resolveInitPromise(window.google);
-
-  const script = document.createElement('script');
-  script.async = true;
-  script.defer = true;
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${config.GOOGLE_MAPS_API_KEY}&callback=${CALLBACK_NAME}`;
-  script.onerror = rejectInitPromise;
-  document.querySelector('head').appendChild(script);
-
-  return initPromise;
-  */
 }
 
 export function getMapStyles() {
