@@ -351,7 +351,7 @@
           this.map.panTo(new this.google.maps.LatLng(position.coords.latitude, position.coords.longitude))
           this.map.setZoom(16)
         }, () => {
-          alert("Please make sure you have allowed the acces to your location.")
+          window.console.log("Please make sure you have allowed the acces to your location.")
         })
       },
       MyLocationControl(controlDiv) {

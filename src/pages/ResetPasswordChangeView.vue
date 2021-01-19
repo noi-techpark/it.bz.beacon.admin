@@ -62,6 +62,13 @@
           </div>
           <div class="row">
             <div class="col-12 pl-0 pr-0">
+              <div class="alert alert-danger" role="alert" v-if="errorPasswordNotSame">
+                Inserted passwords are not the same.
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12 pl-0 pr-0">
               <div class="alert alert-danger" role="alert" v-if="hasError">
                 Unable to reset the password. Please verify that the password corresponds to the password rules.
               </div>
@@ -92,6 +99,7 @@
     data() {
       return {
         hasError: false,
+        errorPasswordNotSame: false,
         saving: false,
         user: {
           id: '',
@@ -121,11 +129,12 @@
       changeFrom() {
         this.saving = true
         this.hasError = false
+        this.errorPasswordNotSame = false
         if (this.newPassword !== this.passwordConfirm) {
           this.saving = false
           this.newPassword = null
           this.passwordConfirm = null
-          alert("Inserted passwords are not the same")
+          this.errorPasswordNotSame = true
         } else {
           resetPasswordChange(this.$route.params.token, this.newPassword)
             .then(() => {
