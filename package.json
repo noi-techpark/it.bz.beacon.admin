@@ -15,7 +15,7 @@
     "@material/slider": "^0.44.0",
     "@material/switch": "^0.44.0",
     "@material/tab-bar": "^0.44.0",
-    "axios": "^0.18.1",
+    "axios": "^0.21.1",
     "bootstrap": "^4.2.1",
     "lodash": "^4.17.19",
     "lodash.clonedeep": "^4.5.0",
