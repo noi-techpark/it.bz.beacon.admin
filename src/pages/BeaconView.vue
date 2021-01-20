@@ -34,6 +34,14 @@
             <button class="btn btn-primary" @click="save">Save</button>
           </div>
         </div>
+        <div class="row" v-show="editing">
+          <div class="col">
+            <div role="alert" class="alert alert-danger" v-if="error">
+              <h4>Saving beacon data failed</h4>
+              <span style="white-space: pre;">{{ errorMessage }}</span>
+            </div>
+          </div>
+        </div>
         <div class="row">
           <div class="col">
             <span class="text-muted">last seen:</span> {{ beacon.lastSeen | formatDate }}
@@ -211,6 +219,9 @@
                     </div>
                   </div>
                   <div class="row flex-grow-0 flex-shrink-0 mt-4" v-show="editing">
+                    <div role="alert" class="alert alert-danger" v-if="imageUploadError">
+                      Image upload failed. Please try again.
+                    </div>
                     <input id="imageUpload" type="file" class="image-upload-input" name="imageUpload" @change="newImage" accept="image/*">
                     <label for="imageUpload" class="btn btn-block btn-image-upload">Upload image</label>
                   </div>
@@ -619,7 +630,10 @@
         map: {},
         marker: {},
         markerPoi: {},
-        L: null
+        L: null,
+        error: false,
+        errorMessage: '',
+        imageUploadError: false,
       }
 
       data.group = {
@@ -764,7 +778,6 @@
               Object.assign(this.group, beacon.group)
             }
             let position = this.getPosition(this.beacon,this.info)
-            console.log(position)
             if (position.lat !== 0 && position.lng !== 0) {
               this.loadMap()
             }
@@ -832,7 +845,6 @@
         try {
           this.L = await initMap();
           let position = this.getPosition(this.beacon,this.info)
-          console.log(position)
 
           this.map = this.L.map('map')
 
@@ -901,6 +913,10 @@
             .catch(() => {})
         }
       },
+      showErrorMessage(message) {
+        this.error = true;
+        this.errorMessage = message
+      },
       reloadIssues() {
         getIssuesForBeacon(this.$route.params.id).then(issues => {
           issues.sort((issueA, issueB) => {
@@ -955,6 +971,7 @@
       },
       newImage(event) {
         if (event.target.files.length > 0) {
+          this.imageUploadError = false
           this.uploadingImage = true
           createImageForBeacon(this.beacon.id, event.target.files[0])
             .then(() => {
@@ -962,7 +979,7 @@
               this.$set(this, 'uploadingImage', false)
             })
             .catch(() => {
-              alert('Image upload failed. Please try again.')
+              this.$set(this, 'imageUploadError', true)
               this.$set(this, 'uploadingImage', false)
             })
         }
@@ -1012,6 +1029,7 @@
         this.configResetted = true
       },
       save() {
+        this.error = false
         this.saving = true
         this.beacon.group = this.group
         updateBeacon(this.beacon, this.info).then(beacon => {
@@ -1034,17 +1052,16 @@
         }).catch((e) => {
           if(!!e.response && !!e.response.data && !!e.response.data.message) {
             if(e.response.data.message == "Invalid api key") {
-              alert("Impossible to perform the group change. The API key of the destination group has no access to the beacon.\n" +
+              this.showErrorMessage("Impossible to perform the group change. The API key of the destination group has no access to the beacon.\n" +
                 "Please contact the owner to share this beacon in the kontakt.io dashboard panel.")
             } else if(e.response.data.message == "No access to beacon") {
-              alert("The beacon groups API key has no access to the beacon data due to the expiraton or unsafe termination of the share.\n" +
+              this.showErrorMessage("The beacon groups API key has no access to the beacon data due to the expiraton or unsafe termination of the share.\n" +
                 "Please contact the owner to share this beacon in the kontakt.io dashboard panel.")
             } else {
-              alert('An error occured during saving: ' +
-                (!!e.response.data.details? e.response.data.details: e.response.data.message));
+              this.showErrorMessage('Please check your input values.')
             }
           } else {
-            alert('An error occured during saving. Please check your input values.')
+            this.showErrorMessage('Please check your input values.')
           }
           this.$set(this, 'saving', false)
         })
@@ -1091,7 +1108,6 @@
       },
       updateMap() {
         let position = this.getPosition(this.beacon,this.info)
-        console.log(position)
         if(this.L === null) {
           if (position.lat !== 0 && position.lng !== 0) {
             this.loadMap()
@@ -1162,24 +1178,23 @@
       },
       iconSvg(beacon) {
         let uri = location.origin;
-        if (beacon.lat === 0 && beacon.lng === 0) {
-          uri += require('../assets/img/map/map_icon_provisoric.svg')
-        } else {
-          switch (beacon.status) {
-            case 'BATTERY_LOW':
-            case 'ISSUE':
-              uri += require('../assets/img/map/map_icon_issue.svg')
-              break
-            case 'CONFIGURATION_PENDING':
-              uri += require('../assets/img/map/map_icon_pending.svg')
-              break
-            case 'NO_SIGNAL':
-              uri += require('../assets/img/map/map_icon_nosignal.svg')
-              break
-            default:
-              uri += require('../assets/img/map/map_icon_ok.svg')
-              break
-          }
+        switch (beacon.status) {
+          case 'BATTERY_LOW':
+          case 'ISSUE':
+            uri += require('../assets/img/map/map_icon_issue.svg')
+            break
+          case 'CONFIGURATION_PENDING':
+            uri += require('../assets/img/map/map_icon_pending.svg')
+            break
+          case 'NO_SIGNAL':
+            uri += require('../assets/img/map/map_icon_nosignal.svg')
+            break
+          case 'NOT_ACCESSIBLE':
+            uri += require('../assets/img/map/map_icon_notaccessible.svg')
+            break
+          default:
+            uri += require('../assets/img/map/map_icon_ok.svg')
+            break
         }
 
         return encodeURI(uri);
@@ -1195,6 +1210,8 @@
             return 'pending'
           case 'NO_SIGNAL':
             return 'nosignal'
+          case 'NOT_ACCESSIBLE':
+            return 'notaccessible'
           default:
             return 'default'
         }
@@ -1210,6 +1227,8 @@
             return 'status-pending'
           case 'NO_SIGNAL':
             return 'status-nosignal'
+          case 'NOT_ACCESSIBLE':
+            return 'status-notaccessible'
           default:
             return ''
         }
@@ -1225,6 +1244,8 @@
             return 'PENDING';
           case 'NO_SIGNAL':
             return 'NO SIGNAL';
+          case 'NOT_ACCESSIBLE':
+            return 'NOT ACCESSIBLE';
           default:
             return beacon.status;
         }
@@ -1241,6 +1262,8 @@
             return 'Configuration pending';
           case 'NO_SIGNAL':
             return 'Device status unknown';
+          case 'NOT_ACCESSIBLE':
+            return 'Device cannot be accessed with the group API key';
           default:
             return '';
         }
@@ -1437,6 +1460,13 @@
   .status-nosignal {
     color: white;
     background-color: $status-red;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
+
+  .status-notaccessible {
+    color: white;
+    background-color: $status-purple;
     border-top-right-radius: 10px;
     border-bottom-right-radius: 10px;
   }

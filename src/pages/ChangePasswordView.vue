@@ -38,6 +38,13 @@
               </div>
               <div class="row">
                 <div class="col-12 pl-0 pr-0">
+                  <div class="alert alert-danger" role="alert" v-if="errorPasswordNotSame">
+                    Inserted passwords are not the same.
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12 pl-0 pr-0">
                   <div class="alert alert-danger" role="alert" v-if="error">
                     Unable to change the password. Please verify that the password corresponds to the password rules.
                   </div>
@@ -90,7 +97,8 @@
         },
         loaded: false,
         saving: false,
-        error: false
+        error: false,
+        errorPasswordNotSame: false
       }
     },
     computed: {
@@ -113,11 +121,12 @@
       change() {
         this.saving = true
         this.error = false
+        this.errorPasswordNotSame = false
         if (this.passwordChange.newPassword !== this.passwordConfirm) {
           this.saving = false
           this.passwordChange.newPassword = null
           this.passwordConfirm = null
-          alert("Inserted passwords are not the same")
+          this.errorPasswordNotSame = true
         } else {
           changePassword(this.user, this.passwordChange)
                   .then(() => {

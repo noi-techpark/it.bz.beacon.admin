@@ -50,6 +50,13 @@
               </div>
               <div class="row">
                 <div class="col-12 pl-0 pr-0">
+                  <div class="alert alert-danger" role="alert" v-if="errorPasswordNotSame">
+                    Inserted passwords must be the same.
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12 pl-0 pr-0">
                   <div class="alert alert-danger" role="alert" v-if="error">
                     Unable to create new user. Please verify that the username does not already exist and the password corresponds to the password rules.
                   </div>
@@ -97,7 +104,8 @@
         },
         passwordConfirm: '',
         saving: false,
-        error: false
+        error: false,
+        errorPasswordNotSame: false,
       }
     },
     computed: {
@@ -109,11 +117,12 @@
       create() {
         this.saving = true
         this.error = false
+        this.errorPasswordNotSame = false
         if (this.user.password !== this.passwordConfirm) {
           this.saving = false
           this.user.password = null
           this.passwordConfirm = null
-          alert("Inserted passwords must be the same")
+          this.errorPasswordNotSame = true
         } else {
           createUser(this.user)
                   .then(() => {

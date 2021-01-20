@@ -29,6 +29,9 @@
           case 'NO_SIGNAL':
             statusClass += 'nosignal'
             break;
+          case 'NOT_ACCESSIBLE':
+            statusClass += 'notaccessibile'
+            break;
           default:
             statusClass += 'default'
             break;
@@ -46,6 +49,8 @@
             return 'PENDING';
           case 'NO_SIGNAL':
             return 'NO SIGNAL';
+          case 'NOT_ACCESSIBLE':
+            return 'NOT ACCESSIBLE';
           default:
             return this.status;
         }
@@ -79,6 +84,10 @@
 
     &.badge-status-nosignal {
       background-color: $status-red;
+    }
+
+    &.badge-status-notaccessibile {
+      background-color: $status-purple;
     }
   }
 </style>

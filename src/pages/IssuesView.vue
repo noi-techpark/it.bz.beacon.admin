@@ -276,7 +276,7 @@
           this.map.panTo(new this.google.maps.LatLng(position.coords.latitude, position.coords.longitude))
           this.map.setZoom(16)
         }, () => {
-          alert("Please make sure you have allowed the acces to your location.")
+          window.console.log("Please make sure you have allowed the acces to your location.")
         })
       },
       MyLocationControl(controlDiv) {
@@ -369,24 +369,23 @@
       },
       iconSvg(beacon) {
         let uri = location.origin;
-        if (beacon.lat === 0 && beacon.lng === 0) {
-          uri += require('../assets/img/map/map_icon_provisoric.svg')
-        } else {
-          switch (beacon.status) {
-            case 'BATTERY_LOW':
-            case 'ISSUE':
-              uri += require('../assets/img/map/map_icon_issue.svg')
-              break
-            case 'CONFIGURATION_PENDING':
-              uri += require('../assets/img/map/map_icon_pending.svg')
-              break
-            case 'NO_SIGNAL':
-              uri += require('../assets/img/map/map_icon_nosignal.svg')
-              break
-            default:
-              uri += require('../assets/img/map/map_icon_ok.svg')
-              break
-          }
+        switch (beacon.status) {
+          case 'BATTERY_LOW':
+          case 'ISSUE':
+            uri += require('../assets/img/map/map_icon_issue.svg')
+            break
+          case 'CONFIGURATION_PENDING':
+            uri += require('../assets/img/map/map_icon_pending.svg')
+            break
+          case 'NO_SIGNAL':
+            uri += require('../assets/img/map/map_icon_nosignal.svg')
+            break
+          case 'NOT_ACCESSIBLE':
+            uri += require('../assets/img/map/map_icon_notaccessible.svg')
+            break
+          default:
+            uri += require('../assets/img/map/map_icon_ok.svg')
+            break
         }
 
         return encodeURI(uri);
