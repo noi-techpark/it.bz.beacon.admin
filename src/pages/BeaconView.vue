@@ -1178,24 +1178,23 @@
       },
       iconSvg(beacon) {
         let uri = location.origin;
-        if (beacon.lat === 0 && beacon.lng === 0) {
-          uri += require('../assets/img/map/map_icon_provisoric.svg')
-        } else {
-          switch (beacon.status) {
-            case 'BATTERY_LOW':
-            case 'ISSUE':
-              uri += require('../assets/img/map/map_icon_issue.svg')
-              break
-            case 'CONFIGURATION_PENDING':
-              uri += require('../assets/img/map/map_icon_pending.svg')
-              break
-            case 'NO_SIGNAL':
-              uri += require('../assets/img/map/map_icon_nosignal.svg')
-              break
-            default:
-              uri += require('../assets/img/map/map_icon_ok.svg')
-              break
-          }
+        switch (beacon.status) {
+          case 'BATTERY_LOW':
+          case 'ISSUE':
+            uri += require('../assets/img/map/map_icon_issue.svg')
+            break
+          case 'CONFIGURATION_PENDING':
+            uri += require('../assets/img/map/map_icon_pending.svg')
+            break
+          case 'NO_SIGNAL':
+            uri += require('../assets/img/map/map_icon_nosignal.svg')
+            break
+          case 'NOT_ACCESSIBLE':
+            uri += require('../assets/img/map/map_icon_notaccessible.svg')
+            break
+          default:
+            uri += require('../assets/img/map/map_icon_ok.svg')
+            break
         }
 
         return encodeURI(uri);
@@ -1211,6 +1210,8 @@
             return 'pending'
           case 'NO_SIGNAL':
             return 'nosignal'
+          case 'NOT_ACCESSIBLE':
+            return 'notaccessible'
           default:
             return 'default'
         }
@@ -1226,6 +1227,8 @@
             return 'status-pending'
           case 'NO_SIGNAL':
             return 'status-nosignal'
+          case 'NOT_ACCESSIBLE':
+            return 'status-notaccessible'
           default:
             return ''
         }
@@ -1241,6 +1244,8 @@
             return 'PENDING';
           case 'NO_SIGNAL':
             return 'NO SIGNAL';
+          case 'NOT_ACCESSIBLE':
+            return 'NOT ACCESSIBLE';
           default:
             return beacon.status;
         }
@@ -1257,6 +1262,8 @@
             return 'Configuration pending';
           case 'NO_SIGNAL':
             return 'Device status unknown';
+          case 'NOT_ACCESSIBLE':
+            return 'Device cannot be accessed with the group API key';
           default:
             return '';
         }
@@ -1453,6 +1460,13 @@
   .status-nosignal {
     color: white;
     background-color: $status-red;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
+
+  .status-notaccessible {
+    color: white;
+    background-color: $status-purple;
     border-top-right-radius: 10px;
     border-bottom-right-radius: 10px;
   }
