@@ -455,8 +455,8 @@
           case 'CONFIGURATION_PENDING':
             uri += require('../assets/img/map/map_icon_pending.svg')
             break
-          case 'NO_SIGNAL':
-            uri += require('../assets/img/map/map_icon_nosignal.svg')
+          case 'UNKNOWN_STATUS':
+            uri += require('../assets/img/map/map_icon_unknownstatus.svg')
             break
           case 'NOT_ACCESSIBLE':
             uri += require('../assets/img/map/map_icon_notaccessible.svg')

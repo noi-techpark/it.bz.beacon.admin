@@ -1186,8 +1186,8 @@
           case 'CONFIGURATION_PENDING':
             uri += require('../assets/img/map/map_icon_pending.svg')
             break
-          case 'NO_SIGNAL':
-            uri += require('../assets/img/map/map_icon_nosignal.svg')
+          case 'UNKNOWN_STATUS':
+            uri += require('../assets/img/map/map_icon_unknownstatus.svg')
             break
           case 'NOT_ACCESSIBLE':
             uri += require('../assets/img/map/map_icon_notaccessible.svg')
@@ -1208,8 +1208,8 @@
             return 'issue'
           case 'CONFIGURATION_PENDING':
             return 'pending'
-          case 'NO_SIGNAL':
-            return 'nosignal'
+          case 'UNKNOWN_STATUS':
+            return 'unknownstatus'
           case 'NOT_ACCESSIBLE':
             return 'notaccessible'
           default:
@@ -1225,8 +1225,8 @@
             return 'status-issue'
           case 'CONFIGURATION_PENDING':
             return 'status-pending'
-          case 'NO_SIGNAL':
-            return 'status-nosignal'
+          case 'UNKNOWN_STATUS':
+            return 'status-unknownstatus'
           case 'NOT_ACCESSIBLE':
             return 'status-notaccessible'
           default:
@@ -1242,7 +1242,7 @@
             return 'ISSUE';
           case 'CONFIGURATION_PENDING':
             return 'PENDING';
-          case 'NO_SIGNAL':
+          case 'UNKNOWN_STATUS':
             return 'NO SIGNAL';
           case 'NOT_ACCESSIBLE':
             return 'NOT ACCESSIBLE';
@@ -1260,8 +1260,8 @@
             return 'Battery level low';
           case 'CONFIGURATION_PENDING':
             return 'Configuration pending';
-          case 'NO_SIGNAL':
-            return 'Device status unknown';
+          case 'UNKNOWN_STATUS':
+            return 'We have not seen this beacon for 360 days';
           case 'NOT_ACCESSIBLE':
             return 'Device cannot be accessed with the group API key';
           default:
@@ -1457,7 +1457,7 @@
     border-bottom-right-radius: 10px;
   }
 
-  .status-nosignal {
+  .status-unknownstatus {
     color: white;
     background-color: $status-red;
     border-top-right-radius: 10px;
