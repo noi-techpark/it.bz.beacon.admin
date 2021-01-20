@@ -26,8 +26,8 @@
           case 'ISSUE':
             statusClass += 'issue'
             break;
-          case 'NO_SIGNAL':
-            statusClass += 'nosignal'
+          case 'UNKNOWN_STATUS':
+            statusClass += 'unknownstatus'
             break;
           case 'NOT_ACCESSIBLE':
             statusClass += 'notaccessibile'
@@ -47,7 +47,7 @@
             return 'ISSUE';
           case 'CONFIGURATION_PENDING':
             return 'PENDING';
-          case 'NO_SIGNAL':
+          case 'UNKNOWN_STATUS':
             return 'NO SIGNAL';
           case 'NOT_ACCESSIBLE':
             return 'NOT ACCESSIBLE';
@@ -82,7 +82,7 @@
       background-color: $status-blue;
     }
 
-    &.badge-status-nosignal {
+    &.badge-status-unknownstatus {
       background-color: $status-red;
     }
 
