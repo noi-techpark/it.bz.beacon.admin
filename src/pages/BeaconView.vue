@@ -1057,11 +1057,52 @@
             } else if(e.response.data.message == "No access to beacon") {
               this.showErrorMessage("The beacon groups API key has no access to the beacon data due to the expiraton or unsafe termination of the share.\n" +
                 "Please contact the owner to share this beacon in the kontakt.io dashboard panel.")
+            } else if(e.response.data.message == "Validation Failed") {
+              let errorMessage = !!e.response.data.details? e.response.data.details: e.response.data.message;
+              let inputFileds = [['name', 'Name'],
+                ['description', 'Description'],
+                  ['lat', 'GPS -> Latitude'],
+                  ['lng', 'GPS -> Longitude'],
+                  ['locationType', 'Location type'],
+                  ['locationDescription', 'Location -> Description'],
+                  ['iBeacon', 'iBeacon'],
+                  ['telemetry', 'Telemetry'],
+                  ['eddystoneUid', 'Eddystone UID'],
+                  ['eddystoneUrl', 'Eddystone URL'],
+                  ['eddystoneTlm', 'Eddystone Encrypted TLM'],
+                  ['eddystoneEid', 'Eddystone EID'],
+                  ['eddystoneEtlm', 'Eddystone TLM'],
+                  ['uuid', 'UUID'],
+                  ['group', 'Group'],
+                  ['major', 'Major'],
+                  ['minor', 'Minor'],
+                  ['url', 'Eddystone -> URL'],
+                  ['namespace', 'Eddystone -> Namespace'],
+                  ['instanceId', 'Eddystone -> Instance ID'],
+                  ['interval', 'Signal interval'],
+                  ['txPower', 'Signal strength']];
+              let involvedFiled = [];
+              for(let i = 0; i < inputFileds.length; i++) {
+                if (errorMessage.includes('beaconUpdate.' + inputFileds[i][0])
+                  || errorMessage.includes('BeaconUpdate["' + inputFileds[i][0] + '"]')) {
+                  involvedFiled.push(inputFileds[i][1]);
+                }
+              }
+              if(involvedFiled.length > 0) {
+                errorMessage = 'The input sent to the server was wrong or had missing information.\n\nThese are the fields involved: ';
+                for(let i = 0; i < involvedFiled.length; i++) {
+                  errorMessage += involvedFiled[i] + (i != involvedFiled.length - 1? ', ': '');
+                }
+              } else {
+                errorMessage = 'It was an error on API side / server response: \n' + errorMessage;
+              }
+              this.showErrorMessage(errorMessage);
             } else {
-              this.showErrorMessage('Please check your input values.')
+              this.showErrorMessage('It was an error on API side / server response: \n' +
+                (!!e.response.data.details? e.response.data.details: e.response.data.message));
             }
           } else {
-            this.showErrorMessage('Please check your input values.')
+            this.showErrorMessage('It was an undefined error on API side.')
           }
           this.$set(this, 'saving', false)
         })
