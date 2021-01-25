@@ -18,8 +18,26 @@ const SUB_PATH_CHANGE_PASSWORD = '/change-password'
 const SUB_PATH_USERS = '/users'
 const SUB_PATH_AKI_KEY = '/apiKey'
 
+
+function getTokenPayload() {
+  let token = store.getters['login/token'];
+  if(token)
+    return JSON.parse(atob(token.split('.')[1]));
+  return {
+    username: '',
+    exp: 0
+  }
+}
+
+function isTokenValid() {
+  return getTokenPayload().exp > new Date().getTime() / 1000
+}
+
 function call(method, path, auth, data, headers = {}) {
   if (auth) {
+    if(!isTokenValid()) {
+      store.dispatch("login/logout")
+    }
     headers = {
       'Authorization': 'Bearer ' + store.getters['login/token']
     }
