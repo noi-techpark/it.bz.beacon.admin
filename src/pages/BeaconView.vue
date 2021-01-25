@@ -274,7 +274,7 @@
                         </button>
                         <button class="mdc-tab mdc-tab--min-width" role="tab" aria-selected="true" tabindex="0">
                             <span class="mdc-tab__content">
-                              <span class="mdc-tab__text-label">Info</span>
+                              <span class="mdc-tab__text-label">POI</span>
                             </span>
                           <span class="mdc-tab-indicator">
                               <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
