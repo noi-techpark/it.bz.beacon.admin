@@ -1,7 +1,7 @@
 # Beacon Südtirol Administration Web Application
 The web application to administrate the beacons of the Beacon Südtirol project.
 
-[![ci it.bz.beacon.admin](https://github.com/noi-techpark/it.bz.beacon.admin/actions/workflows/ci.yml/badge.svg)](https://github.com/noi-techpark/it.bz.beacon.admin/actions/workflows/ci.yml)
+[![CI](https://github.com/noi-techpark/it.bz.beacon.admin/actions/workflows/ci.yml/badge.svg)](https://github.com/noi-techpark/it.bz.beacon.admin/actions/workflows/ci.yml)
 
 ## Table of contents
 
