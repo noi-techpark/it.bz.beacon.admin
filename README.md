@@ -1,7 +1,7 @@
 # Beacon Südtirol Administration Web Application
 The web application to administrate the beacons of the Beacon Südtirol project.
 
-[![CI](https://github.com/noi-techpark/it.bz.beacon.admin/actions/workflows/ci.yml/badge.svg)](https://github.com/noi-techpark/it.bz.beacon.admin/actions/workflows/ci.yml)
+[![CI/CD](https://github.com/noi-techpark/it.bz.beacon.admin/actions/workflows/main.yml/badge.svg)](https://github.com/noi-techpark/it.bz.beacon.admin/actions/workflows/main.yml)
 
 ## Table of contents
 
@@ -81,13 +81,7 @@ ToDo: For support, please contact [EMAIL](mailto:EMAIL).
 
 If you'd like to contribute, please follow the following instructions:
 
-- Fork the repository.
-
-- Checkout a topic branch from the `development` branch.
-
-- Make sure the tests are passing.
-
-- Create a pull request against the `development` branch.
+https://docs.opendatahub.bz.it/en/latest/guidelines/contributors.html
 
 ### Documentation
 
