@@ -19,7 +19,7 @@ on your local machine for development and testing purposes.
 
 To build the project, the following prerequisites must be met:
 
-- [YARN](https://yarnpkg.com/)
+- NPM v6.14.15
 
 ### Source code
 
@@ -43,13 +43,13 @@ The same configuration can be made with environment variables.
 ### Install dependencies
 To install all needed dependencies execute this command:
 ```
-yarn install
+npm install
 ```
 
 ### Run a local server for development including hot-reloads
 You can run the application locally (including hot reloads) by executing the following command:
 ```
-yarn run serve
+npm run serve
 ```
 
 ## Running tests
@@ -57,7 +57,7 @@ yarn run serve
 The unit tests can be executed with the following command:
 
 ```
-yarn run test:unit
+npm run test:unit
 ```
 
 ## Deployment
@@ -67,7 +67,7 @@ ToDo: A detailed description about how the application must be deployed.
 ### Build for production
 Use this command to create a release ready for production:
 ```
-yarn run build
+npm run build
 ```
  You'll find the output files in the ./dist folder
 
