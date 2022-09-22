@@ -56,8 +56,12 @@ jobs:
     concurrency: deploy-prod
     env:
       AWS_S3_BUCKET_NAME : "it.bz.beacon.webapp"
+      SCRIPTS_HOST: 'https://scripts.opendatahub.com'
     steps:
       - uses: actions/checkout@v2
+
+      - name: Change scripts host to prod
+        run: sed -i -e "s%https://scripts.opendatahub.testingmachine.eu%${{env.SCRIPTS_HOST}}%g" public/index.html
 
       - name: Create .env file
         uses: noi-techpark/github-actions/env-file@v2

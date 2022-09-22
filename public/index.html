@@ -1,32 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title>Beacon Südtirol - Administration</title>
+    <link rel="stylesheet" href="https://scripts.opendatahub.testingmachine.eu/cookieconsent/cookieconsent.css">
+    <script defer src="https://scripts.opendatahub.testingmachine.eu/cookieconsent/cookieconsent.js"></script>
+    <script defer src="https://scripts.opendatahub.testingmachine.eu/cookieconsent/cookieconsent-init.js"></script>
     <!-- Matomo -->
     <script type="text/plain" data-cookiecategory="targeting">
-      var _paq = window._paq = window._paq || [];
-      /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-      _paq.push(['trackPageView']);
-      _paq.push(['enableLinkTracking']);
-      (function() {
-        var u="https://digital.matomo.cloud/";
-        _paq.push(['setTrackerUrl', u+'matomo.php']);
-        _paq.push(['setSiteId', '22']);
-        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-        g.async=true; g.src='//cdn.matomo.cloud/digital.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
-      })();
+        var _paq = window._paq = window._paq || []; /* tracker methods like "setCustomDimension" should be called before "trackPageView" */ _paq.push(['trackPageView']); _paq.push(['enableLinkTracking']); (function() { var u="https://digital.matomo.cloud/"; _paq.push(['setTrackerUrl',
+        u+'matomo.php']); _paq.push(['setSiteId', '22']); var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0]; g.async=true; g.src='//cdn.matomo.cloud/digital.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s); })();
     </script>
     <!-- End Matomo Code -->
-  </head>
-  <body>
+</head>
+
+<body>
     <noscript>
       <strong>We're sorry but Beacon Administration doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
     <div id="app"></div>
     <!-- built files will be auto injected -->
-  </body>
+</body>
+
 </html>
