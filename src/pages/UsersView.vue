@@ -132,6 +132,7 @@ export default {
           return typeof user !== 'undefined'
         }).filter((user) => {
           return user.name.toLowerCase().includes(this.search.toLowerCase())
+            || user.username.toLowerCase().includes(this.search.toLowerCase())
         })
       }
       this.tableData.sort((userA, userB) => {
