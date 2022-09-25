@@ -138,6 +138,9 @@
     },
     watch: {
       search() {
+
+        sessionStorage.setItem('issues_search', this.search)
+
         this.reloadTableData()
         this.$set(this, 'mapBeacons', this.mapData.slice(0))
       },
@@ -408,6 +411,8 @@
       })
       try {
 
+        this.search = sessionStorage.getItem('issues_search') || ''
+        this.groupFilter = sessionStorage.getItem('group_filter') || ''
 
         this.L = await initMap();
         this.map = this.L.map('map')

@@ -1,6 +1,21 @@
 <template>
   <!-- eslint-disable -->
   <layout :source="title">
+    <template slot="search-input">
+      <div class="row" style="width: 100%">
+        <div class="col-4 p-0 h-100 text-right search-container">
+          <img class="search-icon mt-0" :src="require('../assets/ic_search.svg')">
+          <input type="text" class="beacon-search" v-model="search" :placeholder="searchPlaceholder">
+        </div>
+        <div class="col-4 p-0 h-100 text-right search-container">
+          <search-group-filter ref="searchGroupFilter" v-model="groupFilter" />
+        </div>
+        <div class="col-4 p-0 h-100">
+          <button type="button" class="btn btn-reset ml-2" @click="resetFilter">Reset</button>
+          <button type="button" class="btn btn-reset ml-2" @click="reload">Reload</button>
+        </div>
+      </div>
+    </template>
     <template slot="body">
       <div class="container pb-4" v-show="loaded">
         <div class="row mt-4">
@@ -548,9 +563,11 @@
   import Alert from '../components/Alert'
   import Confirm from '../components/Confirm'
   import { mapGetters, mapActions } from 'vuex'
+  import SearchGroupFilter from "@/components/SearchGroupFilter";
 
   export default {
     components: {
+      SearchGroupFilter,
       Layout,
       Loader,
       ImageModal,
@@ -634,6 +651,10 @@
         error: false,
         errorMessage: '',
         imageUploadError: false,
+        search: '',
+        groupFilter: '',
+        searchItem: '',
+        searchPlaceholder: '',
       }
 
       data.group = {
@@ -660,6 +681,14 @@
       ]),
     },
     mounted() {
+      this.searchItem = this.$route.name === 'beacon-detail'? 'beacons_search' :
+        this.$route.name === 'issue-detail'? 'issues_search': null;
+      this.searchPlaceholder = this.$route.name === 'beacon-detail'? 'Search beacon' :
+        this.$route.name === 'issue-detail'? 'Search issue': null;
+
+      this.search = sessionStorage.getItem(this.searchItem) || ''
+      this.groupFilter = sessionStorage.getItem('group_filter') || ''
+
       const modeTabBar = new MDCTabBar(document.querySelector('#mode-tab-bar'));
       modeTabBar.listen('MDCTabBar:activated', event =>  {
         switch(event.detail.index) {
@@ -793,6 +822,12 @@
       this.fetchGroups()
     },
     watch: {
+      search() {
+        sessionStorage.setItem(this.searchItem, this.search)
+      },
+      groupFilter() {
+        sessionStorage.setItem("group_filter", this.groupFilter)
+      },
       editing() {
         this.configResetted = false
         this.controls.frequencySlider.disabled = !this.editing
@@ -1319,7 +1354,11 @@
               .catch(() => {})
           })
           .catch(() => {})
-      }
+      },
+      resetFilter() {
+        this.search = ''
+        this.groupFilter = ''
+      },
     },
     filters: {
       formatDate(dateString) {
@@ -1678,6 +1717,34 @@
     height: calc(1.5em + 0.75rem + 2px);
     font-size: 1rem;
     line-height: 1.5;
+  }
+
+
+
+
+  .btn-reset {
+    background: $light-blue;
+    border-color: $light-blue;
+    font-size: 0.8rem;
+    color: white;
+
+    &:hover {
+      background: $lighter-blue;
+      border-color: $lighter-blue;
+      color: white;
+    }
+  }
+
+  .table-header {
+    background-color: $background-grey;
+    color: $grey;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    font-size: 0.8rem;
+  }
+
+  .search-icon {
+    top: 0px
   }
 
 </style>
