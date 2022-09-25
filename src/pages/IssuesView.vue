@@ -18,9 +18,16 @@
     </template>
     <template slot="body">
       <div class="row flex-grow-1" style="overflow: hidden">
-        <div id="view-switch" class="position-absolute mt-4 ml-4 btn-group" role="group" aria-label="Switch view">
-          <button type="button" :class="'btn btn-view-switch ' + (viewMode === LIST ? 'btn-view-switch-active' : '')" @click="changeMode(LIST)"><img src="../assets/ic_list.svg"/></button>
-          <button type="button" :class="'btn btn-view-switch ' + (viewMode === MAP ? 'btn-view-switch-active' : '')" @click="changeMode(MAP)"><img src="../assets/ic_map.svg"/></button>
+        <div class="position-absolute mt-4 ml-4">
+          <div id="view-switch" class="btn-group" role="group" aria-label="Switch view">
+            <button type="button" :class="'btn btn-view-switch ' + (viewMode === LIST ? 'btn-view-switch-active' : '')" @click="changeMode(LIST)"><img src="../assets/ic_list.svg"/></button>
+            <button type="button" :class="'btn btn-view-switch ' + (viewMode === MAP ? 'btn-view-switch-active' : '')" @click="changeMode(MAP)"><img src="../assets/ic_map.svg"/></button>
+          </div>
+          <div id="view-switch" class="btn-group ml-4" role="group" aria-label="Switch view">
+            <button type="button" :class="'btn btn-view-switch ' + (statusFilter === ISSUES_FILTER_OPEN ? 'btn-view-switch-active' : '')" @click="changeIssuesFilter(ISSUES_FILTER_OPEN)">Open</button>
+            <button type="button" :class="'btn btn-view-switch ' + (statusFilter === ISSUES_FILTER_CLOSED ? 'btn-view-switch-active' : '')" @click="changeIssuesFilter(ISSUES_FILTER_CLOSED)">Closed</button>
+            <button type="button" :class="'btn btn-view-switch ' + (statusFilter === ISSUES_FILTER_ALL ? 'btn-view-switch-active' : '')" @click="changeIssuesFilter(ISSUES_FILTER_ALL)">All</button>
+          </div>
         </div>
         <div class="container mt-6 p-0" v-show="loaded && viewMode === LIST">
           <div class="row beacon-display m-4 p-4">
@@ -64,6 +71,9 @@
       return {
         LIST: LIST,
         MAP: MAP,
+        ISSUES_FILTER_OPEN: 'ISSUES_FILTER_OPEN',
+        ISSUES_FILTER_CLOSED: 'ISSUES_FILTER_CLOSED',
+        ISSUES_FILTER_ALL: 'ISSUES_FILTER_ALL',
         title: 'Issues',
         tableCols: [
           {
@@ -100,6 +110,16 @@
             title: 'Status',
             key: 'beacon.status',
             type: 'beacon-status'
+          },
+          {
+            title: 'Resolved date',
+            key: 'resolveDate',
+            type: 'date'
+          },
+          {
+            title: '',
+            key: 'resolved',
+            type: 'issue-status'
           }
         ],
         mapData: [],
@@ -127,7 +147,8 @@
         myPosition: null,
         clusterer: null,
         google: {},
-        timers: []
+        timers: [],
+        statusFilter: null
       }
     },
     computed: {
@@ -315,6 +336,13 @@
       changeMode(mode) {
         this.$store.dispatch('issues/setViewMode', mode)
       },
+      changeIssuesFilter(statusFilter) {
+        this.statusFilter = statusFilter
+        sessionStorage.setItem("issues_status_filter", this.statusFilter)
+
+        this.reloadTableData()
+        this.$set(this, 'mapBeacons', this.mapData.slice(0))
+      },
       reloadTableData(params = {}) {
         params = merge({
           pagination: this.tableMeta.pagination,
@@ -333,6 +361,10 @@
             return this.groupFilter === '' || issue.beacon.group !== null && issue.beacon.group.name === this.groupFilter
           }).filter((issue) => {
             return issue.beacon.name.toLowerCase().includes(this.search.toLowerCase())
+          }).filter((issue) => {
+            return this.statusFilter === this.ISSUES_FILTER_ALL
+                || (this.statusFilter === this.ISSUES_FILTER_OPEN && !issue.resolved)
+                || (this.statusFilter === this.ISSUES_FILTER_CLOSED && issue.resolved)
           })
         }
 
@@ -413,6 +445,8 @@
 
         this.search = sessionStorage.getItem('issues_search') || ''
         this.groupFilter = sessionStorage.getItem('group_filter') || ''
+
+        this.statusFilter = sessionStorage.getItem('issues_status_filter') || this.ISSUES_FILTER_OPEN
 
         this.L = await initMap();
         this.map = this.L.map('map')
