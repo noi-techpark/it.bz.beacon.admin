@@ -1,5 +1,5 @@
 <template>
-  <div class="col-12 p-0"><span :class='"badge badge-pill badge-status " + statusClass'>{{ statusText }}</span></div>
+  <div class="p-0 d-flex align-items-center"><span :class='"badge badge-pill badge-status " + statusClass'>{{ statusText }}</span></div>
 </template>
 
 <script>
@@ -9,9 +9,6 @@
         type: Boolean,
         default: false
       }
-    },
-    mounted() {
-      console.log(this.resolved)
     },
     computed: {
       statusClass() {

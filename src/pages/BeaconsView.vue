@@ -214,8 +214,16 @@
             });
 
             let marker = this.L.marker([position.lat, position.lng], {icon: customIcon}) //.addTo(this.map);
-            marker.on('click', () => {
-              router.push({name: 'beacon-detail', params: {id: beacon.id}})
+            var popupContent = '<p>Hello world!<br />This is a nice popup.</p><a href="#" id="beaconPopupLink">OPEN</a>';
+            // marker.on('click', () => {
+            //   router.push({name: 'beacon-detail', params: {id: beacon.id}})
+            // })
+            marker.bindPopup(popupContent).on("popupopen", () => {
+              document.getElementById('beaconPopupLink').onclick = (e) => {
+                e.preventDefault();
+                console.log(beacon.id)
+                router.push({name: 'beacon-detail', params: {id: beacon.id}})
+              }
             })
             let ccc = this.cluster
             // add marker async
@@ -225,7 +233,7 @@
         })
 
         // this.updateMarkers(newMarkers)
-      }
+      },
     },
     methods: {
       ...mapActions('beacons', [

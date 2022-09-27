@@ -38,6 +38,8 @@ export default {
     align-items: center;
     justify-content: center;
 
+    z-index: 1000;
+
     @keyframes spinner {
       to {
         transform: rotate(360deg);

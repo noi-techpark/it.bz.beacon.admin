@@ -511,16 +511,19 @@
                         <th scope="col">Description</th>
                         <th scope="col">Report</th>
                         <th scope="col">Resolved</th>
+                        <th scope="col"></th>
                       </tr>
                       </thead>
                       <tbody>
-                      <tr class="issue-item" :class="{'issue-item-resolved': issue.resolveDate > 0}" v-bind:key="issue.id" v-if="issues.length" v-for="issue in issues" @click.prevent.stop="showIssueDetail(issue)">
+                      <tr class="issue-item" :class="{'issue-item-active': issue.id == activeIssue}" v-bind:key="issue.id" v-if="issues.length" v-for="issue in issues" @click.prevent.stop="showIssueDetail(issue, true)">
                         <td class="align-middle" scope="row">{{ issue.problem }}</td>
                         <td class="align-middle">{{ issue.problemDescription }}</td>
                         <td class="align-middle">{{ issue.reportDate | formatDate }}</td>
                         <td class="align-middle">
-                          <span v-if="issue.resolveDate">{{ issue.resolveDate | formatDate }}</span>
-                          <button type="button" class="btn btn-resolve" v-if="!issue.resolveDate" @click.prevent.stop="resolveIssue(issue)" >Resolve</button>
+                          <span v-if="issue.resolved">{{ issue.resolveDate | formatDate }}</span>
+                        </td>
+                        <td>
+                          <issue-status :resolved="issue.resolved" />
                         </td>
                       </tr>
                       </tbody>
@@ -531,6 +534,7 @@
             </div>
           </div>
         </div>
+        <issue-detail-view ref="issueDetailView" />
       </div>
       <loader :visible="!loaded" :label="'Loading beacon data...'"/>
       <loader :visible="saving" :label="'Saving beacon data...'"/>
@@ -564,9 +568,12 @@
   import Confirm from '../components/Confirm'
   import { mapGetters, mapActions } from 'vuex'
   import SearchGroupFilter from "@/components/SearchGroupFilter";
+  import IssueDetailView from "@/components/IssueDetailView";
+  import IssueStatus from "@/components/IssueStatus";
 
   export default {
     components: {
+      IssueDetailView,
       SearchGroupFilter,
       Layout,
       Loader,
@@ -575,7 +582,8 @@
       IssueSolutionModal,
       IssueDetailModal,
       Confirm,
-      Alert
+      Alert,
+      IssueStatus,
     },
     name: 'Beacon',
     data() {
@@ -626,6 +634,7 @@
         },
         infoBackup: {},
         issues: [],
+        activeIssue: 0,
         modeTab: 'IBEACON',
         locationTab: 'GPS',
         images: [],
@@ -816,7 +825,7 @@
       })
 
 
-      this.reloadIssues();
+      this.reloadIssues(true);
       this.reloadImages();
 
       this.fetchGroups()
@@ -952,7 +961,7 @@
         this.error = true;
         this.errorMessage = message
       },
-      reloadIssues() {
+      reloadIssues(onMount = false) {
         getIssuesForBeacon(this.$route.params.id).then(issues => {
           issues.sort((issueA, issueB) => {
             if (issueA.resolveDate == null && issueB.resolveDate == null) {
@@ -980,6 +989,14 @@
             }
           })
           this.issues = issues
+          if(onMount) {
+            if(this.$route.params.issueId) {
+              let paramIssue = this.issues.filter((issue) => {
+                return this.$route.params.issueId == issue.id
+              })[0]
+              this.showIssueDetail(paramIssue)
+            }
+          }
         })
       },
       reloadImages() {
@@ -1022,23 +1039,39 @@
       showImage(image) {
         this.$refs.openImage.open(image)
       },
-      showIssueDetail(issue) {
-        if (issue.resolved) {
-          this.$refs.issueDetailModal.open(issue)
-            .then(() => {})
-            .catch(() => {})
+      showIssueDetail(issue, updateRoute = false) {
+        if(this.activeIssue != issue.id) {
+          this.activeIssue = issue.id
+          if(updateRoute) {
+            let newPath = this.$route.path
+            if(this.$route.params.issueId)
+              newPath = newPath.substring(0, newPath.lastIndexOf("/")) + "/" + issue.id
+            else
+              newPath = newPath + "/issue/" + issue.id
+            history.pushState(
+              {},
+              null,
+              `#${newPath}`
+            );
+          }
+          this.$refs.issueDetailView.open(issue)
+            .then(() => {
+              this.reloadIssues()
+            })
+            .catch(() => {
+              this.activeIssue = 0
+              let newPath = this.$route.path
+              newPath = newPath.substring(0, newPath.lastIndexOf("/issue"))
+              history.pushState(
+                {},
+                null,
+                `#${newPath}`
+              );
+            })
         }
       },
       createIssue() {
         this.$refs.issueModal.open()
-          .then(() => {
-            this.reload()
-            this.reloadIssues()
-          })
-          .catch(() => {})
-      },
-      resolveIssue(issue) {
-        this.$refs.resolveIssueModal.open(issue)
           .then(() => {
             this.reload()
             this.reloadIssues()
@@ -1700,12 +1733,25 @@
           color: $text-grey;
         }
 
-        &.issue-item-resolved {
-          cursor: pointer;
+        cursor: pointer;
+
+        &:hover {
+          td {
+            color: $lighter-blue;
+          }
+        }
+
+        &.issue-item-active {
+          cursor: unset;
+          background-color: $lighter-blue;
+
+          td {
+            color: white;
+          }
 
           &:hover {
             td {
-              color: $lighter-blue;
+              color: white;
             }
           }
         }
