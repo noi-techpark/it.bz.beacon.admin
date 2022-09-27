@@ -53,7 +53,7 @@
 <script>
 import moment from 'moment'
 import { Scrollable } from '../directive/Scrollable'
-import {createIssueComment, deleteGroup, deleteIssueComment, updateIssueComment} from "@/service/apiService";
+import {deleteIssueComment, updateIssueComment} from "@/service/apiService";
 import Loader from "@/components/Loader";
 import Confirm from "@/components/Confirm";
 

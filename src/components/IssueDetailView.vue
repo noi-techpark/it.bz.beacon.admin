@@ -95,7 +95,6 @@ export default {
     return {
       visible: false,
       loaded: false,
-      promise: null,
       issue: {
         problem: '',
         problemDescription: '',
@@ -126,23 +125,10 @@ export default {
       this.issueComments = []
       this.newComment.comment = ''
       this.loadComments()
-      return new Promise((resolve, reject) => {
-        this.promise = {
-          resolve: resolve,
-          reject: reject
-        }
-      });
     },
-    close(resolved) {
+    close() {
       this.visible = false
-      if (this.promise) {
-        if (resolved) {
-          this.promise.resolve()
-        } else {
-          this.promise.reject()
-        }
-      }
-      this.promise = null
+      this.$emit('closeIssueDetails')
     },
     closeIssue() {
       if(this.issueComments.length == 0) {
@@ -157,7 +143,7 @@ export default {
         .then((updatedIssue) => {
           this.$set(this, 'saving', false)
           this.issue = updatedIssue
-          this.promise.resolve()
+          this.$emit('issuesUdate')
         })
         .catch(() => {
           this.$set(this, 'saving', false)
@@ -172,7 +158,7 @@ export default {
         .then((updatedIssue) => {
           this.$set(this, 'saving', false)
           this.issue = updatedIssue
-          this.promise.resolve()
+          this.$emit('issuesUdate')
         })
         .catch(() => {
           this.$set(this, 'saving', false)

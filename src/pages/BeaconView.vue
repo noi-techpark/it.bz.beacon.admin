@@ -85,12 +85,13 @@
                   </div>
                 </div>
               </div>
-              <div :class="'col-6 d-flex flex-column justify-content-between flex-grow-1 flex-shrink-0 border-start ' + getStatusCardClass(beacon)">
+              <div :class="'col-6 d-flex flex-column justify-content-between flex-grow-1 flex-shrink-0 border-start ' + getStatusCardClass(beacon)" >
                 <h5>Device status</h5>
-                <div class="mt-2">
+                <div class="mt-2" v-if="statusLoaded">
                   <h4 class="mb-0"><strong>{{ getStatusText(beacon) }}</strong></h4>
                   <div :class="'small status-label-' + getStatusClassPostfix(beacon)">{{ getStatusDescription(beacon) }}</div>
                 </div>
+                <loader :visible="!statusLoaded" :label="'Loading beacon status ...'"/>
               </div>
             </div>
           </div>
@@ -499,7 +500,7 @@
                     <button type="button" class="btn btn-add-issue" @click="createIssue">New issue</button>
                   </div>
                 </div>
-                <div class="row">
+                <div class="row" v-if="issuesLoaded">
                   <div class="table-responsive mt-3 table-issues-wrapper d-flex flex-column">
                     <div :class="issues.length <= 0 ? 'no-issues flex-grow-1 d-flex justify-content-center align-content-center text-center flex-column' : ''" v-show="issues.length <= 0">
                       <small class="text-muted">No issues reported.</small>
@@ -530,11 +531,12 @@
                     </table>
                   </div>
                 </div>
+                <loader :visible="!issuesLoaded" :label="'Loading issues ...'"/>
               </div>
             </div>
           </div>
         </div>
-        <issue-detail-view ref="issueDetailView" />
+        <issue-detail-view ref="issueDetailView" @closeIssueDetails="closeIssueDetails()" @issuesUdate="issuesUdate()" />
       </div>
       <loader :visible="!loaded" :label="'Loading beacon data...'"/>
       <loader :visible="saving" :label="'Saving beacon data...'"/>
@@ -639,6 +641,8 @@
         locationTab: 'GPS',
         images: [],
         loaded: false,
+        statusLoaded: false,
+        issuesLoaded: false,
         editing: false,
         saving: false,
         uploadingImage: false,
@@ -821,6 +825,7 @@
             }
             this.updateControls()
             this.$set(this, 'loaded', true)
+            this.$set(this, 'statusLoaded', true)
           })
       })
 
@@ -962,6 +967,7 @@
         this.errorMessage = message
       },
       reloadIssues(onMount = false) {
+        this.$set(this, 'issuesLoaded', false)
         getIssuesForBeacon(this.$route.params.id).then(issues => {
           issues.sort((issueA, issueB) => {
             if (issueA.resolveDate == null && issueB.resolveDate == null) {
@@ -997,6 +1003,7 @@
               this.showIssueDetail(paramIssue)
             }
           }
+          this.$set(this, 'issuesLoaded', true)
         })
       },
       reloadImages() {
@@ -1055,20 +1062,21 @@
             );
           }
           this.$refs.issueDetailView.open(issue)
-            .then(() => {
-              this.reloadIssues()
-            })
-            .catch(() => {
-              this.activeIssue = 0
-              let newPath = this.$route.path
-              newPath = newPath.substring(0, newPath.lastIndexOf("/issue"))
-              history.pushState(
-                {},
-                null,
-                `#${newPath}`
-              );
-            })
         }
+      },
+      closeIssueDetails() {
+        this.activeIssue = 0
+        let newPath = this.$route.path
+        newPath = newPath.substring(0, newPath.lastIndexOf("/issue"))
+        history.pushState(
+          {},
+          null,
+          `#${newPath}`
+        );
+      },
+      issuesUdate() {
+        this.reload()
+        this.reloadIssues()
       },
       createIssue() {
         this.$refs.issueModal.open()
@@ -1176,6 +1184,7 @@
         })
       },
       reload() {
+        this.$set(this, 'statusLoaded', false)
         getInfo(this.beacon.id).then((info) => {
           Object.assign(this.infoBackup, info)
           Object.assign(this.info, info)
@@ -1192,6 +1201,7 @@
             }
             this.updateControls()
             this.updateMap()
+            this.$set(this, 'statusLoaded', true)
           })
         })
       },

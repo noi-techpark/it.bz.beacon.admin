@@ -30,6 +30,7 @@ export default {
     width: 100%;
     position: absolute;
     top: 0;
+    left: 0;
 
     background: rgba(255, 255, 255, 0.41);
 
