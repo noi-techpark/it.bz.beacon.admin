@@ -174,8 +174,10 @@ export default {
           this.$set(this, 'saving', false)
           this.issueComments.push(newComment)
           this.newComment.comment = ''
-          if(closeOnComment)
-            this.promise.resolve()
+          if(closeOnComment) {
+            this.issue.resolved = true
+            this.$emit('issuesUdate')
+          }
         })
         .catch(() => {
           this.$set(this, 'saving', false)
