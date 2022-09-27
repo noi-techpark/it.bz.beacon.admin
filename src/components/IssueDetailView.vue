@@ -7,8 +7,15 @@
           <div class="row">
             <div class="issue-header pt-3 pb-3 pr-4 pl-4">
               <div class="row">
-                <issue-status :resolved="issue.resolved" />
-                <span class="ml-2">Issue created {{ issue.reportDate | formatTimeAgo }} by <b>{{ issue.reporter }}</b></span>
+                <issue-status :styleBig="true" :resolved="issue.resolved" />
+                <div class="d-flex flex-column">
+                  <div class="row">
+                    <span class="ml-2">Issue created {{ issue.reportDate | formatTimeAgo }} by <b>{{ issue.reporter }}</b></span>
+                  </div>
+                  <div class="row" v-if="issue.resolved">
+                    <span class="ml-2">Issue closed {{ issue.resolveDate | formatTimeAgo }} by <b>{{ issue.resolver }}</b></span>
+                  </div>
+                </div>
               </div>
               <div class="row mt-4">
                 <div class="col-12 p-0"><h2>{{ issue.problem }}</h2></div>
@@ -22,7 +29,9 @@
             </div>
           </div>
 
-          <issue-comment-item :issue-comment="issueComment" v-for="(issueComment, index) in issueComments"></issue-comment-item>
+          <issue-comment-item :issueId="issue.id" @deleteComment="deleteComment(issueComment)" :issue-comment="issueComment" v-for="(issueComment, index) in issueComments"></issue-comment-item>
+
+          <div class="issue-comment-separator" v-if="issueComments.length > 0" />
 
           <div class="row mt-4 mb-4">
             <div class="row mt-2 col-12">
@@ -38,19 +47,19 @@
                 </div>
               </div>
               <div class="col-12 d-flex justify-content-end mt-2" style="gap: 0.5rem">
-                <button class="btn btn-issue-resolve pl-5 pr-5" v-show="!issue.resolved && newComment.comment == ''" :disabled="saving" @click="closeIssue()">
+                <button class="btn btn-outline-secondary pl-5 pr-5" v-show="!issue.resolved && newComment.comment == ''" :disabled="saving" @click="closeIssue()">
                   <span class="btn-title">Close</span>
                   <div class="spinner" v-show="saving"></div>
                 </button>
-                <button class="btn btn-issue-resolve pl-5 pr-5" v-show="!issue.resolved && newComment.comment != ''" :disabled="saving" @click="commentIssue(true)">
+                <button class="btn btn-outline-secondary pl-5 pr-5" v-show="!issue.resolved && newComment.comment != ''" :disabled="saving" @click="commentIssue(true)">
                   <span class="btn-title">Close with comment</span>
                   <div class="spinner" v-show="saving"></div>
                 </button>
-                <button class="btn btn-issue-resolve pl-5 pr-5" v-show="issue.resolved" :disabled="saving" @click="reopenIssue()">
+                <button class="btn btn-outline-secondary pl-5 pr-5" v-show="issue.resolved" :disabled="saving" @click="reopenIssue()">
                   <span class="btn-title">Reopen</span>
                   <div class="spinner" v-show="saving"></div>
                 </button>
-                <button class="btn btn-issue-resolve pl-5 pr-5" :disabled="newComment.comment == '' || saving" @click="commentIssue()">
+                <button class="btn btn-issue-comment pl-5 pr-5" :disabled="newComment.comment == '' || saving" @click="commentIssue()">
                   <span class="btn-title">Comment</span>
                   <div class="spinner" v-show="saving"></div>
                 </button>
@@ -61,7 +70,7 @@
       </div>
     </div>
     <loader :visible="!loaded" :label="'Loading issue comments ...'"/>
-    <loader ref="savingOverlay" :fitToparentContainer="true" :visible="saving" :label="savingLabel"/>
+    <loader :visible="saving" :label="savingLabel"/>
   </div>
 </template>
 
@@ -136,6 +145,11 @@ export default {
       this.promise = null
     },
     closeIssue() {
+      if(this.issueComments.length == 0) {
+        this.error = true
+        this.errorMessage = "Unable to close the issue. Please write a short comment about the solution."
+        return
+      }
       this.error = false
       this.saving = true
       this.savingLabel = 'Closing issue...'
@@ -188,6 +202,9 @@ export default {
         this.issueComments = issueComments
         this.loaded = true
       })
+    },
+    deleteComment(issueComment) {
+      this.issueComments = this.issueComments.filter(ic => ic.id != issueComment.id)
     }
   },
   filters: {
@@ -444,7 +461,7 @@ export default {
 
   .btn {
 
-    &.btn-issue-resolve {
+    &.btn-issue-comment {
       color: white;
       background: $light-blue;
       border: 1px solid $light-blue;
@@ -474,6 +491,10 @@ export default {
       outline: 0;
       box-shadow: none;
     }
+  }
+
+  .issue-comment-separator {
+    border-bottom: 1px solid $lighter-blue;
   }
 
 </style>

@@ -522,7 +522,7 @@
                         <td class="align-middle">
                           <span v-if="issue.resolved">{{ issue.resolveDate | formatDate }}</span>
                         </td>
-                        <td>
+                        <td class="align-middle">
                           <issue-status :resolved="issue.resolved" />
                         </td>
                       </tr>

@@ -1,5 +1,5 @@
 <template>
-  <div class="p-0 d-flex align-items-center"><span :class='"badge badge-pill badge-status " + statusClass'>{{ statusText }}</span></div>
+  <div class="p-0 d-flex align-items-start" ><span :class='"badge badge-pill badge-status " + statusClass'>{{ statusText }}</span></div>
 </template>
 
 <script>
@@ -8,11 +8,17 @@
       resolved: {
         type: Boolean,
         default: false
+      },
+      styleBig: {
+        type: Boolean,
+        default: false
       }
     },
     computed: {
       statusClass() {
         let statusClass = 'badge-status-' + (this.resolved? 'closed': 'open')
+        if(this.styleBig)
+          statusClass += ' big'
         return statusClass;
       },
       statusText() {
@@ -30,7 +36,6 @@
   .badge-status {
     color: white;
     display:block;
-    height: 2em;
     line-height: 1rem;
     font-weight: normal;
     font-size: 0.66rem;
@@ -41,6 +46,11 @@
 
     &.badge-status-closed {
       background-color: $status-red;
+    }
+
+    &.big {
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
     }
   }
 </style>

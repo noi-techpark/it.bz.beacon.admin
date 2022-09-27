@@ -284,6 +284,26 @@ export function resolveIssue(id, issueSolution) {
   return callPost(PATH_ISSUES + '/' + id + '/resolve', true, issueSolution)
 }
 
+export function updateIssueStatus(issueId, issueStatus) {
+  return callPost(PATH_ISSUES + '/' + issueId + '/status', true, issueStatus)
+}
+
+export function getIssueComments(issueId) {
+  return callGet(PATH_ISSUES + '/' + issueId + '/comments', true)
+}
+
+export function createIssueComment(issueId, issueComment) {
+  return callPost(PATH_ISSUES + '/' + issueId + '/comments', true, issueComment)
+}
+
+export function updateIssueComment(issueId, commentId, issueComment) {
+  return callPatch(PATH_ISSUES + '/' + issueId + '/comments' + '/' + commentId, true, issueComment)
+}
+
+export function deleteIssueComment(issueId, commentId) {
+  return callDelete(PATH_ISSUES + '/' + issueId + '/comments' + '/' + commentId, true)
+}
+
 // INFO
 export function getInfos() {
   return callGet(PATH_INFO, false)
