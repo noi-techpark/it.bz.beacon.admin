@@ -511,6 +511,7 @@
                         <th scope="col">Problem</th>
                         <th scope="col">Description</th>
                         <th scope="col">Report</th>
+                        <th scope="col">Reporter</th>
                         <th scope="col">Resolved</th>
                         <th scope="col"></th>
                       </tr>
@@ -519,6 +520,7 @@
                       <tr class="issue-item" :class="{'issue-item-active': issue.id == activeIssue}" v-bind:key="issue.id" v-if="issues.length" v-for="issue in issues" @click.prevent.stop="showIssueDetail(issue, true)">
                         <td class="align-middle" scope="row">{{ issue.problem }}</td>
                         <td class="align-middle">{{ issue.problemDescription }}</td>
+                        <td class="align-middle">{{ issue.reporter }}</td>
                         <td class="align-middle">{{ issue.reportDate | formatDate }}</td>
                         <td class="align-middle">
                           <span v-if="issue.resolved">{{ issue.resolveDate | formatDate }}</span>
