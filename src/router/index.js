@@ -79,7 +79,7 @@ const router = new Router({
     },
     {
       path: '/issues/beacon/:id/issue/:issueId',
-      name: 'issue-detail',
+      name: 'issue-detail-issue',
       component: BeaconView,
       meta: {
         nav: 'issues'

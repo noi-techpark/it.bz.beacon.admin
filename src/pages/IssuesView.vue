@@ -219,7 +219,7 @@
 
             let marker = this.L.marker([position.lat, position.lng], {icon: customIcon}) //.addTo(this.map);
             marker.on('click', () => {
-              router.push({name: 'beacon-detail', params: {id: beacon.id}})
+              router.push({name: 'beacon-detail', params: {id: beacon.id }})
             })
             let ccc = this.cluster
             // add marker async
@@ -259,7 +259,7 @@
         }
       },
       showDetail(issue) {
-        router.push({name: 'issue-detail', params: {id: issue.beacon.id}})
+        router.push({name: 'issue-detail-issue', params: {id: issue.beacon.id, issueId: issue.id}})
       },
       showMyPosition(success, failure) {
         let myPositionButtonIcon = document.getElementById('myLocationButtonIcon')
