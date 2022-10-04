@@ -158,7 +158,7 @@ export default {
         solutionDescription: '',
         resolver: '',
         resolved: false,
-        ticketId: null
+        ticketId: null,
       },
       issueUpdate: {
         problem: '',
@@ -210,6 +210,8 @@ export default {
           this.$set(this, 'saving', false)
           this.issue = updatedIssue
           this.$emit('issuesUpdate')
+          this.$set(this, 'loaded', false)
+          this.loadComments()
         })
         .catch(() => {
           this.$set(this, 'saving', false)
@@ -226,6 +228,8 @@ export default {
           this.$set(this, 'saving', false)
           this.issue = updatedIssue
           this.$emit('issuesUpdate')
+          this.$set(this, 'loaded', false)
+          this.loadComments()
         })
         .catch(() => {
           this.$set(this, 'saving', false)
@@ -238,9 +242,10 @@ export default {
       this.saving = true
       this.savingLabel = 'Saving issue comment...'
       createIssueComment(this.issue.id, {comment: this.newComment.comment, closeOnComment: closeOnComment})
-        .then((newComment) => {
+        .then((newComments) => {
           this.$set(this, 'saving', false)
-          this.issueComments.push(newComment)
+          for(let i = 0; i < newComments.length; i++)
+            this.issueComments.push(newComments[i])
           this.newComment.comment = ''
           if(closeOnComment) {
             this.issue.resolved = true

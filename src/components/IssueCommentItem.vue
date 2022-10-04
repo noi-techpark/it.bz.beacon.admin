@@ -72,16 +72,14 @@ export default {
         comment: '',
         issueId: '',
         createDate: '',
-        updateDate: ''
+        updateDate: '',
+        statusChange: false,
       }
-    },
-    issueComments: {
-      type: Array,
     },
     issueId: {
       type: Number,
       default: 0
-    }
+    },
   },
   components: {
     Loader,
@@ -110,7 +108,7 @@ export default {
   },
   methods: {
     canEdit() {
-      return this.getUsername == this.issueComment.userUsername
+      return !this.issueComment.statusChange && this.getUsername == this.issueComment.userUsername
     },
     close(resolved) {
       if (this.promise) {
