@@ -21,12 +21,38 @@
                 <button type="button" class="btn btn-close" @click="close()"><img src="../assets/ic_close.svg"/></button>
               </div>
               <div class="row mt-4">
-                <div class="col-12 p-0"><h2>{{ issue.problem }}</h2></div>
-                <button type="button" class="btn btn-close" @click="close(false)"><img src="../assets/ic_close.svg"/></button>
+                <div class="col-12 p-0">
+                  <h2 v-if="!editing">{{ issue.problem }}</h2>
+                  <div class="col-12 p-0" v-if="editing">
+                    <input type="text" class="form-control" v-model="issueUpdate.problem" :readonly="!editing" />
+                    <small class="">Problem</small>
+                  </div>
+                </div>
               </div>
               <div class="row mt-4">
-                <div class="col-12 p-0">
+                <div class="col-12 p-0" v-if="!editing">
                   <p class="issue-problem-description">{{ issue.problemDescription }}</p>
+                </div>
+                <div class="col-12 p-0" v-if="editing">
+                  <textarea class="form-control form-issue-solution-control" v-model="issueUpdate.problemDescription" placeholder="Write a short comment"></textarea>
+                  <small class="">Description</small>
+                </div>
+              </div>
+              <div class="row mt-4">
+                <div class="col-xs-12 col-sm-6 col-md-8 col-lg-9" v-show="!editing">
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" v-show="!editing">
+                  <select class="form-control" @change="executeAction">
+                    <option value="">Action</option>
+                    <option value="edit">Edit</option>
+                    <option value="delete">Delete</option>
+                  </select>
+                </div>
+                <div class="col" v-show="editing">
+                </div>
+                <div class="col-auto edit-actions" v-show="editing">
+                  <button class="btn btn-outline-secondary-white mr-4 pl-3 pr-3" @click="cancelEdit">Cancel</button>
+                  <button class="btn btn-issue-comment  pl-5 pr-5" @click="save">Save</button>
                 </div>
               </div>
             </div>
@@ -74,6 +100,10 @@
     </div>
     <loader :visible="!loaded" :label="'Loading issue comments ...'"/>
     <loader :visible="saving" :label="savingLabel"/>
+    <confirm ref="deleteIssueConfirm" titleText="Delete issue" confirmText="Delete" cancelText="Cancel">
+      Are you sure to you want to delete the issue?<br />
+      This cannot be undone.
+    </confirm>
   </div>
 </template>
 
@@ -83,13 +113,20 @@ import { Scrollable } from '../directive/Scrollable'
 import IssueStatus from "@/components/IssueStatus";
 import IssueCommentItem from "@/components/IssueCommentItem";
 import Loader from '../components/Loader'
-import {createIssueComment, getIssueComments, updateIssueStatus} from "@/service/apiService";
+import {
+  createIssueComment, deleteIssue,
+  getIssueComments,
+  updateIssue,
+  updateIssueStatus
+} from "@/service/apiService";
+import Confirm from "@/components/Confirm";
 
 export default {
   components: {
     IssueCommentItem,
     IssueStatus,
     Loader,
+    Confirm,
   },
   directives: {
     Scrollable
@@ -108,9 +145,14 @@ export default {
         resolver: '',
         resolved: false
       },
+      issueUpdate: {
+        problem: '',
+        problemDescription: ''
+      },
       issueComments: [],
       error: true,
       saving: false,
+      editing: false,
       savingLabel: "Saving issue...",
       errorMessage: "Unable to close the issue. Please verify that it has not been resolved yet.",
       newComment: {
@@ -146,7 +188,7 @@ export default {
         .then((updatedIssue) => {
           this.$set(this, 'saving', false)
           this.issue = updatedIssue
-          this.$emit('issuesUdate')
+          this.$emit('issuesUpdate')
         })
         .catch(() => {
           this.$set(this, 'saving', false)
@@ -161,7 +203,7 @@ export default {
         .then((updatedIssue) => {
           this.$set(this, 'saving', false)
           this.issue = updatedIssue
-          this.$emit('issuesUdate')
+          this.$emit('issuesUpdate')
         })
         .catch(() => {
           this.$set(this, 'saving', false)
@@ -179,7 +221,7 @@ export default {
           this.newComment.comment = ''
           if(closeOnComment) {
             this.issue.resolved = true
-            this.$emit('issuesUdate')
+            this.$emit('issuesUpdate')
           }
         })
         .catch(() => {
@@ -196,7 +238,59 @@ export default {
     },
     deleteComment(issueComment) {
       this.issueComments = this.issueComments.filter(ic => ic.id != issueComment.id)
-    }
+    },
+    cancelEdit() {
+      this.editing = false
+    },
+    save() {
+      this.error = false
+      this.saving = true
+      this.savingLabel = 'Updating issue...'
+      updateIssue(this.issue.id, this.issueUpdate)
+        .then((updatedIssue) => {
+          this.$set(this, 'editing', false)
+          this.$set(this, 'saving', false)
+          this.issue = updatedIssue
+          this.$emit('issuesUpdate')
+        })
+        .catch(() => {
+          this.$set(this, 'saving', false)
+          this.$set(this, 'error', true)
+        })
+    },
+    delete() {
+      this.$refs.deleteIssueConfirm.open()
+        .then(() => {
+          this.error = false
+          this.saving = true
+          this.savingLabel = 'Deleting issue ...'
+          deleteIssue(this.issue.id)
+            .then(() => {
+              this.$set(this, 'saving', false)
+              this.$set(this, 'editing', false)
+              this.$emit('issuesUpdate')
+              this.close()
+            })
+            .catch(() => {
+              this.$set(this, 'saving', false)
+              this.$set(this, 'error', true)
+            })
+        })
+        .catch(() => {})
+    },
+    executeAction(event) {
+      switch(event.target.value) {
+        case 'edit':
+          this.issueUpdate.problem = this.issue.problem
+          this.issueUpdate.problemDescription = this.issue.problemDescription
+          this.$set(this, 'editing', true)
+          break;
+        case 'delete':
+          this.delete()
+          break;
+      }
+      event.target.selectedIndex = 0
+    },
   },
   filters: {
     formatDate: (dateString) => {
@@ -363,7 +457,6 @@ export default {
     white-space: pre-wrap;
   }
 
-  .image-modal-actions {
     .btn {
       padding: 0.1em 0.5em;
       font-size: 0.9em;
@@ -375,8 +468,17 @@ export default {
           background: $grey;
         }
       }
+
+      &.btn-outline-secondary-white {
+        border-color: white;
+        color: white;
+
+        &:hover {
+          background: white;
+          color: $grey;
+        }
+      }
     }
-  }
 
   .form-issue-control {
     border: 1px solid $dark-blue;

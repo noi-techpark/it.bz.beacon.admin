@@ -280,6 +280,14 @@ export function createIssue(issueCreation) {
   return callPost(PATH_ISSUES, true, issueCreation)
 }
 
+export function updateIssue(issueId, issueUpdate) {
+  return callPatch(PATH_ISSUES + '/' + issueId, true, issueUpdate)
+}
+
+export function deleteIssue(issueId) {
+  return callDelete(PATH_ISSUES + '/' + issueId, true)
+}
+
 export function resolveIssue(id, issueSolution) {
   return callPost(PATH_ISSUES + '/' + id + '/resolve', true, issueSolution)
 }

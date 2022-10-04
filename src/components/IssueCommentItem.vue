@@ -14,11 +14,7 @@
               <span class="ml-2" v-if="issueComment.updateDate">
                 <span> (edited {{issueComment.updateDate | formatTimestamp}})</span>
               </span>
-              <span>)</span>
             </span>
-            <div class="flex-grow-1"></div>
-            <button type="button" :title="'Modify comment'" class="btn btn-edit" @click="modifyComment" v-if="!editing"></button>
-            <button type="button" :title="'Delete comment'" class="btn btn-delete" @click="deleteComment"></button>
           </div>
         </div>
         <div class="row col-12 mt-1">
@@ -45,7 +41,7 @@
         </div>
       </div>
     <loader :visible="saving" :label="savingLabel"/>
-    <confirm ref="deleteGroupConfirm" titleText="Delete comment" confirmText="Delete" cancelText="Cancel">
+    <confirm ref="deleteCommentConfirm" titleText="Delete comment" confirmText="Delete" cancelText="Cancel">
       Are you sure to you want to delete the comment?<br />
       This cannot be undone.
     </confirm>
@@ -138,7 +134,7 @@ export default {
         })
     },
     deleteComment() {
-      this.$refs.deleteGroupConfirm.open()
+      this.$refs.deleteCommentConfirm.open()
         .then(() => {
           this.error = false
           this.saving = true
