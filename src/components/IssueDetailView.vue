@@ -20,9 +20,20 @@
                 </div>
                 <button type="button" class="btn btn-close" @click="close()"><img src="../assets/ic_close.svg"/></button>
               </div>
+              <div class="row mt-4" v-if="editing">
+                <div class="col-12 p-0">
+                    <input type="text" class="form-control" v-model="issueUpdate.ticketId" :readonly="!editing" />
+                    <small class="">Ticket-Id</small>
+                </div>
+              </div>
               <div class="row mt-4">
                 <div class="col-12 p-0">
-                  <h2 v-if="!editing">{{ issue.problem }}</h2>
+                  <div class="col-12 row p-0">
+                    <div class="col-xs-12 col-lg p-0 order-lg-2">
+                      <issue-ticket-id :styleBig="true" :ticket-id="issue.ticketId" v-if="issue.ticketId" />
+                    </div>
+                    <h2 class="col-xs-12 col-lg-auto p-0 mr-2 order-lg-1" v-if="!editing">{{ issue.problem }}</h2>
+                  </div>
                   <div class="col-12 p-0" v-if="editing">
                     <input type="text" class="form-control" v-model="issueUpdate.problem" :readonly="!editing" />
                     <small class="">Problem</small>
@@ -120,9 +131,11 @@ import {
   updateIssueStatus
 } from "@/service/apiService";
 import Confirm from "@/components/Confirm";
+import IssueTicketId from "@/components/IssueTicketId";
 
 export default {
   components: {
+    IssueTicketId,
     IssueCommentItem,
     IssueStatus,
     Loader,
@@ -143,11 +156,13 @@ export default {
         solution: '',
         solutionDescription: '',
         resolver: '',
-        resolved: false
+        resolved: false,
+        ticketId: null
       },
       issueUpdate: {
         problem: '',
-        problemDescription: ''
+        problemDescription: '',
+        ticketId: ''
       },
       issueComments: [],
       error: true,
@@ -283,6 +298,7 @@ export default {
         case 'edit':
           this.issueUpdate.problem = this.issue.problem
           this.issueUpdate.problemDescription = this.issue.problemDescription
+          this.issueUpdate.ticketId = this.issue.ticketId
           this.$set(this, 'editing', true)
           break;
         case 'delete':
