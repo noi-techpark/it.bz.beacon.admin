@@ -3,18 +3,18 @@
   <!-- eslint-disable -->
   <layout :source="title">
     <template slot="search-input">
-      <div class="row" style="width: 100%">
-      <div class="col-4 p-0 h-100 text-right search-container">
-        <img class="search-icon mt-0" :src="require('../assets/ic_search.svg')">
-        <input type="text" class="beacon-search" v-model="search" placeholder="Search beacon">
-      </div>
-        <div class="col-4 p-0 h-100 text-right search-container">
+      <div class="row search-bar-container">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-4 p-0 text-right search-container">
+          <img class="search-icon mt-0" :src="require('../assets/ic_search.svg')">
+          <input type="text" class="beacon-search" v-model="search" placeholder="Search beacon">
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-5 col-lg-3 p-0 text-right search-container">
           <search-group-filter ref="searchGroupFilter" v-model="groupFilter" />
         </div>
-      <div class="col-4 p-0 h-100">
-        <button type="button" class="btn btn-reset ml-2" @click="resetFilter">Reset</button>
-        <button type="button" class="btn btn-reset ml-2" @click="reload">Reload</button>
-      </div>
+        <div class="col-xs-12 col-sm-12 col-md-7 col-lg-5 p-0 search-container">
+          <button type="button" class="btn btn-reset ml-2" @click="resetFilter">Reset</button>
+          <button type="button" class="btn btn-reset ml-2" @click="reload">Reload</button>
+        </div>
       </div>
     </template>
     <template slot="body">
@@ -679,10 +679,6 @@
 
       }
     }
-  }
-
-  .search-icon {
-    top: 0px
   }
 
 </style>

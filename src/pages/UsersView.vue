@@ -2,7 +2,7 @@
   <!-- eslint-disable -->
   <layout :source="title">
     <template slot="search-input">
-      <div class="col p-0 h-100 text-right search-container">
+      <div class="col p-0 text-right search-container">
         <img class="search-icon" :src="require('../assets/ic_search.svg')">
         <input type="text" class="beacon-search" v-model="search" placeholder="Search user">
       </div>

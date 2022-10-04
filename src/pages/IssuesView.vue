@@ -2,15 +2,15 @@
   <!-- eslint-disable -->
   <layout :source="title">
     <template slot="search-input">
-      <div class="row" style="width: 100%">
-        <div class="col-4 p-0 h-100 text-right search-container">
+      <div class="row search-bar-container">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-4 p-0 text-right search-container">
           <img class="search-icon mt-0" :src="require('../assets/ic_search.svg')">
           <input type="text" class="beacon-search" v-model="search" placeholder="Search issue">
         </div>
-        <div class="col-4 p-0 h-100 text-right search-container">
+        <div class="col-xs-12 col-sm-12 col-md-5 col-lg-3 p-0 text-right search-container">
           <search-group-filter ref="searchGroupFilter" v-model="groupFilter" />
         </div>
-        <div class="col-4 p-0 h-100">
+        <div class="col-xs-12 col-sm-12 col-md-7 col-lg-5 p-0 search-container">
           <button type="button" class="btn btn-reset ml-2" @click="resetFilter">Reset</button>
           <button type="button" class="btn btn-reset ml-2" @click="reload">Reload</button>
         </div>
@@ -18,18 +18,18 @@
     </template>
     <template slot="body">
       <div class="row flex-grow-1" style="overflow: hidden">
-        <div class="position-absolute mt-4 ml-4">
-          <div id="view-switch" class="btn-group" role="group" aria-label="Switch view">
+        <div class="position-absolute w-100">
+          <div id="view-switch" class="col-xs-12 col-sm-6 col-md-3 col-lg-2 btn-group mt-4" role="group" aria-label="Switch view">
             <button type="button" :class="'btn btn-view-switch ' + (viewMode === LIST ? 'btn-view-switch-active' : '')" @click="changeMode(LIST)"><img src="../assets/ic_list.svg"/></button>
             <button type="button" :class="'btn btn-view-switch ' + (viewMode === MAP ? 'btn-view-switch-active' : '')" @click="changeMode(MAP)"><img src="../assets/ic_map.svg"/></button>
           </div>
-          <div id="view-switch" class="btn-group ml-4" role="group" aria-label="Switch view">
+          <div id="view-switch" class="col-xs-12 col-sm-6 col-md-3 col-lg-2 btn-group mt-4" role="group" aria-label="Switch view">
             <button type="button" :class="'btn btn-view-switch ' + (statusFilter === ISSUES_FILTER_OPEN ? 'btn-view-switch-active' : '')" @click="changeIssuesFilter(ISSUES_FILTER_OPEN)">Open</button>
             <button type="button" :class="'btn btn-view-switch ' + (statusFilter === ISSUES_FILTER_CLOSED ? 'btn-view-switch-active' : '')" @click="changeIssuesFilter(ISSUES_FILTER_CLOSED)">Closed</button>
             <button type="button" :class="'btn btn-view-switch ' + (statusFilter === ISSUES_FILTER_ALL ? 'btn-view-switch-active' : '')" @click="changeIssuesFilter(ISSUES_FILTER_ALL)">All</button>
           </div>
         </div>
-        <div class="container mt-6 p-0" v-show="loaded && viewMode === LIST">
+        <div class="container issues-table-container p-0" v-show="loaded && viewMode === LIST">
           <div class="row beacon-display m-4 p-4">
             <div class="col-12 p-0" v-show="tableData.length > 0">
               <simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta" @rowClicked="showDetail"/>
@@ -494,7 +494,14 @@
     display: inline-block;
   }
 
-  .mt-6 {
+  .issues-table-container {
+    margin-top: 8em !important;
+    @media only screen and (min-width: 576px) {
+      margin-top: 4em !important;
+    }
+  }
+
+  .issues-container {
     margin-top: 4em !important;
   }
 
@@ -631,10 +638,6 @@
 
       }
     }
-  }
-
-  .search-icon {
-    top: 0px
   }
 
 </style>

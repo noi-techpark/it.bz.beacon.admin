@@ -2,15 +2,17 @@
   <div class="" style="position: relative">
     <div class="row issue-comment-container pt-2 pb-2">
         <div class="row col-12">
-          <div class="col-12 d-flex">
-            <b>{{issueComment.userName}}</b>
-            <span class="ml-2"> @{{issueComment.userUsername}}</span>
-            <span class="ml-2 mr-2">·</span>
-            <span>{{issueComment.createDate | formatTimestamp}}</span>
-            <span class="ml-2" v-if="issueComment.updateDate">
-              <span> (edited </span>
-              <span class="d-inline-block">
-                <span >{{issueComment.updateDate | formatTimestamp}}</span>
+          <div class="row col-12">
+            <div class="col-sm-12 col-md-3 d-flex order-md-2">
+              <div class="flex-grow-1"></div>
+              <button type="button" :title="'Modify comment'" class="btn btn-edit" @click="modifyComment" v-if="!editing"></button>
+              <button type="button" :title="'Delete comment'" class="btn btn-delete" @click="deleteComment"></button>
+            </div>
+            <span class="col-sm-12 col-md-9 order-s-2 order-md-1">
+              <b>{{issueComment.userName}}</b> @{{issueComment.userUsername}} ·
+              <span>{{issueComment.createDate | formatTimestamp}}</span>
+              <span class="ml-2" v-if="issueComment.updateDate">
+                <span> (edited {{issueComment.updateDate | formatTimestamp}})</span>
               </span>
               <span>)</span>
             </span>

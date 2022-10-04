@@ -7,8 +7,10 @@
           <div class="row">
             <div class="issue-header pt-3 pb-3 pr-4 pl-4">
               <div class="row">
-                <issue-status :styleBig="true" :resolved="issue.resolved" />
-                <div class="d-flex flex-column">
+                <div class="col-xs-12 col-md-auto p-0">
+                  <issue-status :styleBig="true" :resolved="issue.resolved" />
+                </div>
+                <div class="col-xs-12 col-md d-flex flex-column p-0 pr-md-3">
                   <div class="row">
                     <span class="ml-2">Issue created {{ issue.reportDate | formatTimeAgo }} by <b>{{ issue.reporter }}</b></span>
                   </div>
@@ -16,6 +18,7 @@
                     <span class="ml-2">Issue closed {{ issue.resolveDate | formatTimeAgo }} by <b>{{ issue.resolver }}</b></span>
                   </div>
                 </div>
+                <button type="button" class="btn btn-close" @click="close()"><img src="../assets/ic_close.svg"/></button>
               </div>
               <div class="row mt-4">
                 <div class="col-12 p-0"><h2>{{ issue.problem }}</h2></div>

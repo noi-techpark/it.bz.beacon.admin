@@ -2,15 +2,15 @@
   <!-- eslint-disable -->
   <layout :source="title">
     <template slot="search-input">
-      <div class="row" style="width: 100%">
-        <div class="col-4 p-0 h-100 text-right search-container">
+      <div class="row search-bar-container">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-4 p-0 text-right search-container">
           <img class="search-icon mt-0" :src="require('../assets/ic_search.svg')">
           <input type="text" class="beacon-search" v-model="search" :placeholder="searchPlaceholder">
         </div>
-        <div class="col-4 p-0 h-100 text-right search-container">
+        <div class="col-xs-12 col-sm-12 col-md-5 col-lg-3 p-0 text-right search-container">
           <search-group-filter ref="searchGroupFilter" v-model="groupFilter" />
         </div>
-        <div class="col-4 p-0 h-100">
+        <div class="col-xs-12 col-sm-12 col-md-7 col-lg-5 p-0 search-container">
           <button type="button" class="btn btn-reset ml-2" @click="resetFilter">Reset</button>
           <button type="button" class="btn btn-reset ml-2" @click="reload">Reload</button>
         </div>
@@ -19,14 +19,14 @@
     <template slot="body">
       <div class="container pb-4" v-show="loaded">
         <div class="row mt-4">
-          <div class="col-8">
+          <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
             <h2 class="beacon-title mt-3" v-if="!editing">{{ beacon.name }}</h2>
             <div v-if="editing">
               <input type="text" class="form-control" v-model="beacon.name" :readonly="!editing" />
               <small class="text-muted">Name</small>
             </div>
           </div>
-          <div class="col-4">
+          <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
             <select class="form-control form-select-group-control" id="role" v-if="isAdmin" v-model="group.id" :disabled="!editing">
               <option v-bind:key="mGroup.id" v-if="groups.length" v-for="mGroup in groups" :value="mGroup.id">{{ mGroup.name }}</option>
             </select>
@@ -538,7 +538,7 @@
             </div>
           </div>
         </div>
-        <issue-detail-view ref="issueDetailView" @closeIssueDetails="closeIssueDetails()" @issuesUdate="issuesUdate()" />
+        <issue-detail-view ref="issueDetailView" @closeIssueDetails="closeIssueDetails()" @issuesUpdate="issuesUpdate()" />
       </div>
       <loader :visible="!loaded" :label="'Loading beacon data...'"/>
       <loader :visible="saving" :label="'Saving beacon data...'"/>
