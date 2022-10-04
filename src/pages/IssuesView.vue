@@ -112,8 +112,8 @@
             type: 'beacon-status'
           },
           {
-            title: 'Resolved date',
-            key: 'resolveDate',
+            title: 'Last modified',
+            key: 'lastModified',
             type: 'date'
           },
           {
