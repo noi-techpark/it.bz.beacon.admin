@@ -81,24 +81,20 @@
             key: 'name'
           },
           {
-            title: 'Major',
-            key: 'major'
-          },
-          {
-            title: 'Minor',
-            key: 'minor'
-          },
-          {
             title: 'Description',
             key: 'description'
+          },
+          {
+            title: 'POI name',
+            key: 'namePoi'
           },
           {
             title: 'Group',
             key: 'group.name'
           },
           {
-            title: 'Seen',
-            key: 'lastSeen',
+            title: 'Trusted update',
+            key: 'trustedUpdatedAt',
             type: 'date'
           },
           {
@@ -415,7 +411,8 @@
             return this.groupFilter === '' || beacon.group !== null && beacon.group.name === this.groupFilter
           }).filter((beacon) => {
             return beacon.name.toLowerCase().includes(this.search.toLowerCase()) ||
-              beacon.id.toLowerCase().includes(this.search.toLowerCase())
+              beacon.id.toLowerCase().includes(this.search.toLowerCase()) ||
+              beacon.namePoi != null && beacon.namePoi.toLowerCase().includes(this.search.toLowerCase())
           })
         }
 
