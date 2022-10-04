@@ -28,11 +28,11 @@
               </div>
               <div class="row mt-4">
                 <div class="col-12 p-0">
-                  <div class="col-12 row p-0">
+                  <div class="col-12 row p-0" v-if="!editing">
                     <div class="col-xs-12 col-lg p-0 order-lg-2">
-                      <issue-ticket-id :styleBig="true" :ticket-id="issue.ticketId" v-if="issue.ticketId" />
+                      <issue-ticket-id :styleBig="true" :ticket-id="issue.ticketId" />
                     </div>
-                    <h2 class="col-xs-12 col-lg-auto p-0 mr-2 order-lg-1" v-if="!editing">{{ issue.problem }}</h2>
+                    <h2 class="col-xs-12 col-lg-auto p-0 mr-2 order-lg-1">{{ issue.problem }}</h2>
                   </div>
                   <div class="col-12 p-0" v-if="editing">
                     <input type="text" class="form-control" v-model="issueUpdate.problem" :readonly="!editing" />

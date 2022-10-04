@@ -1,13 +1,12 @@
 <template>
-  <span class="p-0 d-flex align-items-start" ><span :class='"badge badge-pill issue-status-pill" + statusClass'>#{{ ticketId }}</span></span>
+  <span class="p-0 d-flex align-items-start" ><span :class='"badge badge-pill issue-status-pill" + statusClass'>{{ ticketId? '#' + ticketId: 'No Ticket-Id' }}</span></span>
 </template>
 
 <script>
   export default {
     props: {
       ticketId: {
-        type: Number,
-        required: true
+        type: Number
       },
       styleBig: {
         type: Boolean,
