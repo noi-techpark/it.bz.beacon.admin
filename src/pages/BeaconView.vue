@@ -697,9 +697,9 @@
     },
     mounted() {
       this.searchItem = this.$route.name === 'beacon-detail'? 'beacons_search' :
-        this.$route.name === 'issue-detail'? 'issues_search': null;
+        this.$route.name === 'issue-detail' || this.$route.name === 'issue-detail-issue'? 'issues_search': null;
       this.searchPlaceholder = this.$route.name === 'beacon-detail'? 'Search beacon' :
-        this.$route.name === 'issue-detail'? 'Search issue': null;
+        this.$route.name === 'issue-detail' || this.$route.name === 'issue-detail-issue'? 'Search issue': null;
 
       this.search = sessionStorage.getItem(this.searchItem) || ''
       this.groupFilter = sessionStorage.getItem('group_filter') || ''
@@ -1002,7 +1002,10 @@
               let paramIssue = this.issues.filter((issue) => {
                 return this.$route.params.issueId == issue.id
               })[0]
-              this.showIssueDetail(paramIssue)
+              if(paramIssue)
+                this.showIssueDetail(paramIssue)
+              else
+                this.closeIssueDetails()
             }
           }
           this.$set(this, 'issuesLoaded', true)
@@ -1076,7 +1079,7 @@
           `#${newPath}`
         );
       },
-      issuesUdate() {
+      issuesUpdate() {
         this.reload()
         this.reloadIssues()
       },
@@ -1799,10 +1802,6 @@
     padding-top: 1em;
     padding-bottom: 1em;
     font-size: 0.8rem;
-  }
-
-  .search-icon {
-    top: 0px
   }
 
 </style>
