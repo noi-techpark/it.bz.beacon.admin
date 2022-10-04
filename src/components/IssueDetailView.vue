@@ -56,7 +56,7 @@
                   <select class="form-control" @change="executeAction">
                     <option value="">Action</option>
                     <option value="edit">Edit</option>
-                    <option value="delete">Delete</option>
+                    <option value="delete" v-if="isAdmin">Delete</option>
                   </select>
                 </div>
                 <div class="col" v-show="editing">
@@ -112,7 +112,7 @@
     <loader :visible="!loaded" :label="'Loading issue comments ...'"/>
     <loader :visible="saving" :label="savingLabel"/>
     <confirm ref="deleteIssueConfirm" titleText="Delete issue" confirmText="Delete" cancelText="Cancel">
-      Are you sure to you want to delete the issue?<br />
+      Are you sure to you want to delete the issue and all its associated comments?<br />
       This cannot be undone.
     </confirm>
   </div>
@@ -132,6 +132,7 @@ import {
 } from "@/service/apiService";
 import Confirm from "@/components/Confirm";
 import IssueTicketId from "@/components/IssueTicketId";
+import {mapGetters} from "vuex";
 
 export default {
   components: {
@@ -175,6 +176,11 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapGetters('login', [
+      'isAdmin'
+    ])
+  },
   methods: {
     open(issue) {
       this.visible = true
@@ -208,6 +214,7 @@ export default {
         .catch(() => {
           this.$set(this, 'saving', false)
           this.$set(this, 'error', true)
+          this.errorMessage = "Unable to close the issue. Please verify the data and retry."
         })
     },
     reopenIssue() {
@@ -223,6 +230,7 @@ export default {
         .catch(() => {
           this.$set(this, 'saving', false)
           this.$set(this, 'error', true)
+          this.errorMessage = "Unable to reopen the issue. Please verify the data and retry."
         })
     },
     commentIssue(closeOnComment = false) {
@@ -242,6 +250,7 @@ export default {
         .catch(() => {
           this.$set(this, 'saving', false)
           this.$set(this, 'error', true)
+          this.errorMessage = "Unable to comment the issue. Please verify the data and retry."
         })
     },
     loadComments() {
@@ -271,6 +280,7 @@ export default {
         .catch(() => {
           this.$set(this, 'saving', false)
           this.$set(this, 'error', true)
+          this.errorMessage = "Unable to update the issue. Please verify the data and retry."
         })
     },
     delete() {
@@ -289,6 +299,7 @@ export default {
             .catch(() => {
               this.$set(this, 'saving', false)
               this.$set(this, 'error', true)
+              this.errorMessage = "Unable to delete the issue. Please verify the data and retry."
             })
         })
         .catch(() => {})

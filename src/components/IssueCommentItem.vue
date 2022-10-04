@@ -3,7 +3,7 @@
     <div class="row issue-comment-container pt-2 pb-2">
         <div class="row col-12">
           <div class="row col-12">
-            <div class="col-sm-12 col-md-3 d-flex order-md-2">
+            <div class="col-sm-12 col-md-3 d-flex order-md-2" v-if="canEdit()">
               <div class="flex-grow-1"></div>
               <button type="button" :title="'Modify comment'" class="btn btn-edit" @click="modifyComment" v-if="!editing"></button>
               <button type="button" :title="'Delete comment'" class="btn btn-delete" @click="deleteComment"></button>
@@ -27,7 +27,7 @@
                 <textarea class="form-control form-issue-comment-control" v-model="newComment.comment" placeholder="Write a short comment"></textarea>
                 <small class="form-issue-comment-label">Comment</small>
             </div>
-            <div class="col-12 d-flex justify-content-end mb-2" style="gap: 0.5rem">
+            <div class="col-12 d-flex justify-content-end mb-2" style="gap: 0.5rem" v-if="canEdit()">
               <button class="btn btn-edit-comment btn-outline-secondary pl-3 pr-3" @click="cancelComment()">
                 <span class="btn-title">Cancel</span>
                 <div class="spinner" v-show="saving"></div>
@@ -37,6 +37,11 @@
                 <div class="spinner" v-show="saving"></div>
               </button>
             </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="alert alert-danger" role="alert" v-if="error">
+            {{errorMessage}}
           </div>
         </div>
       </div>
@@ -54,6 +59,7 @@ import { Scrollable } from '../directive/Scrollable'
 import {deleteIssueComment, updateIssueComment} from "@/service/apiService";
 import Loader from "@/components/Loader";
 import Confirm from "@/components/Confirm";
+import {mapGetters} from "vuex";
 
 export default {
   props: {
@@ -87,7 +93,7 @@ export default {
   data() {
     return {
       promise: null,
-      error: true,
+      error: false,
       saving: false,
       errorMessage: "Unable to save the comment. Please retry.",
       newComment: {
@@ -97,9 +103,15 @@ export default {
       savingLabel: '',
     }
   },
-  mounted() {
+  computed: {
+    ...mapGetters('login', [
+      'getUsername'
+    ])
   },
   methods: {
+    canEdit() {
+      return this.getUsername == this.issueComment.userUsername
+    },
     close(resolved) {
       if (this.promise) {
         if (resolved) {
@@ -131,6 +143,7 @@ export default {
         .catch(() => {
           this.$set(this, 'saving', false)
           this.$set(this, 'error', true)
+          this.errorMessage = "Unable to update the comment. Please verify the data and retry."
         })
     },
     deleteComment() {
@@ -148,6 +161,7 @@ export default {
             .catch(() => {
               this.$set(this, 'saving', false)
               this.$set(this, 'error', true)
+              this.errorMessage = "Unable to delete the comment. Please verify the data and retry."
             })
         })
         .catch(() => {})
