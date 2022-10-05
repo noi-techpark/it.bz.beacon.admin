@@ -204,9 +204,7 @@
           this.cluster.removeLayers(this.cluster.getLayers())
         }
 
-        this.mapBeacons.forEach((issue) => {
-          let beacon = issue.beacon
-
+        this.mapBeacons.forEach((beacon) => {
           let position = this.getPosition(beacon)
 
           if (position.lat !== 0 || position.lng !== 0) {
@@ -368,7 +366,13 @@
           })
         }
 
-        this.$set(this, 'mapData', this.tableData.slice(0))
+        let newMapData = [];
+        this.tableData.forEach(tableIssue => {
+          if(!newMapData.find(mapBeacon => mapBeacon.id == tableIssue.beacon.id))
+            newMapData.push(tableIssue.beacon)
+        })
+
+        this.$set(this, 'mapData', newMapData.slice(0))
 
         this.tableData.sort((beaconA, beaconB) => {
           let valA = beaconA
