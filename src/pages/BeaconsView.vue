@@ -50,8 +50,7 @@
   import { mapActions, mapGetters } from 'vuex'
   import { LIST, MAP } from '../store/beacons'
   import Loader from '../components/Loader'
-  import { initMap, getMapStyles } from '../service/googlemaps'
-  import MarkerClusterer  from '@google/markerclusterer'
+  import { initMap } from '../service/googlemaps'
   import router from '../router/index'
   import merge from 'lodash/merge'
   import AddBeaconsModal from '../components/AddBeaconsModal'
@@ -227,7 +226,6 @@
             marker.bindPopup(popupContent).on("popupopen", () => {
               document.getElementById('beaconPopupLink').onclick = (e) => {
                 e.preventDefault();
-                console.log(beacon.id)
                 router.push({name: 'beacon-detail', params: {id: beacon.id}})
               }
             })
@@ -288,43 +286,6 @@
       },
       showDetail(beacon) {
         router.push({ name: 'beacon-detail', params: { id: beacon.id }})
-      },
-      updateMarkers(newMarkers) {
-        /*
-
-          d@vide.bz
-
-          if (this.map != null) {
-            if (this.clusterer === null) {
-              this.clusterer = new MarkerClusterer(this.map, [], {
-                styles: [
-                  {
-                    url: location.origin + require('../assets/img/map/cluster/map_icon_cluster.svg'),
-                    height: 32,
-                    width: 32,
-                    textColor: '#4d4f5c'
-                  }
-                ]
-              })
-            }
-
-            let markersToKeep = this.markers.filter(marker => {
-              return newMarkers.some(newMarker => marker.position.lat() === newMarker.position.lat() && marker.position.lng() === newMarker.position.lng())
-            })
-
-            let markersToRemove = this.markers.filter(marker => !markersToKeep.includes(marker))
-            let markersToAdd = newMarkers.filter(newMarker => {
-              return !markersToKeep.some(marker => {
-                return marker.position.lat() === newMarker.position.lat() && marker.position.lng() === newMarker.position.lng()
-              })
-            })
-
-            this.clusterer.removeMarkers(markersToRemove)
-            this.clusterer.addMarkers(markersToAdd)
-
-            this.markers = markersToAdd.concat(markersToKeep)
-          }
-          */
       },
       showMyPosition(success, failure) {
         let myPositionButtonIcon = document.getElementById('myLocationButtonIcon')
@@ -509,7 +470,7 @@
         this.map.zoomControl.setPosition('topright')
         let map = this.map
 
-        this.map.on('zoomend', function(e) {
+        this.map.on('zoomend', function() {
             sessionStorage.setItem('map_zoom', map.getZoom())
         });
 

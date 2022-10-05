@@ -53,8 +53,7 @@
   import { mapActions, mapGetters } from 'vuex'
   import { LIST, MAP } from '../store/issues'
   import Loader from '../components/Loader'
-  import { initMap, getMapStyles } from '../service/googlemaps'
-  import MarkerClusterer  from '@google/markerclusterer'
+  import { initMap } from '../service/googlemaps'
   import router from '../router/index'
   import merge from 'lodash/merge'
   import SearchGroupFilter from "../components/SearchGroupFilter";
@@ -457,7 +456,7 @@
         this.map.zoomControl.setPosition('topright')
         let map = this.map
 
-        this.map.on('zoomend', function(e) {
+        this.map.on('zoomend', function() {
           sessionStorage.setItem('map_zoom', map.getZoom())
         });
 
