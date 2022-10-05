@@ -46,6 +46,14 @@ const router = new Router({
       }
     },
     {
+      path: '/beacons/:id/issue/:issueId',
+      name: 'beacon-detail',
+      component: BeaconView,
+      meta: {
+        nav: 'beacons'
+      }
+    },
+    {
       path: '/beacons',
       name: 'beacon-new',
       component: BeaconsView,
@@ -64,6 +72,14 @@ const router = new Router({
     {
       path: '/issues/beacon/:id',
       name: 'issue-detail',
+      component: BeaconView,
+      meta: {
+        nav: 'issues'
+      }
+    },
+    {
+      path: '/issues/beacon/:id/issue/:issueId',
+      name: 'issue-detail-issue',
       component: BeaconView,
       meta: {
         nav: 'issues'

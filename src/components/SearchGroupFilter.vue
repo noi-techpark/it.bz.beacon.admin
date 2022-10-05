@@ -1,5 +1,5 @@
 <template>
-  <div class="dropdown">
+  <div class="dropdown d-flex align-items-center">
     <img class="search-icon mt-0" :src="require('../assets/ic_groups_gray.svg')">
     <input type="text" class="beacon-search" v-model="search" placeholder="Group"
            @focus="inputFieldFocused = true"
@@ -137,13 +137,11 @@ export default {
     width: 100%;
     color: #666666;
     border: none;
-    padding-left: 50px;
+    padding-left: 10px;
   }
 
   .search-icon {
-    top: 0px;
-    left: 10px;
-    position: absolute;
+    margin-left: 10px;
     height: 30px;
     width: 30px;
     opacity: 0.3;

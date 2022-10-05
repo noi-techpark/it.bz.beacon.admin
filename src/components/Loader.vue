@@ -30,6 +30,7 @@ export default {
     width: 100%;
     position: absolute;
     top: 0;
+    left: 0;
 
     background: rgba(255, 255, 255, 0.41);
 
@@ -37,6 +38,8 @@ export default {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+
+    z-index: 1000;
 
     @keyframes spinner {
       to {

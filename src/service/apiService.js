@@ -265,7 +265,7 @@ export function createImageForBeacon(beaconId, file) {
 
 // ISSUES
 export function getIssues() {
-  return callGet(PATH_ISSUES + '?onlyUnresolved=true', true)
+  return callGet(PATH_ISSUES + '?onlyUnresolved=false', true)
 }
 
 export function getIssue(id) {
@@ -280,8 +280,36 @@ export function createIssue(issueCreation) {
   return callPost(PATH_ISSUES, true, issueCreation)
 }
 
+export function updateIssue(issueId, issueUpdate) {
+  return callPatch(PATH_ISSUES + '/' + issueId, true, issueUpdate)
+}
+
+export function deleteIssue(issueId) {
+  return callDelete(PATH_ISSUES + '/' + issueId, true)
+}
+
 export function resolveIssue(id, issueSolution) {
   return callPost(PATH_ISSUES + '/' + id + '/resolve', true, issueSolution)
+}
+
+export function updateIssueStatus(issueId, issueStatus) {
+  return callPost(PATH_ISSUES + '/' + issueId + '/status', true, issueStatus)
+}
+
+export function getIssueComments(issueId) {
+  return callGet(PATH_ISSUES + '/' + issueId + '/comments', true)
+}
+
+export function createIssueComment(issueId, issueComment) {
+  return callPost(PATH_ISSUES + '/' + issueId + '/comments', true, issueComment)
+}
+
+export function updateIssueComment(issueId, commentId, issueComment) {
+  return callPatch(PATH_ISSUES + '/' + issueId + '/comments' + '/' + commentId, true, issueComment)
+}
+
+export function deleteIssueComment(issueId, commentId) {
+  return callDelete(PATH_ISSUES + '/' + issueId + '/comments' + '/' + commentId, true)
 }
 
 // INFO

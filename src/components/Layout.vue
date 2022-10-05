@@ -8,9 +8,12 @@
           <div class="row h-100 align-items-center">
             <slot name="search-input"></slot>
           </div>
-          <div class="user-login row align-items-center mr-4">
-            <div class="admin-user-name col text-right">{{ getUsername }}</div>
-            <a class="admin-logout" @click.prevent="logout"><img :src="require('../assets/logout.svg')"></a>
+          <div class="user-login row align-items-center">
+            <div class="col"></div>
+            <a class="admin-logout col-auto d-flex align-items-center" @click.prevent="logout">
+              <div class="admin-user-name col-auto text-right">{{ getUsername }}</div>
+              <img :src="require('../assets/logout.svg')">
+            </a>
           </div>
         </div>
       </div>
@@ -60,15 +63,20 @@ export default {
   }
 
   .search-bar {
-    height: 70px;
+    min-height: 70px;
     position: relative;
     background: white;
     border-left: 1px solid $background-grey;
     z-index: 1;
+    .search-bar-container {
+      padding: 10px 0;
+      width: 100% !important;
+      height: 100% !important;
+    }
   }
 
   .user-login {
-    height: 100%;
+    height: 70px;
     min-width: 200px;
     position: absolute;
     right: 0;
@@ -80,17 +88,18 @@ export default {
     width: 100%;
     color: #666666;
     border: none;
-    padding-left: 50px;
+    padding-left: 10px;
   }
 
   .search-container {
     position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 40px;
   }
 
   .search-icon {
-    top: 20px;
-    left: 10px;
-    position: absolute;
+    margin-left: 10px;
     height: 30px;
     width: 30px;
     opacity: 0.3;

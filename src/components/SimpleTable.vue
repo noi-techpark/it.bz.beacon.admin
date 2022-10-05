@@ -69,6 +69,9 @@
                 <template v-else-if="col.type === 'beacon-status'">
                   <beacon-status :status="get(record, col.key)"/>
                 </template>
+                <template v-else-if="col.type === 'issue-status'">
+                  <issue-status :resolved="get(record, col.key)"/>
+                </template>
                 <template v-else-if="col.type === 'battery-level'">
                   <battery-level :level="get(record, col.key)"/>
                 </template>
@@ -114,6 +117,7 @@
   import get from 'lodash/get'
   import Pagination from './Pagination'
   import BeaconStatus from './BeaconStatus'
+  import IssueStatus from './IssueStatus'
   import BatteryLevel from './BatteryLevel'
   import moment from 'moment'
   import { mapGetters } from 'vuex'
@@ -122,6 +126,7 @@
     components: {
       Pagination,
       BeaconStatus,
+      IssueStatus,
       BatteryLevel
     },
     data() {
@@ -244,7 +249,7 @@
     filters: {
       formatDate: (dateString) => {
         let date = moment(dateString)
-        if (!date.isValid()) {
+        if (dateString === null || dateString === undefined || !date.isValid()) {
           return ''
         }
 

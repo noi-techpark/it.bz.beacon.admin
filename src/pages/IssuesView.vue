@@ -2,15 +2,15 @@
   <!-- eslint-disable -->
   <layout :source="title">
     <template slot="search-input">
-      <div class="row" style="width: 100%">
-        <div class="col-4 p-0 h-100 text-right search-container">
+      <div class="row search-bar-container">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-4 p-0 text-right search-container">
           <img class="search-icon mt-0" :src="require('../assets/ic_search.svg')">
           <input type="text" class="beacon-search" v-model="search" placeholder="Search issue">
         </div>
-        <div class="col-4 p-0 h-100 text-right search-container">
+        <div class="col-xs-12 col-sm-12 col-md-5 col-lg-3 p-0 text-right search-container">
           <search-group-filter ref="searchGroupFilter" v-model="groupFilter" />
         </div>
-        <div class="col-4 p-0 h-100">
+        <div class="col-xs-12 col-sm-12 col-md-7 col-lg-5 p-0 search-container">
           <button type="button" class="btn btn-reset ml-2" @click="resetFilter">Reset</button>
           <button type="button" class="btn btn-reset ml-2" @click="reload">Reload</button>
         </div>
@@ -18,11 +18,18 @@
     </template>
     <template slot="body">
       <div class="row flex-grow-1" style="overflow: hidden">
-        <div id="view-switch" class="position-absolute mt-4 ml-4 btn-group" role="group" aria-label="Switch view">
-          <button type="button" :class="'btn btn-view-switch ' + (viewMode === LIST ? 'btn-view-switch-active' : '')" @click="changeMode(LIST)"><img src="../assets/ic_list.svg"/></button>
-          <button type="button" :class="'btn btn-view-switch ' + (viewMode === MAP ? 'btn-view-switch-active' : '')" @click="changeMode(MAP)"><img src="../assets/ic_map.svg"/></button>
+        <div class="position-absolute w-100">
+          <div id="view-switch" class="col-xs-12 col-sm-6 col-md-3 col-lg-2 btn-group mt-4" role="group" aria-label="Switch view">
+            <button type="button" :class="'btn btn-view-switch ' + (viewMode === LIST ? 'btn-view-switch-active' : '')" @click="changeMode(LIST)"><img src="../assets/ic_list.svg"/></button>
+            <button type="button" :class="'btn btn-view-switch ' + (viewMode === MAP ? 'btn-view-switch-active' : '')" @click="changeMode(MAP)"><img src="../assets/ic_map.svg"/></button>
+          </div>
+          <div id="view-switch" class="col-xs-12 col-sm-6 col-md-3 col-lg-2 btn-group mt-4" role="group" aria-label="Switch view">
+            <button type="button" :class="'btn btn-view-switch ' + (statusFilter === ISSUES_FILTER_OPEN ? 'btn-view-switch-active' : '')" @click="changeIssuesFilter(ISSUES_FILTER_OPEN)">Open</button>
+            <button type="button" :class="'btn btn-view-switch ' + (statusFilter === ISSUES_FILTER_CLOSED ? 'btn-view-switch-active' : '')" @click="changeIssuesFilter(ISSUES_FILTER_CLOSED)">Closed</button>
+            <button type="button" :class="'btn btn-view-switch ' + (statusFilter === ISSUES_FILTER_ALL ? 'btn-view-switch-active' : '')" @click="changeIssuesFilter(ISSUES_FILTER_ALL)">All</button>
+          </div>
         </div>
-        <div class="container mt-6 p-0" v-show="loaded && viewMode === LIST">
+        <div class="container issues-table-container p-0" v-show="loaded && viewMode === LIST">
           <div class="row beacon-display m-4 p-4">
             <div class="col-12 p-0" v-show="tableData.length > 0">
               <simple-table responsive @change="reloadTableData" :cols="tableCols" :data="tableData" :meta="tableMeta" @rowClicked="showDetail"/>
@@ -46,8 +53,7 @@
   import { mapActions, mapGetters } from 'vuex'
   import { LIST, MAP } from '../store/issues'
   import Loader from '../components/Loader'
-  import { initMap, getMapStyles } from '../service/googlemaps'
-  import MarkerClusterer  from '@google/markerclusterer'
+  import { initMap } from '../service/googlemaps'
   import router from '../router/index'
   import merge from 'lodash/merge'
   import SearchGroupFilter from "../components/SearchGroupFilter";
@@ -64,6 +70,9 @@
       return {
         LIST: LIST,
         MAP: MAP,
+        ISSUES_FILTER_OPEN: 'ISSUES_FILTER_OPEN',
+        ISSUES_FILTER_CLOSED: 'ISSUES_FILTER_CLOSED',
+        ISSUES_FILTER_ALL: 'ISSUES_FILTER_ALL',
         title: 'Issues',
         tableCols: [
           {
@@ -100,6 +109,16 @@
             title: 'Status',
             key: 'beacon.status',
             type: 'beacon-status'
+          },
+          {
+            title: 'Last modified',
+            key: 'lastModified',
+            type: 'date'
+          },
+          {
+            title: '',
+            key: 'resolved',
+            type: 'issue-status'
           }
         ],
         mapData: [],
@@ -127,7 +146,8 @@
         myPosition: null,
         clusterer: null,
         google: {},
-        timers: []
+        timers: [],
+        statusFilter: null
       }
     },
     computed: {
@@ -138,6 +158,9 @@
     },
     watch: {
       search() {
+
+        sessionStorage.setItem('issues_search', this.search)
+
         this.reloadTableData()
         this.$set(this, 'mapBeacons', this.mapData.slice(0))
       },
@@ -180,9 +203,7 @@
           this.cluster.removeLayers(this.cluster.getLayers())
         }
 
-        this.mapBeacons.forEach((issue) => {
-          let beacon = issue.beacon
-
+        this.mapBeacons.forEach((beacon) => {
           let position = this.getPosition(beacon)
 
           if (position.lat !== 0 || position.lng !== 0) {
@@ -195,7 +216,7 @@
 
             let marker = this.L.marker([position.lat, position.lng], {icon: customIcon}) //.addTo(this.map);
             marker.on('click', () => {
-              router.push({name: 'beacon-detail', params: {id: beacon.id}})
+              router.push({name: 'beacon-detail', params: {id: beacon.id }})
             })
             let ccc = this.cluster
             // add marker async
@@ -235,7 +256,7 @@
         }
       },
       showDetail(issue) {
-        router.push({name: 'issue-detail', params: {id: issue.beacon.id}})
+        router.push({name: 'issue-detail-issue', params: {id: issue.beacon.id, issueId: issue.id}})
       },
       showMyPosition(success, failure) {
         let myPositionButtonIcon = document.getElementById('myLocationButtonIcon')
@@ -312,6 +333,13 @@
       changeMode(mode) {
         this.$store.dispatch('issues/setViewMode', mode)
       },
+      changeIssuesFilter(statusFilter) {
+        this.statusFilter = statusFilter
+        sessionStorage.setItem("issues_status_filter", this.statusFilter)
+
+        this.reloadTableData()
+        this.$set(this, 'mapBeacons', this.mapData.slice(0))
+      },
       reloadTableData(params = {}) {
         params = merge({
           pagination: this.tableMeta.pagination,
@@ -330,10 +358,20 @@
             return this.groupFilter === '' || issue.beacon.group !== null && issue.beacon.group.name === this.groupFilter
           }).filter((issue) => {
             return issue.beacon.name.toLowerCase().includes(this.search.toLowerCase())
+          }).filter((issue) => {
+            return this.statusFilter === this.ISSUES_FILTER_ALL
+                || (this.statusFilter === this.ISSUES_FILTER_OPEN && !issue.resolved)
+                || (this.statusFilter === this.ISSUES_FILTER_CLOSED && issue.resolved)
           })
         }
 
-        this.$set(this, 'mapData', this.tableData.slice(0))
+        let newMapData = [];
+        this.tableData.forEach(tableIssue => {
+          if(!newMapData.find(mapBeacon => mapBeacon.id == tableIssue.beacon.id))
+            newMapData.push(tableIssue.beacon)
+        })
+
+        this.$set(this, 'mapData', newMapData.slice(0))
 
         this.tableData.sort((beaconA, beaconB) => {
           let valA = beaconA
@@ -408,13 +446,17 @@
       })
       try {
 
+        this.search = sessionStorage.getItem('issues_search') || ''
+        this.groupFilter = sessionStorage.getItem('group_filter') || ''
+
+        this.statusFilter = sessionStorage.getItem('issues_status_filter') || this.ISSUES_FILTER_OPEN
 
         this.L = await initMap();
         this.map = this.L.map('map')
         this.map.zoomControl.setPosition('topright')
         let map = this.map
 
-        this.map.on('zoomend', function(e) {
+        this.map.on('zoomend', function() {
           sessionStorage.setItem('map_zoom', map.getZoom())
         });
 
@@ -455,7 +497,14 @@
     display: inline-block;
   }
 
-  .mt-6 {
+  .issues-table-container {
+    margin-top: 8em !important;
+    @media only screen and (min-width: 576px) {
+      margin-top: 4em !important;
+    }
+  }
+
+  .issues-container {
     margin-top: 4em !important;
   }
 
@@ -592,10 +641,6 @@
 
       }
     }
-  }
-
-  .search-icon {
-    top: 0px
   }
 
 </style>

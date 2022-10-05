@@ -1,17 +1,32 @@
 <template>
   <!-- eslint-disable -->
   <layout :source="title">
+    <template slot="search-input">
+      <div class="row search-bar-container">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-4 p-0 text-right search-container">
+          <img class="search-icon mt-0" :src="require('../assets/ic_search.svg')">
+          <input type="text" class="beacon-search" v-model="search" :placeholder="searchPlaceholder">
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-5 col-lg-3 p-0 text-right search-container">
+          <search-group-filter ref="searchGroupFilter" v-model="groupFilter" />
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-7 col-lg-5 p-0 search-container">
+          <button type="button" class="btn btn-reset ml-2" @click="resetFilter">Reset</button>
+          <button type="button" class="btn btn-reset ml-2" @click="reload">Reload</button>
+        </div>
+      </div>
+    </template>
     <template slot="body">
       <div class="container pb-4" v-show="loaded">
         <div class="row mt-4">
-          <div class="col-8">
+          <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
             <h2 class="beacon-title mt-3" v-if="!editing">{{ beacon.name }}</h2>
             <div v-if="editing">
               <input type="text" class="form-control" v-model="beacon.name" :readonly="!editing" />
               <small class="text-muted">Name</small>
             </div>
           </div>
-          <div class="col-4">
+          <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
             <select class="form-control form-select-group-control" id="role" v-if="isAdmin" v-model="group.id" :disabled="!editing">
               <option v-bind:key="mGroup.id" v-if="groups.length" v-for="mGroup in groups" :value="mGroup.id">{{ mGroup.name }}</option>
             </select>
@@ -70,12 +85,13 @@
                   </div>
                 </div>
               </div>
-              <div :class="'col-6 d-flex flex-column justify-content-between flex-grow-1 flex-shrink-0 border-start ' + getStatusCardClass(beacon)">
+              <div :class="'col-6 d-flex flex-column justify-content-between flex-grow-1 flex-shrink-0 border-start ' + getStatusCardClass(beacon)" >
                 <h5>Device status</h5>
-                <div class="mt-2">
+                <div class="mt-2" v-if="statusLoaded">
                   <h4 class="mb-0"><strong>{{ getStatusText(beacon) }}</strong></h4>
                   <div :class="'small status-label-' + getStatusClassPostfix(beacon)">{{ getStatusDescription(beacon) }}</div>
                 </div>
+                <loader :visible="!statusLoaded" :label="'Loading beacon status ...'"/>
               </div>
             </div>
           </div>
@@ -484,7 +500,7 @@
                     <button type="button" class="btn btn-add-issue" @click="createIssue">New issue</button>
                   </div>
                 </div>
-                <div class="row">
+                <div class="row" v-if="issuesLoaded">
                   <div class="table-responsive mt-3 table-issues-wrapper d-flex flex-column">
                     <div :class="issues.length <= 0 ? 'no-issues flex-grow-1 d-flex justify-content-center align-content-center text-center flex-column' : ''" v-show="issues.length <= 0">
                       <small class="text-muted">No issues reported.</small>
@@ -495,27 +511,34 @@
                         <th scope="col">Problem</th>
                         <th scope="col">Description</th>
                         <th scope="col">Report</th>
+                        <th scope="col">Reporter</th>
                         <th scope="col">Resolved</th>
+                        <th scope="col"></th>
                       </tr>
                       </thead>
                       <tbody>
-                      <tr class="issue-item" :class="{'issue-item-resolved': issue.resolveDate > 0}" v-bind:key="issue.id" v-if="issues.length" v-for="issue in issues" @click.prevent.stop="showIssueDetail(issue)">
+                      <tr class="issue-item" :class="{'issue-item-active': issue.id == activeIssue}" v-bind:key="issue.id" v-if="issues.length" v-for="issue in issues" @click.prevent.stop="showIssueDetail(issue, true)">
                         <td class="align-middle" scope="row">{{ issue.problem }}</td>
                         <td class="align-middle">{{ issue.problemDescription }}</td>
+                        <td class="align-middle">{{ issue.reporter }}</td>
                         <td class="align-middle">{{ issue.reportDate | formatDate }}</td>
                         <td class="align-middle">
-                          <span v-if="issue.resolveDate">{{ issue.resolveDate | formatDate }}</span>
-                          <button type="button" class="btn btn-resolve" v-if="!issue.resolveDate" @click.prevent.stop="resolveIssue(issue)" >Resolve</button>
+                          <span v-if="issue.resolved">{{ issue.resolveDate | formatDate }}</span>
+                        </td>
+                        <td class="align-middle">
+                          <issue-status :resolved="issue.resolved" />
                         </td>
                       </tr>
                       </tbody>
                     </table>
                   </div>
                 </div>
+                <loader :visible="!issuesLoaded" :label="'Loading issues ...'"/>
               </div>
             </div>
           </div>
         </div>
+        <issue-detail-view ref="issueDetailView" @closeIssueDetails="closeIssueDetails()" @issuesUpdate="issuesUpdate()" />
       </div>
       <loader :visible="!loaded" :label="'Loading beacon data...'"/>
       <loader :visible="saving" :label="'Saving beacon data...'"/>
@@ -548,9 +571,14 @@
   import Alert from '../components/Alert'
   import Confirm from '../components/Confirm'
   import { mapGetters, mapActions } from 'vuex'
+  import SearchGroupFilter from "@/components/SearchGroupFilter";
+  import IssueDetailView from "@/components/IssueDetailView";
+  import IssueStatus from "@/components/IssueStatus";
 
   export default {
     components: {
+      IssueDetailView,
+      SearchGroupFilter,
       Layout,
       Loader,
       ImageModal,
@@ -558,7 +586,8 @@
       IssueSolutionModal,
       IssueDetailModal,
       Confirm,
-      Alert
+      Alert,
+      IssueStatus,
     },
     name: 'Beacon',
     data() {
@@ -609,10 +638,13 @@
         },
         infoBackup: {},
         issues: [],
+        activeIssue: 0,
         modeTab: 'IBEACON',
         locationTab: 'GPS',
         images: [],
         loaded: false,
+        statusLoaded: false,
+        issuesLoaded: false,
         editing: false,
         saving: false,
         uploadingImage: false,
@@ -634,6 +666,10 @@
         error: false,
         errorMessage: '',
         imageUploadError: false,
+        search: '',
+        groupFilter: '',
+        searchItem: '',
+        searchPlaceholder: '',
       }
 
       data.group = {
@@ -660,6 +696,14 @@
       ]),
     },
     mounted() {
+      this.searchItem = this.$route.name === 'beacon-detail'? 'beacons_search' :
+        this.$route.name === 'issue-detail' || this.$route.name === 'issue-detail-issue'? 'issues_search': null;
+      this.searchPlaceholder = this.$route.name === 'beacon-detail'? 'Search beacon' :
+        this.$route.name === 'issue-detail' || this.$route.name === 'issue-detail-issue'? 'Search issue': null;
+
+      this.search = sessionStorage.getItem(this.searchItem) || ''
+      this.groupFilter = sessionStorage.getItem('group_filter') || ''
+
       const modeTabBar = new MDCTabBar(document.querySelector('#mode-tab-bar'));
       modeTabBar.listen('MDCTabBar:activated', event =>  {
         switch(event.detail.index) {
@@ -783,16 +827,24 @@
             }
             this.updateControls()
             this.$set(this, 'loaded', true)
+            this.$set(this, 'statusLoaded', true)
+            this.$refs.issueDetailView.scrollToElement()
           })
       })
 
 
-      this.reloadIssues();
+      this.reloadIssues(true);
       this.reloadImages();
 
       this.fetchGroups()
     },
     watch: {
+      search() {
+        sessionStorage.setItem(this.searchItem, this.search)
+      },
+      groupFilter() {
+        sessionStorage.setItem("group_filter", this.groupFilter)
+      },
       editing() {
         this.configResetted = false
         this.controls.frequencySlider.disabled = !this.editing
@@ -917,7 +969,8 @@
         this.error = true;
         this.errorMessage = message
       },
-      reloadIssues() {
+      reloadIssues(onMount = false) {
+        this.$set(this, 'issuesLoaded', false)
         getIssuesForBeacon(this.$route.params.id).then(issues => {
           issues.sort((issueA, issueB) => {
             if (issueA.resolveDate == null && issueB.resolveDate == null) {
@@ -945,6 +998,18 @@
             }
           })
           this.issues = issues
+          if(onMount) {
+            if(this.$route.params.issueId) {
+              let paramIssue = this.issues.filter((issue) => {
+                return this.$route.params.issueId == issue.id
+              })[0]
+              if(paramIssue)
+                this.showIssueDetail(paramIssue)
+              else
+                this.closeIssueDetails()
+            }
+          }
+          this.$set(this, 'issuesLoaded', true)
         })
       },
       reloadImages() {
@@ -987,23 +1052,40 @@
       showImage(image) {
         this.$refs.openImage.open(image)
       },
-      showIssueDetail(issue) {
-        if (issue.resolved) {
-          this.$refs.issueDetailModal.open(issue)
-            .then(() => {})
-            .catch(() => {})
+      showIssueDetail(issue, updateRoute = false) {
+        if(this.activeIssue != issue.id) {
+          this.activeIssue = issue.id
+          if(updateRoute) {
+            let newPath = this.$route.path
+            if(this.$route.params.issueId)
+              newPath = newPath.substring(0, newPath.lastIndexOf("/")) + "/" + issue.id
+            else
+              newPath = newPath + "/issue/" + issue.id
+            history.pushState(
+              {},
+              null,
+              `#${newPath}`
+            );
+          }
+          this.$refs.issueDetailView.open(issue)
         }
+      },
+      closeIssueDetails() {
+        this.activeIssue = 0
+        let newPath = this.$route.path
+        newPath = newPath.substring(0, newPath.lastIndexOf("/issue"))
+        history.pushState(
+          {},
+          null,
+          `#${newPath}`
+        );
+      },
+      issuesUpdate() {
+        this.reload()
+        this.reloadIssues()
       },
       createIssue() {
         this.$refs.issueModal.open()
-          .then(() => {
-            this.reload()
-            this.reloadIssues()
-          })
-          .catch(() => {})
-      },
-      resolveIssue(issue) {
-        this.$refs.resolveIssueModal.open(issue)
           .then(() => {
             this.reload()
             this.reloadIssues()
@@ -1108,6 +1190,7 @@
         })
       },
       reload() {
+        this.$set(this, 'statusLoaded', false)
         getInfo(this.beacon.id).then((info) => {
           Object.assign(this.infoBackup, info)
           Object.assign(this.info, info)
@@ -1124,6 +1207,7 @@
             }
             this.updateControls()
             this.updateMap()
+            this.$set(this, 'statusLoaded', true)
           })
         })
       },
@@ -1319,7 +1403,11 @@
               .catch(() => {})
           })
           .catch(() => {})
-      }
+      },
+      resetFilter() {
+        this.search = ''
+        this.groupFilter = ''
+      },
     },
     filters: {
       formatDate(dateString) {
@@ -1661,12 +1749,25 @@
           color: $text-grey;
         }
 
-        &.issue-item-resolved {
-          cursor: pointer;
+        cursor: pointer;
+
+        &:hover {
+          td {
+            color: $lighter-blue;
+          }
+        }
+
+        &.issue-item-active {
+          cursor: unset;
+          background-color: $lighter-blue;
+
+          td {
+            color: white;
+          }
 
           &:hover {
             td {
-              color: $lighter-blue;
+              color: white;
             }
           }
         }
@@ -1678,6 +1779,30 @@
     height: calc(1.5em + 0.75rem + 2px);
     font-size: 1rem;
     line-height: 1.5;
+  }
+
+
+
+
+  .btn-reset {
+    background: $light-blue;
+    border-color: $light-blue;
+    font-size: 0.8rem;
+    color: white;
+
+    &:hover {
+      background: $lighter-blue;
+      border-color: $lighter-blue;
+      color: white;
+    }
+  }
+
+  .table-header {
+    background-color: $background-grey;
+    color: $grey;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    font-size: 0.8rem;
   }
 
 </style>

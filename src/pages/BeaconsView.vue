@@ -3,18 +3,18 @@
   <!-- eslint-disable -->
   <layout :source="title">
     <template slot="search-input">
-      <div class="row" style="width: 100%">
-      <div class="col-4 p-0 h-100 text-right search-container">
-        <img class="search-icon mt-0" :src="require('../assets/ic_search.svg')">
-        <input type="text" class="beacon-search" v-model="search" placeholder="Search beacon">
-      </div>
-        <div class="col-4 p-0 h-100 text-right search-container">
+      <div class="row search-bar-container">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-4 p-0 text-right search-container">
+          <img class="search-icon mt-0" :src="require('../assets/ic_search.svg')">
+          <input type="text" class="beacon-search" v-model="search" placeholder="Search beacon">
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-5 col-lg-3 p-0 text-right search-container">
           <search-group-filter ref="searchGroupFilter" v-model="groupFilter" />
         </div>
-      <div class="col-4 p-0 h-100">
-        <button type="button" class="btn btn-reset ml-2" @click="resetFilter">Reset</button>
-        <button type="button" class="btn btn-reset ml-2" @click="reload">Reload</button>
-      </div>
+        <div class="col-xs-12 col-sm-12 col-md-7 col-lg-5 p-0 search-container">
+          <button type="button" class="btn btn-reset ml-2" @click="resetFilter">Reset</button>
+          <button type="button" class="btn btn-reset ml-2" @click="reload">Reload</button>
+        </div>
       </div>
     </template>
     <template slot="body">
@@ -50,8 +50,7 @@
   import { mapActions, mapGetters } from 'vuex'
   import { LIST, MAP } from '../store/beacons'
   import Loader from '../components/Loader'
-  import { initMap, getMapStyles } from '../service/googlemaps'
-  import MarkerClusterer  from '@google/markerclusterer'
+  import { initMap } from '../service/googlemaps'
   import router from '../router/index'
   import merge from 'lodash/merge'
   import AddBeaconsModal from '../components/AddBeaconsModal'
@@ -81,24 +80,20 @@
             key: 'name'
           },
           {
-            title: 'Major',
-            key: 'major'
-          },
-          {
-            title: 'Minor',
-            key: 'minor'
-          },
-          {
             title: 'Description',
             key: 'description'
+          },
+          {
+            title: 'POI name',
+            key: 'namePoi'
           },
           {
             title: 'Group',
             key: 'group.name'
           },
           {
-            title: 'Seen',
-            key: 'lastSeen',
+            title: 'Trusted update',
+            key: 'trustedUpdatedAt',
             type: 'date'
           },
           {
@@ -214,8 +209,25 @@
             });
 
             let marker = this.L.marker([position.lat, position.lng], {icon: customIcon}) //.addTo(this.map);
-            marker.on('click', () => {
-              router.push({name: 'beacon-detail', params: {id: beacon.id}})
+            var popupContent = '<div class="popup-item"><h2 class="beacon-title">' + beacon.name + '</h2>' +
+              '<h5 class="beacon-title">Id: ' + beacon.id + '</h5>' +
+              '<span class="text-muted">Group: </span><span>' + beacon.group.name + '</span><br />' +
+              '<span class="text-muted">POI name: </span><span>' + beacon.namePoi + '</span><br />' +
+              '<div class="d-flex">' +
+              '  <span><span class="text-muted">Battery:</span> ' + (beacon.batteryLevel != null && beacon.batteryLevel != undefined? beacon.batteryLevel: '?') + ' %</span><br />' +
+              '  <div class="battery ml-2 ' + (beacon.batteryLevel == null || beacon.batteryLevel == undefined? 'unknown': (beacon.batteryLevel < 5? 'warning': '')) + '">' +
+              '    <div class="chargestatus" style="' + (beacon.batteryLevel != null && beacon.batteryLevel != undefined? 'top:' + (100 - beacon.batteryLevel) + '%;height:' + beacon.batteryLevel + '%': '') + '"></div>' +
+              '  </div>' +
+              '</div>' +
+              '<button id="beaconPopupLink" type="button" class="btn btn-popup-open mt-2">Open</button>'
+            // marker.on('click', () => {
+            //   router.push({name: 'beacon-detail', params: {id: beacon.id}})
+            // })
+            marker.bindPopup(popupContent).on("popupopen", () => {
+              document.getElementById('beaconPopupLink').onclick = (e) => {
+                e.preventDefault();
+                router.push({name: 'beacon-detail', params: {id: beacon.id}})
+              }
             })
             let ccc = this.cluster
             // add marker async
@@ -225,7 +237,7 @@
         })
 
         // this.updateMarkers(newMarkers)
-      }
+      },
     },
     methods: {
       ...mapActions('beacons', [
@@ -274,43 +286,6 @@
       },
       showDetail(beacon) {
         router.push({ name: 'beacon-detail', params: { id: beacon.id }})
-      },
-      updateMarkers(newMarkers) {
-        /*
-
-          d@vide.bz
-
-          if (this.map != null) {
-            if (this.clusterer === null) {
-              this.clusterer = new MarkerClusterer(this.map, [], {
-                styles: [
-                  {
-                    url: location.origin + require('../assets/img/map/cluster/map_icon_cluster.svg'),
-                    height: 32,
-                    width: 32,
-                    textColor: '#4d4f5c'
-                  }
-                ]
-              })
-            }
-
-            let markersToKeep = this.markers.filter(marker => {
-              return newMarkers.some(newMarker => marker.position.lat() === newMarker.position.lat() && marker.position.lng() === newMarker.position.lng())
-            })
-
-            let markersToRemove = this.markers.filter(marker => !markersToKeep.includes(marker))
-            let markersToAdd = newMarkers.filter(newMarker => {
-              return !markersToKeep.some(marker => {
-                return marker.position.lat() === newMarker.position.lat() && marker.position.lng() === newMarker.position.lng()
-              })
-            })
-
-            this.clusterer.removeMarkers(markersToRemove)
-            this.clusterer.addMarkers(markersToAdd)
-
-            this.markers = markersToAdd.concat(markersToKeep)
-          }
-          */
       },
       showMyPosition(success, failure) {
         let myPositionButtonIcon = document.getElementById('myLocationButtonIcon')
@@ -407,7 +382,8 @@
             return this.groupFilter === '' || beacon.group !== null && beacon.group.name === this.groupFilter
           }).filter((beacon) => {
             return beacon.name.toLowerCase().includes(this.search.toLowerCase()) ||
-              beacon.id.toLowerCase().includes(this.search.toLowerCase())
+              beacon.id.toLowerCase().includes(this.search.toLowerCase()) ||
+              beacon.namePoi != null && beacon.namePoi.toLowerCase().includes(this.search.toLowerCase())
           })
         }
 
@@ -494,7 +470,7 @@
         this.map.zoomControl.setPosition('topright')
         let map = this.map
 
-        this.map.on('zoomend', function(e) {
+        this.map.on('zoomend', function() {
             sessionStorage.setItem('map_zoom', map.getZoom())
         });
 
@@ -672,9 +648,4 @@
       }
     }
   }
-
-  .search-icon {
-    top: 0px
-  }
-
 </style>
