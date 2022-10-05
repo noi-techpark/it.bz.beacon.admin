@@ -263,7 +263,14 @@ export default {
       getIssueComments(this.issue.id).then(issueComments => {
         this.issueComments = issueComments
         this.loaded = true
+        this.scrollToElement()
       })
+    },
+    scrollToElement() {
+      setTimeout(() => {
+        var container = this.$el.querySelector(".issue-detail-card");
+        container.scrollIntoView({behavior: "smooth"})
+      }, 200);
     },
     deleteComment(issueComment) {
       this.issueComments = this.issueComments.filter(ic => ic.id != issueComment.id)

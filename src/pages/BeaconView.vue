@@ -828,6 +828,7 @@
             this.updateControls()
             this.$set(this, 'loaded', true)
             this.$set(this, 'statusLoaded', true)
+            this.$refs.issueDetailView.scrollToElement()
           })
       })
 
