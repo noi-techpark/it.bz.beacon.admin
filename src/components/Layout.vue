@@ -8,9 +8,12 @@
           <div class="row h-100 align-items-center">
             <slot name="search-input"></slot>
           </div>
-          <div class="user-login row align-items-center mr-4">
-            <div class="admin-user-name col text-right">{{ getUsername }}</div>
-            <a class="admin-logout" @click.prevent="logout"><img :src="require('../assets/logout.svg')"></a>
+          <div class="user-login row align-items-center">
+            <div class="col"></div>
+            <a class="admin-logout col-auto d-flex align-items-center" @click.prevent="logout">
+              <div class="admin-user-name col-auto text-right">{{ getUsername }}</div>
+              <img :src="require('../assets/logout.svg')">
+            </a>
           </div>
         </div>
       </div>
