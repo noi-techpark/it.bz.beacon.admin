@@ -106,11 +106,11 @@ export default {
         }
       })
     },
-    close(resolved) {
+    close(resolved, beaconIssue) {
       this.visible = false
       if (this.promise) {
         if (resolved) {
-          this.promise.resolve()
+          this.promise.resolve(beaconIssue)
         } else {
           this.promise.reject()
         }
@@ -121,9 +121,9 @@ export default {
       this.saving = true;
       this.error = false
       createIssue(this.issueCreation)
-        .then(() => {
+        .then((beaconIssue) => {
           this.$set(this, 'saving', false)
-          this.close(true)
+          this.close(true, beaconIssue)
         })
         .catch(() => {
           this.$set(this, 'saving', false)
