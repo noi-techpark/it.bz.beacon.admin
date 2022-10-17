@@ -125,7 +125,7 @@
         tableData: [],
         tableMeta: {
           sorting: {
-            col: 'reportDate',
+            col: 'lastModified',
             order: 'desc'
           },
           pagination: {

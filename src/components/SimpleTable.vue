@@ -30,12 +30,10 @@
                 'group-first-col': isGroupFirstCol(index)
               }">
             {{ col.title || '' }}
-            <span class="col-sort" v-if="meta.sorting && col.sorting !== false">
-                <!--<icon-base width="6" height="7" v-if="meta.sorting.col === col.key">-->
-                  <!--<icon-small-arrow-down v-if="meta.sorting.order === 'desc'" />-->
-                  <!--<icon-small-arrow-up v-else />-->
-                <!--</icon-base>-->
-              </span>
+            <span class="col-sort" v-if="meta.sorting && col.sorting !== false && meta.sorting.col === col.key">
+              <img class="order-icon" :src="require('../assets/ic_order_desc.svg')" v-if="meta.sorting.order === 'desc'">
+              <img class="order-icon" :src="require('../assets/ic_order_asc.svg')" v-else />
+            </span>
           </th>
         </tr>
         </thead>
@@ -317,12 +315,18 @@
 
         .col-sort {
           position: absolute;
-          right: 10px;
-          top: 10px;
+          bottom: 10px;
           margin-left: 5px;
 
           .icon-element {
             fill: #fff;
+          }
+
+          .order-icon {
+            margin-left: 10px;
+            height: 20px;
+            width: 20px;
+            opacity: 0.3;
           }
         }
       }
