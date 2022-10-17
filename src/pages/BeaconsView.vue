@@ -97,6 +97,11 @@
             type: 'date'
           },
           {
+            title: 'Last seen',
+            key: 'lastSeen',
+            type: 'date'
+          },
+          {
             title: 'Battery',
             key: 'batteryLevel',
             type: 'battery-level'
