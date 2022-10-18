@@ -125,7 +125,7 @@
         tableData: [],
         tableMeta: {
           sorting: {
-            col: 'reportDate',
+            col: 'lastModified',
             order: 'desc'
           },
           pagination: {
@@ -215,8 +215,25 @@
             });
 
             let marker = this.L.marker([position.lat, position.lng], {icon: customIcon}) //.addTo(this.map);
-            marker.on('click', () => {
-              router.push({name: 'beacon-detail', params: {id: beacon.id }})
+            var popupContent = '<div class="popup-item"><h2 class="beacon-title">' + beacon.name + '</h2>' +
+              '<h5 class="beacon-title">Id: ' + beacon.id + '</h5>' +
+              '<span class="text-muted">Group: </span><span>' + beacon.group.name + '</span><br />' +
+              '<span class="text-muted">POI name: </span><span>' + beacon.namePoi + '</span><br />' +
+              '<div class="d-flex">' +
+              '  <span><span class="text-muted">Battery:</span> ' + (beacon.batteryLevel != null && beacon.batteryLevel != undefined? beacon.batteryLevel: '?') + ' %</span><br />' +
+              '  <div class="battery ml-2 ' + (beacon.batteryLevel == null || beacon.batteryLevel == undefined? 'unknown': (beacon.batteryLevel < 5? 'warning': '')) + '">' +
+              '    <div class="chargestatus" style="' + (beacon.batteryLevel != null && beacon.batteryLevel != undefined? 'top:' + (100 - beacon.batteryLevel) + '%;height:' + beacon.batteryLevel + '%': '') + '"></div>' +
+              '  </div>' +
+              '</div>' +
+              '<button id="beaconPopupLink" type="button" class="btn btn-popup-open mt-2">Open</button>'
+            // marker.on('click', () => {
+            //   router.push({name: 'beacon-detail', params: {id: beacon.id}})
+            // })
+            marker.bindPopup(popupContent).on("popupopen", () => {
+              document.getElementById('beaconPopupLink').onclick = (e) => {
+                e.preventDefault();
+                router.push({name: 'issue-detail', params: {id: beacon.id}})
+              }
             })
             let ccc = this.cluster
             // add marker async

@@ -1086,9 +1086,10 @@
       },
       createIssue() {
         this.$refs.issueModal.open()
-          .then(() => {
+          .then((issue) => {
             this.reload()
             this.reloadIssues()
+            this.showIssueDetail(issue, true)
           })
           .catch(() => {})
       },
