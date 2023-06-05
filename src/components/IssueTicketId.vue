@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: NOI Techpark <digital@noi.bz.it>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <template>
   <span class="p-0 d-flex align-items-start" ><span :class='"badge badge-pill issue-status-pill" + statusClass'>{{ ticketId? '#' + ticketId: 'No Ticket-Id' }}</span></span>
 </template>

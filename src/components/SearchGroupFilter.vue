@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: NOI Techpark <digital@noi.bz.it>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <template>
   <div class="dropdown d-flex align-items-center">
     <img class="search-icon mt-0" :src="require('../assets/ic_groups_gray.svg')">

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: NOI Techpark <digital@noi.bz.it>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { getUsers, getUser, createUser, updateUser, deleteUser } from '../service/apiService'
 
 const SET_USERS = 'SET_USERS'

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: NOI Techpark <digital@noi.bz.it>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <template>
   <div class="col-12 p-0"><span :class='"badge badge-pill badge-status " + statusClass'>{{ statusText }}</span></div>
 </template>

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: NOI Techpark <digital@noi.bz.it>
+
+SPDX-License-Identifier: CC0-1.0
+-->
+
 # Beacon Südtirol Administration Web Application
 The web application to administrate the beacons of the Beacon Südtirol project.
 

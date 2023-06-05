@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: NOI Techpark <digital@noi.bz.it>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <template>
   <!-- eslint-disable -->
     <div class="flex-grow-1 flex-shrink-1 d-flex flex-column p-0" slot="modal">

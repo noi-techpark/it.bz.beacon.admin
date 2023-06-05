@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: NOI Techpark <digital@noi.bz.it>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { getGroups, getGroup, createGroup, updateGroup, deleteGroup, getUsersForGroup } from '../service/apiService'
 
 const SET_GROUPS = 'SET_GROUPS'

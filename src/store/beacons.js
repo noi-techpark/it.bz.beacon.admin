@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: NOI Techpark <digital@noi.bz.it>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { getBeacons, getBeacon } from '../service/apiService'
 
 const SET_BEACONS = 'SET_BEACONS'

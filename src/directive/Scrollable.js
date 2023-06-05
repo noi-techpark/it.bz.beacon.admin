@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: NOI Techpark <digital@noi.bz.it>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 /**
  * This is to fix mobile Safari scroll bugs.
  * 1. Enable smooth touch scroll
