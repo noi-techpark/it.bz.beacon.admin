@@ -7,6 +7,7 @@ SPDX-License-Identifier: CC0-1.0
 # Beacon Südtirol Administration Web Application
 The web application to administrate the beacons of the Beacon Südtirol project.
 
+![REUSE Compliance](https://github.com/noi-techpark/it.bz.beacon.admin/actions/workflows/reuse.yml/badge.svg)
 [![CI/CD](https://github.com/noi-techpark/it.bz.beacon.admin/actions/workflows/main.yml/badge.svg)](https://github.com/noi-techpark/it.bz.beacon.admin/actions/workflows/main.yml)
 
 ## Table of contents
